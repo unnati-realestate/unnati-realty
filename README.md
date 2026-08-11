@@ -1,5 +1,8 @@
+<p align="center">
+  <img src="./unnati%20logo%20fnal.png" alt="Unnati Realty Logo" width="250">
+</p>
 
-Update README.md# 🏡 Unnati Realty
+# 🏠 Unnati Realty
 
 Welcome to **Unnati Realty** – Your Trusted Real Estate Partner in Mira Road & Bhayandar.
 
