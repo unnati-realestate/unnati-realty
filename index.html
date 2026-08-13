@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unnati Realty | Buy, Sell & Rent Properties</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;color:#17233c;background:#f7f9fc;line-height:1.6}
+header{background:#0b1f3a;color:white;padding:15px 6%;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1000}
+.logo{display:flex;align-items:center;gap:12px}
+.logo img{width:55px;height:55px;object-fit:contain;background:white;border-radius:50%}
+.logo h1{font-size:25px;color:#f5c400}
+.logo span{display:block;font-size:12px;color:white}
+nav a{color:white;text-decoration:none;margin-left:22px;font-weight:bold}
+nav a:hover{color:#f5c400}
+
+.hero{background:linear-gradient(rgba(5,20,45,.82),rgba(5,20,45,.82)),url('unnati logo fnal.png');background-size:cover;background-position:center;padding:90px 6%;text-align:center;color:white}
+.hero h2{font-size:45px;margin-bottom:15px}
+.hero h2 span{color:#f5c400}
+.hero p{font-size:20px;margin-bottom:28px}
+.btn{display:inline-block;background:#f5c400;color:#0b1f3a;padding:13px 25px;border-radius:7px;text-decoration:none;font-weight:bold;margin:5px}
+.btn.dark{background:#0b1f3a;color:white;border:1px solid #f5c400}
+
+section{padding:55px 6%}
+.title{text-align:center;margin-bottom:35px}
+.title h2{font-size:32px;color:#0b1f3a}
+.title p{color:#666}
+
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.card{background:white;padding:28px;border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,.08);text-align:center}
+.card .icon{font-size:42px;margin-bottom:12px}
+.card h3{margin-bottom:10px;color:#0b1f3a}
+
+.properties{background:#eef3f8}
+.property-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.property{background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,.08)}
+.property-top{height:150px;background:linear-gradient(135deg,#0b1f3a,#214a7c);display:flex;align-items:center;justify-content:center;color:#f5c400;font-size:55px}
+.property-content{padding:20px}
+.property-content h3{color:#0b1f3a;margin-bottom:8px}
+.property-content p{color:#666}
+
+.about{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.about-box{background:#0b1f3a;color:white;padding:35px;border-radius:15px}
+.about-box h2{color:#f5c400;margin-bottom:15px}
+.contact{background:#0b1f3a;color:white}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+.contact-box{padding:25px}
+.contact-box h3{color:#f5c400;margin-bottom:15px}
+.contact-box a{color:white;text-decoration:none}
+footer{background:#061327;color:white;text-align:center;padding:25px}
+footer strong{color:#f5c400}
+
+.whatsapp{position:fixed;right:20px;bottom:20px;background:#25d366;color:white;width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;text-decoration:none;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:2000}
+
+@media(max-width:800px){
+nav{display:none}
+.hero h2{font-size:34px}
+.cards,.property-grid,.about,.contact-grid{grid-template-columns:1fr}
+section{padding:40px 5%}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">
+<img src="unnati logo fnal.png" alt="Unnati Realty Logo">
+<div>
+<h1>UNNATI REALTY</h1>
+<span>Trust • Property • Relationship</span>
+</div>
+</div>
+
+<nav>
+<a href="#home">Home</a>
+<a href="#properties">Properties</a>
+<a href="#about">About</a>
+<a href="#contact">Contact</a>
+</nav>
+</header>
+
+<section class="hero" id="home">
+<h2>Find Your <span>Dream Property</span></h2>
+<p>Buy • Sell • Rent — Your Trusted Real Estate Partner</p>
+<a class="btn" href="#properties">View Properties</a>
+<a class="btn dark" href="#contact">Contact Us</a>
+</section>
+
+<section>
+<div class="title">
+<h2>Our Real Estate Services</h2>
+<p>Complete property solutions under one roof</p>
+</div>
+
+<div class="cards">
+<div class="card">
+<div class="icon">🏠</div>
+<h3>Property for Sale</h3>
+<p>Find residential and commercial properties that match your requirements and budget.</p>
+</div>
+
+<div class="card">
+<div class="icon">🔑</div>
+<h3>Property for Rent</h3>
+<p>Quality flats, homes, offices and commercial spaces available for rent.</p>
+</div>
+
+<div class="card">
+<div class="icon">🤝</div>
+<h3>Property Purchase</h3>
+<p>Professional assistance from property selection to final transaction.</p>
+</div>
+</div>
+</section>
+
+<section class="properties" id="properties">
+<div class="title">
+<h2>Featured Properties</h2>
+<p>Latest property opportunities from Unnati Realty</p>
+</div>
+
+<div class="property-grid">
+
+<div class="property">
+<div class="property-top">🏢</div>
+<div class="property-content">
+<h3>Residential Properties</h3>
+<p>1 BHK • 2 BHK • 3 BHK Flats</p>
+<p>Sale & Rental options available.</p>
+<a class="btn" href="#contact">Enquire Now</a>
+</div>
+</div>
+
+<div class="property">
+<div class="property-top">🏠</div>
+<div class="property-content">
+<h3>Rental Properties</h3>
+<p>Flats, Homes & Apartments</p>
+<p>Suitable options for families and professionals.</p>
+<a class="btn" href="#contact">Enquire Now</a>
+</div>
+</div>
+
+<div class="property">
+<div class="property-top">🏬</div>
+<div class="property-content">
+<h3>Commercial Properties</h3>
+<p>Shops • Offices • Commercial Spaces</p>
+<p>Prime locations and investment opportunities.</p>
+<a class="btn" href="#contact">Enquire Now</a>
+</div>
+</div>
+
+</div>
+</section>
+
+<section id="about">
+<div class="about">
+<div>
+<h2>About Unnati Realty</h2>
+<p>
+Unnati Realty is your trusted real estate partner for buying,
+selling and renting residential and commercial properties.
+</p>
+<br>
+<p>
+Our goal is to provide transparent guidance, genuine property
+options and professional customer support throughout the
+property transaction.
+</p>
+</div>
+
+<div class="about-box">
+<h2>Our Promise</h2>
+<p><strong>Trust se shuruaat, Rishte Zindagi Bhar.</strong></p>
+<br>
+<p>We believe that every property transaction should begin with trust and end with a long-term relationship.</p>
+</div>
+</div>
+</section>
+
+<section class="contact" id="contact">
+<div class="title">
+<h2 style="color:#f5c400">Contact Unnati Realty</h2>
+<p style="color:white">Let us help you find the right property.</p>
+</div>
+
+<div class="contact-grid">
+
+<div class="contact-box">
+<h3>Get In Touch</h3>
+<p>📞 <a href="tel:+919658364364">+91 96583 64364</a></p>
+<p>📞 <a href="tel:+919107364364">+91 91073 64364</a></p>
+<p>✉️ <a href="mailto:unnatienterprises1118@gmail.com">unnatienterprises1118@gmail.com</a></p>
+</div>
+
+<div class="contact-box">
+<h3>Our Services</h3>
+<p>✔ Property Sale</p>
+<p>✔ Property Purchase</p>
+<p>✔ Property Rental</p>
+<p>✔ Residential & Commercial Properties</p>
+</div>
+
+</div>
+</section>
+
+<footer>
+<p>© 2026 <strong>Unnati Realty</strong>. All Rights Reserved.</p>
+<p>Buy • Sell • Rent</p>
+</footer>
+
+<a class="whatsapp" href="https://wa.me/919658364364" target="_blank">☘</a>
+
+</body>
+</html>
