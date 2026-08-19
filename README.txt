@@ -1,0 +1,1 @@
+Realynk V8 Beta: 100 broker records. Responsive/mobile-first broker directory with search, profiles, share-link concept and WhatsApp actions. Production still requires secure hosting, real database, authentication, verification/consent, and legal pages.
