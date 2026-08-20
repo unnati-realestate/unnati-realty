@@ -1,0 +1,9 @@
+{
+  "name":"Realynk – Trusted Property Network",
+  "short_name":"Realynk",
+  "start_url":"./index.html",
+  "display":"standalone",
+  "background_color":"#f5f7fb",
+  "theme_color":"#0b3768",
+  "description":"Realynk property and broker network"
+}
