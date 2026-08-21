@@ -11,7 +11,8 @@ self.addEventListener('fetch',e=>{
    const text=await r.clone().text();
    const patched=text.replace(/<section id="post" class="screen">[\s\S]*?<\/section>/,POST_SECTION);
    const final=patched.replace('</body>',POST_SCRIPT+'</body>');
-   const out=new Response(final,{status:r.status,statusText:r.statusText,headers:r.headers});
+   const h=new Headers(r.headers);h.delete('content-encoding');h.delete('content-length');h.set('content-type','text/html;charset=utf-8');
+   const out=new Response(final,{status:r.status,statusText:r.statusText,headers:h});
    caches.open(CACHE).then(c=>c.put(e.request,out.clone()));
    return out;
   }).catch(()=>caches.match(e.request).then(c=>c||caches.match('./index.html'))));
