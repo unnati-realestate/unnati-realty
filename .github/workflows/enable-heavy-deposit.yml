@@ -15,26 +15,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Add Heavy Deposit script to index
+      - name: Enable Heavy Deposit home tile
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p = Path('index.html')
-          s = p.read_text(encoding='utf-8')
-          marker = '<script src="./heavy-deposit.js?v=20"></script>'
+
+          # Load the home page and add the Heavy Deposit script.
+          index = Path('index.html')
+          s = index.read_text(encoding='utf-8')
+          marker = '<script src="./heavy-deposit.js?v=21"></script>'
           if marker not in s:
               s = s.replace('</body>', marker + '</body>')
-              p.write_text(s, encoding='utf-8')
+              index.write_text(s, encoding='utf-8')
+
+          # Make the Heavy Deposit tile appear before Post Property,
+          # so it sits directly below Commercial on the two-column grid.
+          js = Path('heavy-deposit.js')
+          h = js.read_text(encoding='utf-8')
+          old = 'post.parentNode.insertBefore(b,post.nextSibling);'
+          new = 'post.parentNode.insertBefore(b,post);'
+          if old in h:
+              h = h.replace(old, new)
+              js.write_text(h, encoding='utf-8')
           PY
 
       - name: Commit and push
         run: |
-          if git diff --quiet -- index.html; then
-            echo 'Heavy Deposit script already enabled.'
+          if git diff --quiet -- index.html heavy-deposit.js; then
+            echo 'Heavy Deposit home tile is already enabled.'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html
-          git commit -m 'Add Heavy Deposit property option to home'
+          git add index.html heavy-deposit.js
+          git commit -m 'Place Heavy Deposit below Commercial'
           git push
