@@ -10,7 +10,7 @@
     if(!commercial||!post)return;
     if(!document.getElementById('heavyDeposit')){
       var b=document.createElement('button');b.id='heavyDeposit';b.type='button';b.innerHTML='🔐<b data-hd>Heavy Deposit</b>';
-      post.parentNode.insertBefore(b,post.nextSibling);
+      post.parentNode.insertBefore(b,post);
       b.onclick=function(){var search=document.getElementById('search');if(search){search.value='Heavy Deposit';search.dispatchEvent(new Event('input',{bubbles:true}));}var title=document.getElementById('filterTitle'),bar=document.getElementById('filterBar');if(bar){bar.style.display='flex';if(title)title.textContent=hd('heavyDeposit')+' '+hd('featured');}};
     }
     var type=document.getElementById('type');
