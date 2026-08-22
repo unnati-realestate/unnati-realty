@@ -1,0 +1,56 @@
+name: Fix broker edit option
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Add Edit Profile button
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          if 'id="editAccount"' not in s:
+              old = '</div></div><div class="field"><label data-i18n="fullName">'
+              new = '''</div></div><button id="editAccount" class="back full" type="button" onclick="document.getElementById('agentName').focus();window.scrollTo(0,document.getElementById('agentName').getBoundingClientRect().top+window.scrollY-110)">✎ प्रोफाइल एडिट करें</button><div class="field"><label data-i18n="fullName">'''
+              if old not in s:
+                  raise SystemExit('Account form marker not found')
+              p.write_text(s.replace(old, new, 1), encoding='utf-8')
+          PY
+
+      - name: Commit fix
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "No change needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add broker profile edit button"
+          git push
+
+      - name: Remove temporary workflow
+        if: always()
+        shell: bash
+        run: |
+          rm -f .github/workflows/fix-broker-edit.yml .github/workflows/add-broker-edit-option.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Remove temporary broker edit workflow"
+            git push
+          fi
