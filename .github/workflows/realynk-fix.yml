@@ -1,0 +1,50 @@
+name: Realynk Fix
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch Realynk app
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text()
+          if 'REALYNK_PATCH_V2' in s:
+              print('Patch already applied')
+              raise SystemExit(0)
+          s=s.replace("var photos=[],videoUrl=null,videoFile=null,filter='';", "var photos=[],videoUrl=null,videoFile=null,filter='',editId=null,editExistingPhotos=[];")
+          old=re.search(r"function card\(p\)\{.*?\}function render\(", s)
+          if not old:
+              raise SystemExit('card function not found')
+          new=r'''function card(p){var media=(p.photos||[]).map(function(x){return'<img src="'+x+'" alt="'+esc(t('propertyTitle'))+'">'}).join('');var phone=esc(p.phone||'9658364364').replace(/[^0-9]/g,'');var type=String(p.type||'').toLowerCase(),details='';if(type==='sale')details='<div class="details"><div class="detail"><span>'+t('carpet')+'</span><b>'+esc(p.size||t('notSpecified'))+'</b></div></div>';else if(type==='rent')details='<div class="details"><div class="detail"><span>'+t('rentLabel')+'</span><b>'+esc(p.price||t('onRequest'))+'</b></div><div class="detail"><span>'+t('depositLabel')+'</span><b>'+esc(p.deposit||t('notSpecified'))+'</b></div></div>';else details='<div class="details"><div class="detail"><span>'+t('type')+'</span><b>'+esc(p.type||t('propertyTitle'))+'</b></div><div class="detail"><span>'+t('price')+'</span><b>'+esc(p.price||t('onRequest'))+'</b></div></div>';var ownerActions=p.mine?'<div style="display:flex;gap:8px;margin-top:10px"><button class="back" type="button" onclick="editProperty(\''+p.id+'\')">✎ Edit</button><button class="back" type="button" onclick="deleteProperty(\''+p.id+'\')">🗑 Delete</button></div>':'';return'<div class="panel property"><h3>'+esc(p.title||t('propertyTitle'))+'</h3><div>📍 '+esc(p.area||t('locationNotSpecified'))+'</div>'+details+'<div style="margin-top:10px">'+esc(p.desc||'')+'</div>'+(media?'<div class="listingMedia">'+media+'</div>':'')+'<div><span class="badge">'+t('active')+'</span></div>'+ownerActions+'<div style="margin-top:10px"><button class="primary" type="button" onclick="window.open(\'https://wa.me/91'+phone+'\',\'_blank\')">WhatsApp</button></div></div>'}function render('''
+          s=s[:old.start()]+new+s[old.end()-len('function render('):]
+          old_handlers="$('buy').onclick=function(){filter='Buy';$('search').value='';show('home')};$('sale').onclick=function(){filter='Sale';$('search').value='';show('home')};$('rent').onclick=function(){filter='Rent';$('search').value='';show('home')};$('commercial').onclick=function(){filter='Commercial';$('search').value='';show('home')};"
+          new_handlers="function openCategory(kind){filter=kind;$('search').value='';show('home');render();setTimeout(function(){var b=$('filterBar');if(b)b.scrollIntoView({behavior:'smooth',block:'start'})},60)}$('buy').onclick=function(){openCategory('Buy')};$('sale').onclick=function(){openCategory('Sale')};$('rent').onclick=function(){openCategory('Rent')};$('commercial').onclick=function(){openCategory('Commercial')};"
+          if old_handlers not in s:
+              raise SystemExit('category handlers not found')
+          s=s.replace(old_handlers,new_handlers)
+          marker="$('saveAccount').onclick=function(){"
+          idx=s.find(marker)
+          if idx<0: raise SystemExit('saveAccount marker not found')
+          inject=r'''function editProperty(id){var p=properties.find(function(x){return String(x.id)===String(id)});if(!p)return;editId=p.id;editExistingPhotos=(p.photos||[]).slice();photos=[];videoFile=null;videoUrl=null;$('photoGrid').innerHTML='';$('videoBox').style.display='none';$('title').value=p.title||'';$('area').value=p.area||'';$('type').value=p.type||'Buy';$('price').value=p.price||'';$('deposit').value=p.deposit||'';$('size').value=p.size||'';$('desc').value=p.desc||'';$('phone').value=p.phone||profile.accountPhone||'9658364364';updateListingFields();$('submit').textContent='✎ Update Property';show('post');toast('editMode')}function deleteProperty(id){if(!confirm('Delete this property?'))return;properties=properties.filter(function(x){return String(x.id)!==String(id)});saveProperties();render();dashboard();toast('propertyDeleted')}var oldSubmit=$('submit').onclick;$('submit').onclick=function(){var title=$('title').value.trim();if(!title){toast('propertyRequired');$('title').focus();return}if(!profile.agentName){toast('accountFirst');show('account');return}var p=editId?properties.find(function(x){return String(x.id)===String(editId)}):null;if(p){p.title=title;p.area=$('area').value.trim();p.price=$('price').value.trim();p.type=$('type').value;p.deposit=$('deposit').value.trim();p.size=$('size').value.trim();p.desc=$('desc').value.trim();p.phone=$('phone').value.trim()||profile.accountPhone||'9658364364';var jobs=photos.map(function(f){return new Promise(function(resolve){var r=new FileReader();r.onload=function(){resolve(r.result)};r.readAsDataURL(f)})});Promise.all(jobs).then(function(arr){if(arr.length)p.photos=arr;if(saveProperties()){editId=null;editExistingPhotos=[];photos=[];videoFile=null;videoUrl=null;$('submit').textContent=t('submit');$('photoGrid').innerHTML='';$('counter').textContent='0 / 10 '+(lang==='en'?'photos selected':lang==='hi'?'फोटो चुनी गईं':lang==='mr'?'फोटो निवडले':'ફોટા પસંદ');$('videoBox').style.display='none';toast('propertyUpdated');show('dashboard')}});return}oldSubmit()};
+'''
+          s=s[:idx]+inject+s[idx:]
+          s=s.replace("editAccount:'Edit Profile',home:'Home'", "editAccount:'Edit Profile',editMode:'Edit mode: update your property',propertyUpdated:'Property updated successfully',propertyDeleted:'Property deleted successfully',home:'Home'")
+          s=s.replace("editAccount:'प्रोफाइल एडिट करें',home:'होम'", "editAccount:'प्रोफाइल एडिट करें',editMode:'एडिट मोड: अपनी प्रॉपर्टी अपडेट करें',propertyUpdated:'प्रॉपर्टी सफलतापूर्वक अपडेट हुई',propertyDeleted:'प्रॉपर्टी डिलीट हो गई',home:'होम'")
+          s=s.replace("editAccount:'प्रोफाइल एडिट करा',home:'होम'", "editAccount:'प्रोफाइल एडिट करा',editMode:'एडिट मोड: तुमची प्रॉपर्टी अपडेट करा',propertyUpdated:'प्रॉपर्टी यशस्वीपणे अपडेट झाली',propertyDeleted:'प्रॉपर्टी हटवली',home:'होम'")
+          s=s.replace("editAccount:'પ્રોફાઇલ એડિટ કરો',home:'હોમ'", "editAccount:'પ્રોફાઇલ એડિટ કરો',editMode:'એડિટ મોડ: તમારી પ્રોપર્ટી અપડેટ કરો',propertyUpdated:'પ્રોપર્ટી સફળતાપૂર્વક અપડેટ થઈ',propertyDeleted:'પ્રોપર્ટી ડિલીટ થઈ',home:'હોમ'")
+          s=s.replace('</script>', '<!-- REALYNK_PATCH_V2 -->\n</script>')
+          p.write_text(s)
+          PY
+          git config user.name "Realynk Bot"
+          git config user.email "actions@github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Fix property category navigation and listing edit"
+          git push
