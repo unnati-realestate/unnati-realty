@@ -1,0 +1,55 @@
+name: Realynk Heavy Deposit Patch
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: ${{ !contains(github.event.head_commit.message, 'Realynk Heavy Deposit Patch') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch Realynk
+        run: |
+          python - <<'PY2'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          marker='REALYNK_HEAVY_DEPOSIT_PATCH_V1'
+          if marker in s:
+              raise SystemExit
+          patch=r'''<script>
+/* REALYNK_HEAVY_DEPOSIT_PATCH_V1 */
+(function(){
+  var heavy={
+    en:{name:'Heavy Deposit',title:'Heavy Deposit Property',amount:'Heavy Deposit Amount',monthly:'Monthly Maintenance / Charges',agreement:'Agreement Period',notice:'Notice Period',refundable:'Refundable Deposit',refund:'Refund Terms',terms:'Additional Terms / Conditions',amountPh:'e.g. ₹25,00,000',monthlyPh:'e.g. ₹3,000 / month or ₹0',agreementPh:'e.g. 3 Years',noticePh:'e.g. 1 Month',refundText:'Full deposit refundable on vacating after the applicable notice period, as per agreement.'},
+    hi:{name:'हेवी डिपॉजिट',title:'हेवी डिपॉजिट प्रॉपर्टी',amount:'हेवी डिपॉजिट राशि',monthly:'मासिक मेंटेनेंस / चार्ज',agreement:'एग्रीमेंट अवधि',notice:'नोटिस पीरियड',refundable:'रिफंडेबल डिपॉजिट',refund:'रिफंड की शर्तें',terms:'अतिरिक्त शर्तें',amountPh:'जैसे ₹25,00,000',monthlyPh:'जैसे ₹3,000 / महीना या ₹0',agreementPh:'जैसे 3 वर्ष',noticePh:'जैसे 1 महीना',refundText:'लागू नोटिस पीरियड के बाद प्रॉपर्टी खाली करने पर, एग्रीमेंट के अनुसार पूरा डिपॉजिट वापस होगा।'},
+    mr:{name:'हेवी डिपॉझिट',title:'हेवी डिपॉझिट प्रॉपर्टी',amount:'हेवी डिपॉझिट रक्कम',monthly:'मासिक मेंटेनन्स / चार्जेस',agreement:'कराराचा कालावधी',notice:'नोटीस पीरियड',refundable:'परतफेडयोग्य डिपॉझिट',refund:'परतफेडीच्या अटी',terms:'अतिरिक्त अटी',amountPh:'उदा. ₹25,00,000',monthlyPh:'उदा. ₹3,000 / महिना किंवा ₹0',agreementPh:'उदा. 3 वर्षे',noticePh:'उदा. 1 महिना',refundText:'लागू नोटीस पीरियडनंतर प्रॉपर्टी रिकामी केल्यावर, करारानुसार संपूर्ण डिपॉझिट परत मिळेल.'},
+    gu:{name:'હેવી ડિપોઝિટ',title:'હેવી ડિપોઝિટ પ્રોપર્ટી',amount:'હેવી ડિપોઝિટ રકમ',monthly:'માસિક મેન્ટેનન્સ / ચાર્જિસ',agreement:'એગ્રીમેન્ટ સમયગાળો',notice:'નોટિસ પિરિયડ',refundable:'રિફંડેબલ ડિપોઝિટ',refund:'રિફંડની શરતો',terms:'વધારાની શરતો',amountPh:'જેમ કે ₹25,00,000',monthlyPh:'જેમ કે ₹3,000 / મહિનો અથવા ₹0',agreementPh:'જેમ કે 3 વર્ષ',noticePh:'જેમ કે 1 મહિનો',refundText:'લાગુ નોટિસ પિરિયડ પછી પ્રોપર્ટી ખાલી કરતાં, એગ્રીમેન્ટ મુજબ સંપૂર્ણ ડિપોઝિટ પરત મળશે.'}
+  };
+  Object.keys(heavy).forEach(function(k){L[k].heavyDeposit=heavy[k].name;});
+  var opt=document.createElement('option');opt.value='Heavy Deposit';opt.setAttribute('data-i18n','heavyDeposit');$('type').appendChild(opt);
+  var hb=document.createElement('button');hb.id='heavyDeposit';hb.type='button';hb.innerHTML='💰<b data-i18n="heavyDeposit">'+heavy[lang].name+'</b>';hb.className='quickHeavy';$('commercial').parentNode.insertBefore(hb,$('postQuick'));
+  var st=document.createElement('style');st.textContent='.quickHeavy{min-height:86px;background:#fff;border:1px solid var(--line);border-radius:16px;color:var(--navy);font-weight:800;font-size:22px;cursor:pointer}.quickHeavy b{display:block;font-size:14px;margin-top:6px}.quickHeavy:active{transform:scale(.98)}';document.head.appendChild(st);
+  var box=document.createElement('div');box.id='heavyFields';box.style.display='none';box.innerHTML='<div class="field"><label id="hdAmountLabel"></label><input id="hdAmount"></div><div class="field"><label id="hdMonthlyLabel"></label><input id="hdMonthly"></div><div class="field"><label id="hdAgreementLabel"></label><input id="hdAgreement"></div><div class="field"><label id="hdNoticeLabel"></label><input id="hdNotice"></div><div class="field"><label id="hdRefundableLabel"></label><select id="hdRefundable"><option value="Yes">Yes</option><option value="No">No</option></select></div><div class="field"><label id="hdRefundLabel"></label><textarea id="hdRefund"></textarea></div><div class="field"><label id="hdTermsLabel"></label><textarea id="hdTerms"></textarea></div>';$('sizeField').after(box);
+  function hdText(){var h=heavy[lang]||heavy.en;[['hdAmountLabel',h.amount],['hdMonthlyLabel',h.monthly],['hdAgreementLabel',h.agreement],['hdNoticeLabel',h.notice],['hdRefundableLabel',h.refundable],['hdRefundLabel',h.refund],['hdTermsLabel',h.terms]].forEach(function(x){$(x[0]).textContent=x[1]});[['hdAmount',h.amountPh],['hdMonthly',h.monthlyPh],['hdAgreement',h.agreementPh],['hdNotice',h.noticePh],['hdRefund',h.refundText]].forEach(function(x){$(x[0]).placeholder=x[1]});$('hdRefundable').options[0].textContent=lang==='hi'?'हाँ':lang==='mr'?'होय':lang==='gu'?'હા':'Yes';$('hdRefundable').options[1].textContent=lang==='hi'?'नहीं':lang==='mr'?'नाही':lang==='gu'?'ના':'No';$('heavyDeposit').querySelector('b').textContent=h.name;var o=$('type').querySelector('option[value="Heavy Deposit"]');if(o)o.textContent=h.name;}
+  function hdMode(){var is=$('type').value==='Heavy Deposit';$('heavyFields').style.display=is?'block':'none';if(is){$('depositField').style.display='none';$('sizeField').style.display='none';}}
+  var baseApply=applyLanguage;applyLanguage=function(){baseApply();hdText();hdMode();};
+  var baseType=$('type').onchange;$('type').onchange=function(){baseType();hdMode();};
+  hb.onclick=function(){$('search').value=heavy[lang].name;filter='Heavy Deposit';render();};
+  var baseSubmit=$('submit').onclick;$('submit').onclick=function(){if($('type').value==='Heavy Deposit'){var h=heavy[lang]||heavy.en;$('price').value=$('hdAmount').value.trim();$('deposit').value=$('hdAmount').value.trim();var structured=h.title+'\n'+h.amount+': '+$('hdAmount').value+'\n'+h.monthly+': '+$('hdMonthly').value+'\n'+h.agreement+': '+$('hdAgreement').value+'\n'+h.notice+': '+$('hdNotice').value+'\n'+h.refundable+': '+$('hdRefundable').value+'\n'+h.refund+': '+$('hdRefund').value+'\n'+h.terms+': '+$('hdTerms').value;var d=$('desc').value.trim();$('desc').value=d?'\n\n'+structured:structured;}return baseSubmit();};
+  hdText();hdMode();
+})();
+</script>'''
+          s=s.replace('</body>',patch+'\n</body>')
+          p.write_text(s,encoding='utf-8')
+          PY2
+      - name: Commit patch
+        run: |
+          git config user.name 'Realynk Bot'
+          git config user.email 'realynk-bot@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'Realynk Heavy Deposit Patch'
+          git push
