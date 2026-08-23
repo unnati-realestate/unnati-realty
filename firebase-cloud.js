@@ -123,14 +123,17 @@ const submit = document.getElementById("submit");
 if (submit) submit.addEventListener("click", () => setTimeout(() => syncLatestProperty(), 1200), true);
 window.realynkCloudSync = { syncProfile, syncLatestProperty };
 
-// Load the shared broker/property network and admin approval controls.
 const networkScript = document.createElement("script");
 networkScript.type = "module";
-networkScript.src = "./realynk-network.js?v=1";
+networkScript.src = "./realynk-network.js?v=2";
 document.head.appendChild(networkScript);
 
-// Load the category buttons fix after Firebase is initialized.
 const categoryScript = document.createElement("script");
 categoryScript.type = "module";
-categoryScript.src = "./category-fix.js?v=2";
+categoryScript.src = "./category-fix.js?v=3";
 document.head.appendChild(categoryScript);
+
+const finalUiScript = document.createElement("script");
+finalUiScript.type = "module";
+finalUiScript.src = "./realynk-final-ui.js?v=1";
+document.head.appendChild(finalUiScript);
