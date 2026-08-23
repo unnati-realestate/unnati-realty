@@ -28,16 +28,7 @@
     );
   }
 
-  function autoVerify() {
-    var p = getProfile();
-    if (!p.agentName) return;
-
-    if (isComplete(p) || p.emailVerified === true) {
-      p.status = 'verified';
-      p.mobileVerified = !!p.mobileVerified;
-      saveProfile(p);
-    }
-
+  function refreshVerifiedUI(p) {
     var status = document.getElementById('accountStatus');
     var mobile = document.getElementById('mobileVerifyStatus');
     var review = document.getElementById('profileVerifyStatus');
@@ -49,11 +40,32 @@
       }
       if (mobile) mobile.textContent = 'Not required';
       if (review) review.textContent = 'Verified';
+
+      var card = document.getElementById('brokerProfileCard');
+      if (card) {
+        var badge = card.querySelector('.badge');
+        if (badge) {
+          badge.textContent = 'Verified';
+          badge.className = 'badge';
+        }
+      }
     }
 
-    /* No OTP/email verification is required for Broker Verified status. */
+    /* Verification controls are no longer required for broker approval. */
     var box = document.querySelector('.verifyBox');
     if (box) box.style.display = 'none';
+  }
+
+  function autoVerify() {
+    var p = getProfile();
+    if (!p.agentName) return;
+
+    if (isComplete(p) || p.emailVerified === true) {
+      p.status = 'verified';
+      saveProfile(p);
+    }
+
+    refreshVerifiedUI(p);
   }
 
   function hookSaveButton() {
@@ -66,9 +78,9 @@
         if (isComplete(p) || p.emailVerified === true) {
           p.status = 'verified';
           saveProfile(p);
-          autoVerify();
         }
-      }, 50);
+        refreshVerifiedUI(p);
+      }, 80);
     });
   }
 
