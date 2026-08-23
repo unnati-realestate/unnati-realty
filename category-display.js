@@ -19,11 +19,9 @@ function localProperties(){
   try { const p = JSON.parse(localStorage.getItem("realynkProperties") || "[]"); return Array.isArray(p) ? p : []; }
   catch { return []; }
 }
-
 function typeOf(p){ return p.type || p.listingType || p.listing_type || ""; }
 function descriptionOf(p){ return p.description || p.desc || ""; }
 function photosOf(p){ return Array.isArray(p.photoUrls) ? p.photoUrls : (Array.isArray(p.photos) ? p.photos : []); }
-
 function currentUid(){ return auth.currentUser?.uid || ""; }
 
 function visibleForCategory(){
@@ -45,20 +43,7 @@ function card(p){
   const phone = digits(p.phone || p.brokerPhone || b.phone);
   const photos = photosOf(p);
   const description = descriptionOf(p);
-  return `<div class="panel property">
-    <h3>${esc(p.title || "Property")}</h3>
-    <div class="rt-lock">📍 ${esc(p.area || p.location || "Location not specified")}</div>
-    <div class="details">
-      <div class="detail"><span>TYPE</span><b>${esc(typeOf(p))}</b></div>
-      <div class="detail"><span>PRICE / RENT</span><b>${esc(p.price || p.rent || "On Request")}</b></div>
-    </div>
-    ${p.deposit ? `<div class="rt-lock" style="margin-top:7px"><b>Deposit:</b> ${esc(p.deposit)}</div>` : ""}
-    ${p.size ? `<div class="rt-lock"><b>Area:</b> ${esc(p.size)}</div>` : ""}
-    ${description ? `<p>${esc(description)}</p>` : ""}
-    ${photos.length ? `<div class="rt-media">${photos.slice(0,10).map(u => `<img class="rt-photo" src="${esc(u)}" alt="Property photo">`).join("")}</div>` : ""}
-    <div class="badge">Broker: ${esc(b.fullName || p.brokerName || p.broker || "Realynk Broker")}</div>
-    ${phone ? `<div class="rt-actions"><button type="button" data-cat-call="${phone}">📞 Call Broker</button><button type="button" data-cat-wa="${phone}" data-title="${esc(p.title || "Property")}">💬 WhatsApp</button></div>` : ""}
-  </div>`;
+  return `<div class="panel property"><h3>${esc(p.title || "Property")}</h3><div class="rt-lock">📍 ${esc(p.area || p.location || "Location not specified")}</div><div class="details"><div class="detail"><span>TYPE</span><b>${esc(typeOf(p))}</b></div><div class="detail"><span>PRICE / RENT</span><b>${esc(p.price || p.rent || "On Request")}</b></div></div>${p.deposit ? `<div class="rt-lock" style="margin-top:7px"><b>Deposit:</b> ${esc(p.deposit)}</div>` : ""}${p.size ? `<div class="rt-lock"><b>Area:</b> ${esc(p.size)}</div>` : ""}${description ? `<p>${esc(description)}</p>` : ""}${photos.length ? `<div class="rt-media">${photos.slice(0,10).map(u => `<img class="rt-photo" src="${esc(u)}" alt="Property photo">`).join("")}</div>` : ""}<div class="badge">Broker: ${esc(b.fullName || p.brokerName || p.broker || "Realynk Broker")}</div>${phone ? `<div class="rt-actions"><button type="button" data-cat-call="${phone}">📞 Call Broker</button><button type="button" data-cat-wa="${phone}" data-title="${esc(p.title || "Property")}">💬 WhatsApp</button></div>` : ""}</div>`;
 }
 
 function render(filter=""){
@@ -87,32 +72,24 @@ function setFilter(type){
   setTimeout(() => $("homeList")?.scrollIntoView({behavior:"smooth", block:"start"}), 60);
 }
 
-function wire(){
-  const map = {buy:"Buy", sale:"Sale", rent:"Rent", commercial:"Commercial", heavyDeposit:"Heavy Deposit"};
-  Object.entries(map).forEach(([id,type]) => {
-    const el = $(id);
-    if(!el || el.dataset.categoryDisplay === "1") return;
-    el.dataset.categoryDisplay = "1";
-    el.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); setFilter(type); }, true);
-  });
-  const clear = $("clearFilter");
-  if(clear && clear.dataset.categoryDisplay !== "1"){
-    clear.dataset.categoryDisplay = "1";
-    clear.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); activeFilter=""; document.querySelectorAll(".quick button").forEach(b=>b.classList.remove("active")); render(""); }, true);
-  }
-  const search = $("search");
-  if(search && search.dataset.categorySearch !== "1"){
-    search.dataset.categorySearch = "1";
-    search.addEventListener("input", () => render(activeFilter));
-  }
-}
-
 function start(){
-  wire();
-  new MutationObserver(wire).observe(document.body,{childList:true,subtree:true});
+  // Capture at document level so this category handler always wins over older button handlers.
+  document.addEventListener("click", e => {
+    const button = e.target.closest?.("#buy,#sale,#rent,#commercial,#heavyDeposit");
+    if(button){
+      const type = button.id === "heavyDeposit" ? "Heavy Deposit" : button.id[0].toUpperCase()+button.id.slice(1);
+      e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); setFilter(type); return;
+    }
+    if(e.target.closest?.("#clearFilter")){
+      e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); activeFilter="";
+      document.querySelectorAll(".quick button").forEach(b=>b.classList.remove("active")); render("");
+    }
+  }, true);
+  const search = $("search");
+  if(search) search.addEventListener("input", () => render(activeFilter));
   onSnapshot(collection(db,"brokers"), snap => { brokers={}; snap.forEach(d=>brokers[d.id]=d.data()); render(activeFilter); });
   onSnapshot(collection(db,"properties"), snap => { cloudProperties=[]; snap.forEach(d=>cloudProperties.push({...d.data(),id:d.id})); render(activeFilter); });
-  setTimeout(wire,500); setTimeout(wire,1500); setTimeout(()=>render(activeFilter),1800);
+  setTimeout(()=>render(activeFilter),1800);
 }
 
 if(document.readyState === "loading") document.addEventListener("DOMContentLoaded",start,{once:true}); else start();
