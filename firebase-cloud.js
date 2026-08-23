@@ -47,3 +47,5 @@ const coreScript = document.createElement("script"); coreScript.type = "module";
 const networkScript = document.createElement("script"); networkScript.type = "module"; networkScript.src = "./realynk-network.js?v=2"; document.head.appendChild(networkScript);
 const categoryScript = document.createElement("script"); categoryScript.type = "module"; categoryScript.src = "./category-fix.js?v=3"; document.head.appendChild(categoryScript);
 const finalUiScript = document.createElement("script"); finalUiScript.type = "module"; finalUiScript.src = "./realynk-final-ui.js?v=2"; document.head.appendChild(finalUiScript);
+const appPatchScript = document.createElement("script"); appPatchScript.type = "module"; appPatchScript.src = "./realynk-app-patch.js?v=1"; document.head.appendChild(appPatchScript);
+const logoFixScript = document.createElement("script"); logoFixScript.type = "module"; logoFixScript.textContent = `setTimeout(() => { const l=document.querySelector('.logo'); if(l) l.src='./realynk-logo.jpg?v=1'; }, 100);`; document.head.appendChild(logoFixScript);
