@@ -42,10 +42,10 @@ const originalSetItem = localStorage.setItem.bind(localStorage); localStorage.se
 const submit = document.getElementById("submit"); if (submit) submit.addEventListener("click", () => setTimeout(() => syncLatestProperty(), 1200), true);
 window.realynkCloudSync = { syncProfile, syncLatestProperty };
 
-// Load the unified authentication/admin engine first. It keeps admin controls private to service.realynk@gmail.com.
 const coreScript = document.createElement("script"); coreScript.type = "module"; coreScript.src = "./realynk-core.js?v=6"; document.head.appendChild(coreScript);
 const networkScript = document.createElement("script"); networkScript.type = "module"; networkScript.src = "./realynk-network.js?v=2"; document.head.appendChild(networkScript);
 const categoryScript = document.createElement("script"); categoryScript.type = "module"; categoryScript.src = "./category-fix.js?v=3"; document.head.appendChild(categoryScript);
 const finalUiScript = document.createElement("script"); finalUiScript.type = "module"; finalUiScript.src = "./realynk-final-ui.js?v=2"; document.head.appendChild(finalUiScript);
 const appPatchScript = document.createElement("script"); appPatchScript.type = "module"; appPatchScript.src = "./realynk-app-patch.js?v=1"; document.head.appendChild(appPatchScript);
-const logoFixScript = document.createElement("script"); logoFixScript.type = "module"; logoFixScript.textContent = `setTimeout(() => { const l=document.querySelector('.logo'); if(l) l.src='./realynk-logo.jpg?v=1'; }, 100);`; document.head.appendChild(logoFixScript);
+const logoFixScript = document.createElement("script"); logoFixScript.type = "module"; logoFixScript.textContent = `setTimeout(() => { const l=document.querySelector('.logo'); if(l) l.src='./logo.png?v=2'; }, 100);`; document.head.appendChild(logoFixScript);
+const propertyEditScript = document.createElement("script"); propertyEditScript.type = "module"; propertyEditScript.src = "./property-edit.js?v=1"; document.head.appendChild(propertyEditScript);
