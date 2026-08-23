@@ -28,6 +28,7 @@
     loadScript('./professional-ui.js?v=2');
     loadScript('./realynk-core.js?v=6','module');
     loadScript('./realynk-final-ui.js?v=2','module');
+    loadScript('./category-display.js?v=1','module');
     setTimeout(ensureHeavyUI,500);
     setTimeout(ensureHeavyUI,1500);
   }
