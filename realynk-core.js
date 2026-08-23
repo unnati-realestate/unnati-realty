@@ -157,3 +157,4 @@ onAuthStateChanged(auth,async u=>{
 });
 
 window.addEventListener("DOMContentLoaded",()=>{hookUI();ensureAuth().then(()=>syncLocalProperties());setTimeout(()=>{hookUI();subscribeCloud();},900);});
+window.addEventListener("load",()=>setTimeout(()=>{hookUI();renderProperties();renderBrokers();},1200));
