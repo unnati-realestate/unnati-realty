@@ -18,7 +18,9 @@ const readProfile = () => { try { return JSON.parse(localStorage.getItem("realyn
 
 function clearNewBrokerDefaults() {
   let p = readProfile();
-  if (p && p.agentName) return;
+  const seed = String(p.agentName || "").trim() === "Deepak Rajput" && String(p.accountPhone || "").replace(/\D/g, "") === "9658364364";
+  if (p && p.agentName && !seed) return;
+  if (seed && !isAdmin()) { try { localStorage.removeItem("realynkBrokerProfile"); } catch (_) {} }
   const ids = ["agentName","accountPhone","agentEmail","companyName","officeAddress","city","state","phone"];
   ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
 }
@@ -74,8 +76,9 @@ function renderBrokerNetwork(){
 
 function renderProperties(){
   const home=document.getElementById("homeList"); if(!home) return;
-  if(!cloudProperties.length){ home.innerHTML='<div class="empty">No properties posted yet.</div>'; return; }
-  home.innerHTML=cloudProperties.map(p=>{
+  const list=[...cloudProperties].sort((a,b)=>String(b.syncedAt||"").localeCompare(String(a.syncedAt||"")));
+  if(!list.length){ home.innerHTML='<div class="empty">No properties posted yet.</div>'; return; }
+  home.innerHTML=list.map(p=>{
     const b=brokers[p.brokerUid]||{}; const phone=digits(p.phone||b.phone); const media=Array.isArray(p.photoUrls)?p.photoUrls:[];
     return `<div class="panel property"><h3>${esc(p.title||"Property")}</h3><div class="rn-muted">📍 ${esc(p.area||"")}</div><div class="details"><div class="detail"><span>TYPE</span><b>${esc(p.type||"")}</b></div><div class="detail"><span>PRICE / RENT</span><b>${esc(p.price||"—")}</b></div></div>${p.description?`<p>${esc(p.description)}</p>`:""}${media.length?`<div class="listingMedia">${media.slice(0,10).map(u=>`<img src="${esc(u)}" alt="Property photo">`).join("")}</div>`:""}<div class="badge">Broker: ${esc(b.fullName||"Realynk Broker")}</div><div class="rn-actions">${phone?`<button onclick="location.href='tel:+91${phone}'">📞 Call Broker</button><button onclick="location.href='https://wa.me/91${phone}?text=${encodeURIComponent('Hi, I found your property on Realynk: '+(p.title||''))}'">💬 WhatsApp</button>`:""}</div></div>`;
   }).join("");
