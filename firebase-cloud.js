@@ -128,3 +128,9 @@ const networkScript = document.createElement("script");
 networkScript.type = "module";
 networkScript.src = "./realynk-network.js?v=1";
 document.head.appendChild(networkScript);
+
+// Load the category buttons fix after Firebase is initialized.
+const categoryScript = document.createElement("script");
+categoryScript.type = "module";
+categoryScript.src = "./category-fix.js?v=2";
+document.head.appendChild(categoryScript);
