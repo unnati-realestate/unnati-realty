@@ -140,11 +140,13 @@ function hookUI(){
   $("search")?.addEventListener("input",()=>renderProperties());
   ["buy","sale","rent","commercial"].forEach(id=>$(id)?.addEventListener("click",e=>{e.preventDefault();e.stopImmediatePropagation();const f=id[0].toUpperCase()+id.slice(1);renderProperties(f);const fb=$("filterBar"),ft=$("filterTitle");if(fb){fb.style.display="flex";if(ft)ft.textContent=f;}},true));
   $("clearFilter")?.addEventListener("click",e=>{e.stopImmediatePropagation();const fb=$("filterBar");if(fb)fb.style.display="none";renderProperties("");},true);
+  $("heavyDeposit")?.addEventListener("click",e=>{e.preventDefault();e.stopImmediatePropagation();renderProperties("Heavy Deposit");const fb=$("filterBar"),ft=$("filterTitle");if(fb){fb.style.display="flex";if(ft)ft.textContent="Heavy Deposit";}},true);
   $("postQuick")?.addEventListener("click",e=>{e.stopImmediatePropagation();setScreen("post")},true);$("brokerPost")?.addEventListener("click",e=>{e.stopImmediatePropagation();setScreen("post")},true);$("add")?.addEventListener("click",e=>{e.stopImmediatePropagation();setScreen("post")},true);
   document.querySelectorAll("[data-nav]").forEach(b=>b.addEventListener("click",e=>{e.stopImmediatePropagation();setScreen(b.dataset.nav)},true));
   document.querySelectorAll("[data-back]").forEach(b=>b.addEventListener("click",e=>{e.stopImmediatePropagation();setScreen(b.dataset.back)},true));
   $("submit")?.addEventListener("click",()=>setTimeout(syncLocalProperties,1800),true);
   addHiddenAdminAccess();
+  setTimeout(()=>$("heavyDeposit")?.addEventListener("click",e=>{e.preventDefault();e.stopImmediatePropagation();renderProperties("Heavy Deposit");const fb=$("filterBar"),ft=$("filterTitle");if(fb){fb.style.display="flex";if(ft)ft.textContent="Heavy Deposit";}},true),1200);
   renderProperties();renderBrokers();
 }
 
