@@ -9,7 +9,7 @@
     if(document.querySelector('script[data-realynk-core="1"]')) return;
     var s=document.createElement("script");
     s.type="module";
-    s.src="./realynk-core.js?v=1";
+    s.src="./realynk-core.js?v=2";
     s.dataset.realynkCore="1";
     document.head.appendChild(s);
   }
