@@ -24,8 +24,11 @@ function setScreen(id){ document.querySelectorAll(".screen").forEach(s=>s.classL
 function blankNewBrokerForm(){
   const p=localProfile();
   const ids=["agentName","accountPhone","agentEmail","companyName","officeAddress","city","state","pincode","experience","specialization","serviceAreas","reraNo","reraCompetency","gstin","website"];
+  const ownerProfile=(p.agentName==="Deepak Rajput" && digits(p.accountPhone)==="9658364364" && String(p.agentEmail||"").toLowerCase()===ADMIN_EMAIL);
+  if(ownerProfile) localStorage.setItem("realynkOwnerDevice","1");
+  const ownerDevice=localStorage.getItem("realynkOwnerDevice")==="1";
   const looksSeed=(p.agentName==="Deepak Rajput" && digits(p.accountPhone)==="9658364364") || (!p.agentName && $("accountPhone")?.value==="9658364364");
-  if(!admin && looksSeed){
+  if(!admin && !ownerDevice && looksSeed){
     try{localStorage.removeItem("realynkBrokerProfile");}catch{}
     ids.forEach(id=>{const e=$(id);if(e)e.value="";});
     if($("state"))$("state").value="";
