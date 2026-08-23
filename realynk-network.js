@@ -6,7 +6,7 @@ import { firebaseConfig } from "./firebase-config.js";
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const ADMIN_EMAILS = ["realynk8@gmail.com"];
+const ADMIN_EMAILS = ["service.realynk@gmail.com"];
 let me = null;
 let brokers = {};
 let cloudProperties = [];
