@@ -43,4 +43,6 @@
   var obs=new MutationObserver(function(){enhanceCards()});obs.observe(document.body,{childList:true,subtree:true});
   setTimeout(enhanceCards,500);
   if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){})})}
+  // Ensure the shared broker/property network is loaded even if firebase-cloud.js is cached or not present in the page.
+  var ns=document.createElement('script');ns.type='module';ns.src='./realynk-network.js?v=1';document.head.appendChild(ns);
 })();
