@@ -82,6 +82,7 @@ function start(){
     }
     if(e.target.closest?.("#clearFilter")){
       e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); activeFilter="";
+      const searchInput=$("search"); if(searchInput) searchInput.value="";
       document.querySelectorAll(".quick button").forEach(b=>b.classList.remove("active")); render("");
     }
   }, true);
