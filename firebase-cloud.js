@@ -30,6 +30,7 @@ function dataUrlToBlob(dataUrl) {
 async function syncProfile() {
   if (!currentUser) return;
   const p = profile();
+  if (!p.agentName && !p.accountPhone && !p.agentEmail) return;
   await setDoc(doc(db, "brokers", currentUser.uid), {
     uid: currentUser.uid,
     fullName: p.agentName || "",
@@ -58,7 +59,6 @@ async function uploadPropertyMedia(property) {
   }
   if (urls.length) out.photoUrls = urls;
 
-  // Video is kept in IndexedDB by the existing Realynk media fix.
   try {
     const dbLocal = await new Promise((resolve, reject) => {
       const r = indexedDB.open("realynkMediaDB", 1);
@@ -122,3 +122,9 @@ localStorage.setItem = function(key, value) {
 const submit = document.getElementById("submit");
 if (submit) submit.addEventListener("click", () => setTimeout(() => syncLatestProperty(), 1200), true);
 window.realynkCloudSync = { syncProfile, syncLatestProperty };
+
+// Load the shared broker/property network and admin approval controls.
+const networkScript = document.createElement("script");
+networkScript.type = "module";
+networkScript.src = "./realynk-network.js?v=1";
+document.head.appendChild(networkScript);
