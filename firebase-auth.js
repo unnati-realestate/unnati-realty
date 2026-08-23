@@ -84,12 +84,42 @@
     });
   }
 
+  function addLogoutButton() {
+    if (document.getElementById('realynkLogout')) return;
+    var account = document.getElementById('account');
+    if (!account) return;
+
+    var page = account.querySelector('.page');
+    var panel = account.querySelector('.panel');
+    if (!page || !panel) return;
+
+    var btn = document.createElement('button');
+    btn.id = 'realynkLogout';
+    btn.type = 'button';
+    btn.className = 'back full';
+    btn.style.marginTop = '10px';
+    btn.style.color = '#b42318';
+    btn.textContent = '↪ Logout / Switch Account';
+
+    btn.onclick = function () {
+      var ok = window.confirm('Logout from this broker account?');
+      if (!ok) return;
+      localStorage.removeItem('realynkBrokerProfile');
+      localStorage.removeItem('realynkLang');
+      window.location.reload();
+    };
+
+    panel.appendChild(btn);
+  }
+
   function init() {
     hookSaveButton();
     autoVerify();
+    addLogoutButton();
     setTimeout(function () {
       hookSaveButton();
       autoVerify();
+      addLogoutButton();
     }, 300);
   }
 
