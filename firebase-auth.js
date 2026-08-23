@@ -1,14 +1,4 @@
-/* Realynk unified Firebase/network bootstrap. */
-(function(){
-  "use strict";
-  function load(){
-    if(document.querySelector('script[data-realynk-v3="1"]')) return;
-    const s=document.createElement("script");
-    s.type="module";
-    s.src="./realynk-v3.js?v=10";
-    s.dataset.realynkV3="1";
-    document.head.appendChild(s);
-  }
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",load,{once:true});
-  else load();
-})();
+/* Realynk Firebase entrypoint.
+   The unified network/admin engine is loaded by realynk-boot.js.
+   Kept intentionally lightweight to avoid loading a second Firebase controller. */
+(function(){'use strict';})();
