@@ -1,7 +1,6 @@
-/* REALYNK BROKER AUTO-VERIFICATION
-   Mobile OTP is not required for Broker Verified status.
-   A broker is verified when the required profile is complete and the declaration is accepted,
-   OR when the account already has a verified email.
+/* REALYNK BROKER ACCOUNT CONTROLS
+   Broker profile verification is automatic when the required profile is complete
+   or when emailVerified is true. Mobile OTP is not required.
 */
 (function () {
   'use strict';
@@ -32,26 +31,11 @@
     var status = document.getElementById('accountStatus');
     var mobile = document.getElementById('mobileVerifyStatus');
     var review = document.getElementById('profileVerifyStatus');
-
     if (p.status === 'verified') {
-      if (status) {
-        status.textContent = '✓ Verified Broker';
-        status.className = 'badge';
-      }
+      if (status) { status.textContent = '✓ Verified Broker'; status.className = 'badge'; }
       if (mobile) mobile.textContent = 'Not required';
       if (review) review.textContent = 'Verified';
-
-      var card = document.getElementById('brokerProfileCard');
-      if (card) {
-        var badge = card.querySelector('.badge');
-        if (badge) {
-          badge.textContent = 'Verified';
-          badge.className = 'badge';
-        }
-      }
     }
-
-    /* Verification controls are no longer required for broker approval. */
     var box = document.querySelector('.verifyBox');
     if (box) box.style.display = 'none';
   }
@@ -59,12 +43,10 @@
   function autoVerify() {
     var p = getProfile();
     if (!p.agentName) return;
-
     if (isComplete(p) || p.emailVerified === true) {
       p.status = 'verified';
       saveProfile(p);
     }
-
     refreshVerifiedUI(p);
   }
 
@@ -73,54 +55,50 @@
     if (!btn || btn.getAttribute('data-auto-verify-hook') === '1') return;
     btn.setAttribute('data-auto-verify-hook', '1');
     btn.addEventListener('click', function () {
-      setTimeout(function () {
-        var p = getProfile();
-        if (isComplete(p) || p.emailVerified === true) {
-          p.status = 'verified';
-          saveProfile(p);
-        }
-        refreshVerifiedUI(p);
-      }, 80);
+      setTimeout(autoVerify, 150);
     });
   }
 
-  function addLogoutButton() {
-    if (document.getElementById('realynkLogout')) return;
+  function addAccountControls() {
     var account = document.getElementById('account');
-    if (!account) return;
+    if (!account || document.getElementById('realynkAccountControls')) return;
 
     var page = account.querySelector('.page');
-    var panel = account.querySelector('.panel');
-    if (!page || !panel) return;
+    if (!page) return;
 
-    var btn = document.createElement('button');
-    btn.id = 'realynkLogout';
-    btn.type = 'button';
-    btn.className = 'back full';
-    btn.style.marginTop = '10px';
-    btn.style.color = '#b42318';
-    btn.textContent = '↪ Logout / Switch Account';
+    var box = document.createElement('div');
+    box.id = 'realynkAccountControls';
+    box.className = 'panel';
+    box.style.marginTop = '14px';
+    box.innerHTML =
+      '<b style="display:block;font-size:18px;color:#0b3768;margin-bottom:10px">Account Access</b>' +
+      '<button id="realynkLogin" type="button" class="primary full" style="margin-bottom:10px">Login / Switch Broker</button>' +
+      '<button id="realynkLogout" type="button" class="back full" style="color:#b42318">Logout / New Broker</button>' +
+      '<div class="small" style="margin-top:8px">Logout clears this device’s broker profile so another broker can create their own profile.</div>';
 
-    btn.onclick = function () {
-      var ok = window.confirm('Logout from this broker account?');
-      if (!ok) return;
+    page.appendChild(box);
+
+    document.getElementById('realynkLogout').onclick = function () {
+      if (!window.confirm('Logout this broker account and allow another broker to use this device?')) return;
       localStorage.removeItem('realynkBrokerProfile');
-      localStorage.removeItem('realynkLang');
-      window.location.reload();
+      window.location.href = window.location.pathname + '?account=new';
     };
 
-    panel.appendChild(btn);
+    document.getElementById('realynkLogin').onclick = function () {
+      localStorage.removeItem('realynkBrokerProfile');
+      window.location.href = window.location.pathname + '?account=new';
+    };
   }
 
   function init() {
     hookSaveButton();
     autoVerify();
-    addLogoutButton();
+    addAccountControls();
     setTimeout(function () {
       hookSaveButton();
       autoVerify();
-      addLogoutButton();
-    }, 300);
+      addAccountControls();
+    }, 500);
   }
 
   if (document.readyState === 'loading') {
