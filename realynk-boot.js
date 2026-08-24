@@ -36,6 +36,7 @@
     loadScript('./network-visibility-fix.js?v=2','module');
     loadScript('./share-repair.js?v=2');
     loadScript('./realynk-stability.js?v=3','module');
+    loadScript('./realynk-migrate.js?v=1','module');
     setTimeout(ensureHeavyUI,500);
     setTimeout(ensureHeavyUI,1500);
   }
