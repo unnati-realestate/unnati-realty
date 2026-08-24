@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Realynk — India's Real Estate Agent Network</title>
+<meta name="description" content="Property shared from Realynk — India's Real Estate Agent Network.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Realynk — India's Real Estate Agent Network">
+<meta property="og:description" content="Property shared from Realynk — India's Real Estate Agent Network.">
+<meta property="og:image" content="https://unnatient.co.in/logo.png">
+<meta property="og:site_name" content="Realynk">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Realynk — India's Real Estate Agent Network">
+<meta name="twitter:image" content="https://unnatient.co.in/logo.png">
+<link rel="icon" type="image/png" href="./logo.png">
+<link rel="apple-touch-icon" href="./logo.png">
+<style>body{margin:0;background:#f5f7fb;color:#17324d;font-family:Arial,sans-serif;display:grid;place-items:center;min-height:100vh}.box{background:#fff;border:1px solid #dfe6ee;border-radius:20px;padding:28px;max-width:420px;width:calc(100% - 48px);text-align:center;box-shadow:0 10px 30px rgba(11,55,104,.08)}img{width:180px;height:180px;object-fit:contain}.title{font-size:22px;font-weight:800;color:#0b3768;margin-top:12px}.info{color:#6b7a8c;margin-top:8px}</style>
+</head>
+<body>
+<div class="box"><img src="./logo.png" alt="Realynk logo"><div class="title" id="title">Realynk Property</div><div class="info" id="area"></div><div class="info">India's Real Estate Agent Network</div></div>
+<script>
+const q=new URLSearchParams(location.search);
+const title=q.get('title'); const area=q.get('area');
+if(title) document.getElementById('title').textContent=title;
+if(area) document.getElementById('area').textContent='📍 '+area;
+setTimeout(()=>{ const target=new URL('./index.html',location.href); if(title) target.searchParams.set('property',title); location.replace(target.href); },900);
+</script>
+</body>
+</html>
