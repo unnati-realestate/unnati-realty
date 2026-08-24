@@ -28,7 +28,7 @@
     ensureHeavyUI();
     loadScript('./professional-ui.js?v=2');
     loadScript('./realynk-core.js?v=6','module');
-    loadScript('./realynk-final-ui.js?v=2','module');
+    loadScript('./realynk-final-ui.js?v=3','module');
     loadScript('./category-display.js?v=1','module');
     loadScript('./property-management-ui.js?v=2');
     setTimeout(ensureHeavyUI,500);
