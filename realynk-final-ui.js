@@ -123,8 +123,8 @@ function wire(){
 }
 
 function listen(){
-  onSnapshot(collection(db,'brokers'),snap=>{brokers={};snap.forEach(d=>brokers[d.id]=d.data());render(activeFilter);});
-  onSnapshot(collection(db,'properties'),snap=>{properties=[];snap.forEach(d=>properties.push({...d.data(),id:d.id}));render(activeFilter);});
+  onSnapshot(collection(db,'brokers'),snap=>{brokers={};snap.forEach(d=>brokers[d.id]=d.data());});
+  onSnapshot(collection(db,'properties'),snap=>{properties=[];snap.forEach(d=>properties.push({...d.data(),id:d.id}));});
 }
 
 function start(){style();ensureHeavy();benefits();wire();setTimeout(()=>{ensureHeavy();wire();benefits();},600);setTimeout(wire,1600);listen();}
