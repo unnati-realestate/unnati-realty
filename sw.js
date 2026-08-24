@@ -1,4 +1,4 @@
-const CACHE='realynk-v21';
+const CACHE='realynk-v22';
 const SHELL=['./','./index.html','./manifest.webmanifest','./logo.png','./heavy-deposit.js','./firebase-auth.js','./firebase-config.js','./firebase-cloud.js','./realynk-final-fix.js','./realynk-heavy-fix.js'];
 const BAD="$('type').onchange=updateListingFields};";
 const GOOD="$('type').onchange=updateListingFields;";
