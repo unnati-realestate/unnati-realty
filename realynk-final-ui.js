@@ -31,7 +31,10 @@ function style(){
   .property{box-shadow:0 5px 18px rgba(8,45,87,.06)!important;border-radius:18px!important}
   .bottom{width:min(980px,100%)!important;height:78px!important}.bottom button.active{color:var(--rn-gold)!important}
   .rn-broker-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 20px 10px}
-  .rn-benefit{background:#fff;border:1px solid #dfe6ee;border-radius:14px;padding:12px;text-align:center}.rn-benefit b{display:block;color:var(--rn-navy);font-size:14px}.rn-benefit span{font-size:11px;color:#6b7a8c}
+  .rn-benefit{background:#fff;border:1px solid #dfe6ee;border-radius:14px;padding:0;text-align:center;overflow:hidden;box-shadow:0 3px 12px rgba(8,45,87,.05)}
+  .rn-benefit button{width:100%;min-height:74px;border:0;background:#fff;padding:11px 8px;cursor:pointer;color:var(--rn-navy);font-family:inherit}
+  .rn-benefit button:active{transform:scale(.98);background:#fffaf0}.rn-benefit b{display:block;color:var(--rn-navy);font-size:14px}.rn-benefit span{font-size:11px;color:#6b7a8c}
+  .rn-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.rn-actions button{border:1px solid #dfe6ee;background:#fff;color:#0b3768;border-radius:10px;padding:10px;font-weight:800;cursor:pointer}.rn-actions button:active{transform:scale(.98)}
   @media(max-width:620px){.hero h1{font-size:31px!important}.quick{grid-template-columns:1fr 1fr!important;padding:12px!important}.quick button{min-height:94px!important}.top{padding:7px 12px!important}.logo{width:86px!important;height:76px!important}.rn-broker-strip{grid-template-columns:repeat(2,1fr);margin:0 12px 8px}}
   `; document.head.appendChild(s);
 }
@@ -42,11 +45,24 @@ function ensureHeavy(){
   if(!b){b=document.createElement('button');b.id='heavyDeposit';b.type='button';b.innerHTML='🔐<b>Heavy Deposit</b>';q.insertBefore(b,$('postQuick')||null);}
 }
 
+function goScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=$(id); if(el)el.classList.add('active');
+  document.querySelectorAll('.bottom button').forEach(b=>b.classList.toggle('active',b.dataset.nav===id));
+  window.scrollTo(0,0);
+}
+
 function benefits(){
   const home=$('home'); if(!home || $('rnBenefitStrip'))return;
   const strip=document.createElement('div'); strip.id='rnBenefitStrip'; strip.className='rn-broker-strip';
-  strip.innerHTML='<div class="rn-benefit"><b>✓ Verified Brokers</b><span>Trusted network</span></div><div class="rn-benefit"><b>🤝 Broker Network</b><span>Share inventory</span></div><div class="rn-benefit"><b>🏠 Shared Properties</b><span>Find client matches</span></div><div class="rn-benefit"><b>💬 Call & WhatsApp</b><span>Close deals together</span></div>';
+  strip.innerHTML='<div class="rn-benefit"><button type="button" data-rn-benefit="brokers"><b>✓ Verified Brokers</b><span>Trusted network</span></button></div><div class="rn-benefit"><button type="button" data-rn-benefit="shared"><b>🤝 Broker Network</b><span>Share inventory</span></button></div><div class="rn-benefit"><button type="button" data-rn-benefit="shared"><b>🏠 Shared Properties</b><span>Find client matches</span></button></div><div class="rn-benefit"><button type="button" data-rn-benefit="contact"><b>💬 Call & WhatsApp</b><span>Contact property brokers</span></button></div>';
   const q=home.querySelector('.quick'); if(q)q.insertAdjacentElement('afterend',strip);
+  strip.querySelectorAll('[data-rn-benefit]').forEach(btn=>btn.addEventListener('click',()=>{
+    const action=btn.dataset.rnBenefit;
+    if(action==='brokers'){goScreen('brokers');return;}
+    if(action==='shared'){activeFilter='';render('');setTimeout(()=>$('homeList')?.scrollIntoView({behavior:'smooth',block:'start'}),80);return;}
+    if(action==='contact'){goScreen('home');setTimeout(()=>$('homeList')?.scrollIntoView({behavior:'smooth',block:'start'}),80);return;}
+  }));
 }
 
 function visibleProperties(){return properties.filter(p=>{const b=brokers[p.brokerUid]||{};return b.approved===true || (p.brokerUid && !Object.keys(brokers).length);});}
@@ -62,17 +78,17 @@ function render(filter=''){
   if(bar)bar.style.display=filter?'flex':'none'; if(title)title.textContent=filter?filter+' Properties':'';
   if(!list.length){out.innerHTML='<div class="panel empty">No '+esc(filter||'')+' properties found yet.</div>';return;}
   out.innerHTML=list.map(p=>{
-    const b=brokers[p.brokerUid]||{}; const phone=digits(p.phone||b.phone); const photos=Array.isArray(p.photoUrls)?p.photoUrls:[];
-    return `<div class="panel property"><h3>${esc(p.title||'Property')}</h3><div class="rn-muted">📍 ${esc(p.area||p.location||'Location not specified')}</div><div class="details"><div class="detail"><span>TYPE</span><b>${esc(p.type||'')}</b></div><div class="detail"><span>PRICE / RENT</span><b>${esc(p.price||'On Request')}</b></div></div>${p.deposit?`<div class="rn-muted" style="margin-top:7px"><b>Deposit:</b> ${esc(p.deposit)}</div>`:''}${p.size?`<div class="rn-muted"><b>Area:</b> ${esc(p.size)}</div>`:''}${p.description?`<p>${esc(p.description)}</p>`:''}${photos.length?`<div class="listingMedia">${photos.slice(0,10).map(u=>`<img src="${esc(u)}" alt="Property photo">`).join('')}</div>`:''}<div class="badge">Broker: ${esc(b.fullName||p.brokerName||'Realynk Broker')}</div><div class="rn-actions">${phone?`<button type="button" data-call="${phone}">📞 Call Broker</button><button type="button" data-wa="${phone}" data-title="${esc(p.title||'Property')}">💬 WhatsApp</button>`:''}</div></div>`;
+    const b=brokers[p.brokerUid]||{}; const phone=digits(p.phone||b.phone); const photos=Array.isArray(p.photoUrls)?p.photoUrls:(Array.isArray(p.photos)?p.photos:[]);
+    return `<div class="panel property"><h3>${esc(p.title||'Property')}</h3><div class="rn-muted">📍 ${esc(p.area||p.location||'Location not specified')}</div><div class="details"><div class="detail"><span>TYPE</span><b>${esc(p.type||'')}</b></div><div class="detail"><span>PRICE / RENT</span><b>${esc(p.price||'On Request')}</b></div></div>${p.deposit?`<div class="rn-muted" style="margin-top:7px"><b>Deposit:</b> ${esc(p.deposit)}</div>`:''}${p.size?`<div class="rn-muted"><b>Area:</b> ${esc(p.size)}</div>`:''}${p.description?`<p>${esc(p.description)}</p>`:''}${photos.length?`<div class="listingMedia">${photos.slice(0,10).map(u=>`<img src="${esc(u)}" alt="Property photo">`).join('')}</div>`:''}<div class="badge">Broker: ${esc(b.fullName||p.brokerName||'Realynk Broker')}</div><div class="rn-actions">${phone?`<button type="button" data-call="${phone}">📞 Call Broker</button><button type="button" data-wa="${phone}" data-title="${esc(p.title||'Property')}">💬 WhatsApp</button>`:'<button type="button" disabled>No phone available</button>'}</div></div>`;
   }).join('');
-  out.querySelectorAll('[data-call]').forEach(x=>x.onclick=()=>location.href='tel:+91'+x.dataset.call);
-  out.querySelectorAll('[data-wa]').forEach(x=>x.onclick=()=>location.href='https://wa.me/91'+x.dataset.wa+'?text='+encodeURIComponent('Hi, I found your property on Realynk: '+x.dataset.title));
+  out.querySelectorAll('[data-call]').forEach(x=>x.onclick=()=>{location.href='tel:+91'+x.dataset.call;});
+  out.querySelectorAll('[data-wa]').forEach(x=>x.onclick=()=>{location.href='https://wa.me/91'+x.dataset.wa+'?text='+encodeURIComponent('Hi, I found your property on Realynk: '+x.dataset.title);});
 }
 
 function category(type){
   document.querySelectorAll('.quick button').forEach(b=>b.classList.remove('active'));
   const id=type.toLowerCase().replace(' ',''); $(id==='heavydeposit'?'heavyDeposit':id)?.classList.add('active');
-  render(type); setTimeout(()=>$('homeList')?.scrollIntoView({behavior:'smooth',block:'start'}),60);
+  goScreen('home'); render(type); setTimeout(()=>$('homeList')?.scrollIntoView({behavior:'smooth',block:'start'}),60);
 }
 
 function wire(){
@@ -82,13 +98,13 @@ function wire(){
     el.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();category(type)},true);
   });
   const clear=$('clearFilter'); if(clear && clear.dataset.rnFinal!=='1'){clear.dataset.rnFinal='1';clear.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();document.querySelectorAll('.quick button').forEach(b=>b.classList.remove('active'));render('')},true);}
-  const post=$('postQuick'); if(post && post.dataset.rnFinal!=='1'){post.dataset.rnFinal='1';post.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();$('post')?.classList.add('active');$('home')?.classList.remove('active');window.scrollTo(0,0)},true);}
+  const post=$('postQuick'); if(post && post.dataset.rnFinal!=='1'){post.dataset.rnFinal='1';post.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();goScreen('post')},true);}
   const search=$('search'); if(search && search.dataset.rnFinal!=='1'){search.dataset.rnFinal='1';search.addEventListener('input',()=>render(activeFilter));}
 }
 
 function listen(){
-  onSnapshot(collection(db,'brokers'),snap=>{brokers={};snap.forEach(d=>brokers[d.id]=d.data());});
-  onSnapshot(collection(db,'properties'),snap=>{properties=[];snap.forEach(d=>properties.push({...d.data(),id:d.id}));});
+  onSnapshot(collection(db,'brokers'),snap=>{brokers={};snap.forEach(d=>brokers[d.id]=d.data());render(activeFilter);});
+  onSnapshot(collection(db,'properties'),snap=>{properties=[];snap.forEach(d=>properties.push({...d.data(),id:d.id}));render(activeFilter);});
 }
 
 function start(){style();ensureHeavy();benefits();wire();setTimeout(()=>{ensureHeavy();wire();benefits();},600);setTimeout(wire,1600);listen();}
