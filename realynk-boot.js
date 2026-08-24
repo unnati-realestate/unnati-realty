@@ -26,6 +26,7 @@
   }
   function start(){
     ensureHeavyUI();
+    loadScript('./pwa-branding.js?v=1');
     loadScript('./professional-ui.js?v=2');
     loadScript('./realynk-core.js?v=6','module');
     loadScript('./realynk-final-ui.js?v=4','module');
