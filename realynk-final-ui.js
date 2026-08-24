@@ -34,8 +34,8 @@ function style(){
   .rn-benefit{background:#fff;border:1px solid #dfe6ee;border-radius:14px;padding:0;text-align:center;overflow:hidden;box-shadow:0 3px 12px rgba(8,45,87,.05)}
   .rn-benefit button{width:100%;min-height:74px;border:0;background:#fff;padding:11px 8px;cursor:pointer;color:var(--rn-navy);font-family:inherit}
   .rn-benefit button:active{transform:scale(.98);background:#fffaf0}.rn-benefit b{display:block;color:var(--rn-navy);font-size:14px}.rn-benefit span{font-size:11px;color:#6b7a8c}
-  .rn-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.rn-actions button{border:1px solid #dfe6ee;background:#fff;color:#0b3768;border-radius:10px;padding:10px;font-weight:800;cursor:pointer}.rn-actions button:active{transform:scale(.98)}
-  @media(max-width:620px){.hero h1{font-size:31px!important}.quick{grid-template-columns:1fr 1fr!important;padding:12px!important}.quick button{min-height:94px!important}.top{padding:7px 12px!important}.logo{width:86px!important;height:76px!important}.rn-broker-strip{grid-template-columns:repeat(2,1fr);margin:0 12px 8px}}
+  .rn-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.rn-actions button{border:1px solid #dfe6ee;background:#fff;color:#0b3768;border-radius:10px;padding:10px 6px;font-weight:800;cursor:pointer}.rn-actions button:active{transform:scale(.98)}
+  @media(max-width:620px){.hero h1{font-size:31px!important}.quick{grid-template-columns:1fr 1fr!important;padding:12px!important}.quick button{min-height:94px!important}.top{padding:7px 12px!important}.logo{width:86px!important;height:76px!important}.rn-broker-strip{grid-template-columns:repeat(2,1fr);margin:0 12px 8px}.rn-actions button{font-size:13px;padding:10px 4px}}
   `; document.head.appendChild(s);
 }
 
@@ -67,6 +67,25 @@ function benefits(){
 
 function visibleProperties(){return properties.filter(p=>{const b=brokers[p.brokerUid]||{};return b.approved===true || (p.brokerUid && !Object.keys(brokers).length);});}
 
+async function shareProperty(id){
+  const p=properties.find(x=>x.id===id); if(!p)return;
+  const b=brokers[p.brokerUid]||{};
+  const title=p.title||'Property on Realynk';
+  const area=p.area||p.location||'';
+  const price=p.price||'On Request';
+  const text=`${title}\n📍 ${area}\n💰 ${price}${p.deposit?`\nDeposit: ${p.deposit}`:''}\n\nListed on Realynk — India's Real Estate Agent Network.`;
+  const url=window.location.href.split('#')[0];
+  if(navigator.share){
+    try{await navigator.share({title,text,url});return;}catch(e){if(e?.name==='AbortError')return;}
+  }
+  try{
+    await navigator.clipboard.writeText(`${text}\n${url}`);
+    alert('Property link copied. You can paste it on WhatsApp or anywhere.');
+  }catch(e){
+    window.prompt('Copy this property link:',url);
+  }
+}
+
 function render(filter=''){
   activeFilter=filter||'';
   const out=$('homeList'); if(!out)return;
@@ -79,10 +98,11 @@ function render(filter=''){
   if(!list.length){out.innerHTML='<div class="panel empty">No '+esc(filter||'')+' properties found yet.</div>';return;}
   out.innerHTML=list.map(p=>{
     const b=brokers[p.brokerUid]||{}; const phone=digits(p.phone||b.phone); const photos=Array.isArray(p.photoUrls)?p.photoUrls:(Array.isArray(p.photos)?p.photos:[]);
-    return `<div class="panel property"><h3>${esc(p.title||'Property')}</h3><div class="rn-muted">📍 ${esc(p.area||p.location||'Location not specified')}</div><div class="details"><div class="detail"><span>TYPE</span><b>${esc(p.type||'')}</b></div><div class="detail"><span>PRICE / RENT</span><b>${esc(p.price||'On Request')}</b></div></div>${p.deposit?`<div class="rn-muted" style="margin-top:7px"><b>Deposit:</b> ${esc(p.deposit)}</div>`:''}${p.size?`<div class="rn-muted"><b>Area:</b> ${esc(p.size)}</div>`:''}${p.description?`<p>${esc(p.description)}</p>`:''}${photos.length?`<div class="listingMedia">${photos.slice(0,10).map(u=>`<img src="${esc(u)}" alt="Property photo">`).join('')}</div>`:''}<div class="badge">Broker: ${esc(b.fullName||p.brokerName||'Realynk Broker')}</div><div class="rn-actions">${phone?`<button type="button" data-call="${phone}">📞 Call Broker</button><button type="button" data-wa="${phone}" data-title="${esc(p.title||'Property')}">💬 WhatsApp</button>`:'<button type="button" disabled>No phone available</button>'}</div></div>`;
+    return `<div class="panel property"><h3>${esc(p.title||'Property')}</h3><div class="rn-muted">📍 ${esc(p.area||p.location||'Location not specified')}</div><div class="details"><div class="detail"><span>TYPE</span><b>${esc(p.type||'')}</b></div><div class="detail"><span>PRICE / RENT</span><b>${esc(p.price||'On Request')}</b></div></div>${p.deposit?`<div class="rn-muted" style="margin-top:7px"><b>Deposit:</b> ${esc(p.deposit)}</div>`:''}${p.size?`<div class="rn-muted"><b>Area:</b> ${esc(p.size)}</div>`:''}${p.description?`<p>${esc(p.description)}</p>`:''}${photos.length?`<div class="listingMedia">${photos.slice(0,10).map(u=>`<img src="${esc(u)}" alt="Property photo">`).join('')}</div>`:''}<div class="badge">Broker: ${esc(b.fullName||p.brokerName||'Realynk Broker')}</div><div class="rn-actions">${phone?`<button type="button" data-call="${phone}">📞 Call</button><button type="button" data-wa="${phone}" data-title="${esc(p.title||'Property')}">💬 WhatsApp</button>`:'<button type="button" disabled>No phone</button>'}<button type="button" data-share="${esc(p.id)}">↗️ Share</button></div></div>`;
   }).join('');
   out.querySelectorAll('[data-call]').forEach(x=>x.onclick=()=>{location.href='tel:+91'+x.dataset.call;});
   out.querySelectorAll('[data-wa]').forEach(x=>x.onclick=()=>{location.href='https://wa.me/91'+x.dataset.wa+'?text='+encodeURIComponent('Hi, I found your property on Realynk: '+x.dataset.title);});
+  out.querySelectorAll('[data-share]').forEach(x=>x.onclick=()=>shareProperty(x.dataset.share));
 }
 
 function category(type){
@@ -103,8 +123,8 @@ function wire(){
 }
 
 function listen(){
-  onSnapshot(collection(db,'brokers'),snap=>{brokers={};snap.forEach(d=>brokers[d.id]=d.data());});
-  onSnapshot(collection(db,'properties'),snap=>{properties=[];snap.forEach(d=>properties.push({...d.data(),id:d.id}));});
+  onSnapshot(collection(db,'brokers'),snap=>{brokers={};snap.forEach(d=>brokers[d.id]=d.data());render(activeFilter);});
+  onSnapshot(collection(db,'properties'),snap=>{properties=[];snap.forEach(d=>properties.push({...d.data(),id:d.id}));render(activeFilter);});
 }
 
 function start(){style();ensureHeavy();benefits();wire();setTimeout(()=>{ensureHeavy();wire();benefits();},600);setTimeout(wire,1600);listen();}
