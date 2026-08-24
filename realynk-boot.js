@@ -6,7 +6,7 @@
     var s=document.createElement('script');
     if(type==='module')s.type='module';
     s.src=src;
-    if(src.indexOf('property-management-ui.js')>=0)s.src='./property-management-ui.js?v=2';
+    if(src.indexOf('property-management-ui.js')>=0)s.src='./property-management-ui.js?v=3';
     s.dataset.realynkSrc=src;
     document.head.appendChild(s);
   }
@@ -28,11 +28,12 @@
     ensureHeavyUI();
     loadScript('./professional-ui.js?v=2');
     loadScript('./realynk-core.js?v=6','module');
-    loadScript('./realynk-final-ui.js?v=3','module');
+    loadScript('./realynk-final-ui.js?v=4','module');
     loadScript('./category-display.js?v=1','module');
-    loadScript('./property-management-ui.js?v=2');
-    loadScript('./realynk-action-fix.js?v=1');
-    loadScript('./network-visibility-fix.js?v=1','module');
+    loadScript('./property-management-ui.js?v=3');
+    loadScript('./realynk-action-fix.js?v=2');
+    loadScript('./network-visibility-fix.js?v=2','module');
+    loadScript('./share-repair.js?v=1');
     setTimeout(ensureHeavyUI,500);
     setTimeout(ensureHeavyUI,1500);
   }
