@@ -26,6 +26,7 @@
     load('./property-management-ui.js?v=5');
     load('./realynk-hotfix.js?v=2','module');
     load('./realynk-final-fix.js?v=3');
+    load('./category-stable-fix.js?v=1');
     setTimeout(heavy,500);setTimeout(heavy,1500);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
