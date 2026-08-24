@@ -1,8 +1,9 @@
-const CACHE='realynk-v31';
+const CACHE='realynk-v32';
 const SHELL=[
   './','./index.html','./manifest.webmanifest','./logo.png',
-  './realynk-boot.js','./realynk-core.js','./property-management-ui.js',
-  './pwa-branding.js','./video-duration-fix.js','./firebase-auth.js','./firebase-config.js'
+  './realynk-boot.js','./realynk-hotfix.js','./realynk-core.js',
+  './property-management-ui.js','./pwa-branding.js','./professional-ui.js',
+  './video-duration-fix.js','./firebase-auth.js','./firebase-config.js'
 ];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()));
