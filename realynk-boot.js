@@ -30,7 +30,7 @@
     loadScript('./professional-ui.js?v=2');
     loadScript('./realynk-core.js?v=6','module');
     loadScript('./realynk-final-ui.js?v=4','module');
-    loadScript('./category-display.js?v=1','module');
+    loadScript('./category-display.js?v=2','module');
     loadScript('./property-management-ui.js?v=3');
     loadScript('./realynk-action-fix.js?v=2');
     loadScript('./network-visibility-fix.js?v=2','module');
