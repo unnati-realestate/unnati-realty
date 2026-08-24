@@ -22,20 +22,14 @@ function localProperties(){
 function typeOf(p){ return p.type || p.listingType || p.listing_type || ""; }
 function descriptionOf(p){ return p.description || p.desc || ""; }
 function photosOf(p){ return Array.isArray(p.photoUrls) ? p.photoUrls : (Array.isArray(p.photos) ? p.photos : []); }
-function currentUid(){ return auth.currentUser?.uid || ""; }
 
-function visibleForCategory(){
-  const uid = currentUid();
-  const local = localProperties().map(p => ({...p, __local:true, brokerUid:p.brokerUid || uid}));
-  const merged = [...cloudProperties, ...local];
-  const seen = new Set();
-  return merged.filter(p => {
-    const key = String(p.id || p.propertyId || (p.title+"|"+p.area+"|"+typeOf(p)));
-    if(seen.has(key)) return false;
-    seen.add(key);
-    const b = brokers[p.brokerUid] || {};
-    return b.approved === true || (uid && p.brokerUid === uid) || p.__local === true;
+function allProperties(){
+  const map = new Map();
+  [...cloudProperties, ...localProperties()].forEach(p => {
+    const key = String(p.id || p.propertyId || (p.title + "|" + p.area + "|" + typeOf(p)));
+    if(!map.has(key)) map.set(key, {...p}); else map.set(key, {...map.get(key), ...p});
   });
+  return [...map.values()].filter(p => p.status !== "inactive" && p.status !== "sold" && p.status !== "Sold Out" && p.status !== "Rented Out" && p.sold !== true);
 }
 
 function card(p){
@@ -43,24 +37,26 @@ function card(p){
   const phone = digits(p.phone || p.brokerPhone || b.phone);
   const photos = photosOf(p);
   const description = descriptionOf(p);
-  return `<div class="panel property"><h3>${esc(p.title || "Property")}</h3><div class="rt-lock">📍 ${esc(p.area || p.location || "Location not specified")}</div><div class="details"><div class="detail"><span>TYPE</span><b>${esc(typeOf(p))}</b></div><div class="detail"><span>PRICE / RENT</span><b>${esc(p.price || p.rent || "On Request")}</b></div></div>${p.deposit ? `<div class="rt-lock" style="margin-top:7px"><b>Deposit:</b> ${esc(p.deposit)}</div>` : ""}${p.size ? `<div class="rt-lock"><b>Area:</b> ${esc(p.size)}</div>` : ""}${description ? `<p>${esc(description)}</p>` : ""}${photos.length ? `<div class="rt-media">${photos.slice(0,10).map(u => `<img class="rt-photo" src="${esc(u)}" alt="Property photo">`).join("")}</div>` : ""}<div class="badge">Broker: ${esc(b.fullName || p.brokerName || p.broker || "Realynk Broker")}</div>${phone ? `<div class="rt-actions"><button type="button" data-cat-call="${phone}">📞 Call Broker</button><button type="button" data-cat-wa="${phone}" data-title="${esc(p.title || "Property")}">💬 WhatsApp</button></div>` : ""}</div>`;
+  const title = p.title || "Property";
+  return `<div class="panel property" data-property-id="${esc(p.id || "")}"><h3>${esc(title)}</h3><div class="rt-lock">📍 ${esc(p.area || p.location || "Location not specified")}</div><div class="details"><div class="detail"><span>TYPE</span><b>${esc(typeOf(p))}</b></div><div class="detail"><span>PRICE / RENT</span><b>${esc(p.price || p.rent || "On Request")}</b></div></div>${p.deposit ? `<div class="rt-lock" style="margin-top:7px"><b>Deposit:</b> ${esc(p.deposit)}</div>` : ""}${p.size ? `<div class="rt-lock"><b>Area:</b> ${esc(p.size)}</div>` : ""}${description ? `<p>${esc(description)}</p>` : ""}${photos.length ? `<div class="rt-media">${photos.slice(0,10).map(u => `<img class="rt-photo" src="${esc(u)}" alt="Property photo">`).join("")}</div>` : ""}<div class="badge">Broker: ${esc(b.fullName || p.brokerName || p.broker || "Realynk Broker")}</div><div class="rt-actions" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"><button type="button" data-cat-call="${phone}">📞 Call Broker</button><button type="button" data-cat-wa="${phone}" data-title="${esc(title)}">💬 WhatsApp</button><button type="button" data-cat-share="${esc(p.id || "")}" data-title="${esc(title)}">↗️ Share</button></div></div>`;
 }
 
 function render(filter=""){
   activeFilter = filter || "";
   const out = $("homeList");
   if(!out) return;
-  let list = visibleForCategory();
-  if(filter) list = list.filter(p => norm(typeOf(p)) === norm(filter));
-  const q = ($( "search")?.value || "").trim().toLowerCase();
+  let list = allProperties();
+  if(filter) list = list.filter(p => { const t=norm(typeOf(p)); return t===norm(filter) || (filter==="Heavy Deposit" && (t.includes("heavy") || norm(p.title).includes("heavy deposit"))); });
+  const q = ($("search")?.value || "").trim().toLowerCase();
   if(q) list = list.filter(p => [p.title,p.area,p.location,descriptionOf(p),typeOf(p),p.brokerName,p.broker].join(" ").toLowerCase().includes(q));
   const bar = $("filterBar"), title = $("filterTitle");
   if(bar) bar.style.display = filter ? "flex" : "none";
   if(title) title.textContent = filter ? filter + " Properties" : "";
   if(!list.length){ out.innerHTML = `<div class="panel empty">No ${esc(filter || "")} properties posted yet.</div>`; return; }
   out.innerHTML = list.map(card).join("");
-  out.querySelectorAll("[data-cat-call]").forEach(b => b.onclick = () => location.href = "tel:+91" + b.dataset.catCall);
-  out.querySelectorAll("[data-cat-wa]").forEach(b => b.onclick = () => location.href = "https://wa.me/91" + b.dataset.catWa + "?text=" + encodeURIComponent("Hi, I found your property on Realynk: " + (b.dataset.title || "Property")));
+  out.querySelectorAll("[data-cat-call]").forEach(b => { if(!b.dataset.catCall) b.disabled=true; else b.onclick=()=>location.href="tel:+91"+b.dataset.catCall; });
+  out.querySelectorAll("[data-cat-wa]").forEach(b => { if(!b.dataset.catWa) b.disabled=true; else b.onclick=()=>location.href="https://wa.me/91"+b.dataset.catWa+"?text="+encodeURIComponent("Hi, I found your property on Realynk: "+(b.dataset.title||"Property")); });
+  out.querySelectorAll("[data-cat-share]").forEach(b => b.onclick=()=>{ const text=(b.dataset.title||"Realynk Property")+"\n\nRealynk — India's Real Estate Agent Network"; if(navigator.share) navigator.share({title:b.dataset.title||"Realynk Property",text,url:location.href}).catch(()=>{}); else if(navigator.clipboard) navigator.clipboard.writeText(text+"\n"+location.href).then(()=>alert("Realynk property link copied.")); });
 }
 
 function setFilter(type){
@@ -73,7 +69,6 @@ function setFilter(type){
 }
 
 function start(){
-  // Capture at document level so this category handler always wins over older button handlers.
   document.addEventListener("click", e => {
     const button = e.target.closest?.("#buy,#sale,#rent,#commercial,#heavyDeposit");
     if(button){
@@ -90,6 +85,7 @@ function start(){
   if(search) search.addEventListener("input", () => render(activeFilter));
   onSnapshot(collection(db,"brokers"), snap => { brokers={}; snap.forEach(d=>brokers[d.id]=d.data()); render(activeFilter); });
   onSnapshot(collection(db,"properties"), snap => { cloudProperties=[]; snap.forEach(d=>cloudProperties.push({...d.data(),id:d.id})); render(activeFilter); });
+  setTimeout(()=>render(activeFilter),500);
   setTimeout(()=>render(activeFilter),1800);
 }
 
