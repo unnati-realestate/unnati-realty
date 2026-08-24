@@ -1,12 +1,12 @@
-/* REALYNK BOOT - single stable engine only. */
+/* REALYNK BOOT - restore the working action engine. */
 (function(){
   'use strict';
   function load(src,type){
-    if(document.querySelector('script[data-realynk-stable="'+src+'"]')) return;
+    if(document.querySelector('script[data-realynk-loader="'+src+'"]')) return;
     var s=document.createElement('script');
     if(type==='module') s.type='module';
     s.src=src;
-    s.dataset.realynkStable=src;
+    s.dataset.realynkLoader=src;
     document.body.appendChild(s);
   }
   function heavy(){
@@ -28,11 +28,12 @@
   }
   function start(){
     heavy();
-    /* Do not load the old competing hotfix/final/category/master layers. */
-    load('./pwa-branding.js?v=4');
-    load('./realynk-core.js?v=10','module');
-    load('./property-management-ui.js?v=6');
-    load('./video-duration-fix.js?v=5');
+    load('./pwa-branding.js?v=5');
+    load('./professional-ui.js?v=4');
+    load('./realynk-core.js?v=11','module');
+    load('./property-management-ui.js?v=7');
+    load('./realynk-hotfix.js?v=3','module');
+    load('./video-duration-fix.js?v=6');
     setTimeout(heavy,500);
     setTimeout(heavy,1500);
     setTimeout(heavy,3000);
