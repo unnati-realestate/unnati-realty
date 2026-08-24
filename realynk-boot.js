@@ -32,6 +32,7 @@
     loadScript('./category-display.js?v=1','module');
     loadScript('./property-management-ui.js?v=2');
     loadScript('./realynk-action-fix.js?v=1');
+    loadScript('./network-visibility-fix.js?v=1','module');
     setTimeout(ensureHeavyUI,500);
     setTimeout(ensureHeavyUI,1500);
   }
