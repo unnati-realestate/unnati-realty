@@ -1,120 +1,20 @@
-/* REALYNK_FINAL_FIX_V2 */
+/* REALYNK FINAL FIX - one reliable property feed */
 (function(){
   'use strict';
-  var DB='realynkMediaDB', STORE='videos';
-  function openDB(){return new Promise(function(resolve,reject){if(!window.indexedDB)return reject(new Error('IndexedDB unavailable'));var r=indexedDB.open(DB,1);r.onupgradeneeded=function(){if(!r.result.objectStoreNames.contains(STORE))r.result.createObjectStore(STORE)};r.onsuccess=function(){resolve(r.result)};r.onerror=function(){reject(r.error)}})}
-  function putVideo(id,file){return openDB().then(function(db){return new Promise(function(resolve,reject){var tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(file,id);tx.oncomplete=resolve;tx.onerror=function(){reject(tx.error)}})})}
-  function getVideo(id){return openDB().then(function(db){return new Promise(function(resolve,reject){var r=db.transaction(STORE,'readonly').objectStore(STORE).get(id);r.onsuccess=function(){resolve(r.result||null)};r.onerror=function(){reject(r.error)}})})}
-  function profile(){try{return JSON.parse(localStorage.getItem('realynkBrokerProfile')||'{}')||{}}catch(e){return{}}}
-  function properties(){try{var p=JSON.parse(localStorage.getItem('realynkProperties')||'[]');return Array.isArray(p)?p:[]}catch(e){return[]}}
-
-  function clearSeededDefaults(){
-    var p=profile();
-    if(!p.agentName && !p.accountPhone && !p.agentEmail){
-      ['agentName','accountPhone','agentEmail','companyName','officeAddress','city','state','phone'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-    }
-  }
-
-  function addLogoutButton(){
-    var account=document.getElementById('account');
-    if(!account || document.getElementById('realynkLogout')) return;
-    var btn=document.createElement('button');
-    btn.id='realynkLogout';
-    btn.type='button';
-    btn.className='back full';
-    btn.style.marginTop='12px';
-    btn.textContent='↪ Logout';
-    btn.onclick=function(){
-      if(!confirm('Logout from Realynk?')) return;
-      try{localStorage.clear();sessionStorage.clear();}catch(e){}
-      window.location.reload();
-    };
-    var page=account.querySelector('.page');
-    if(page) page.appendChild(btn);
-  }
-
-  var videoInput=document.getElementById('video');
-  if(videoInput){videoInput.addEventListener('change',function(){var f=videoInput.files&&videoInput.files[0];if(!f)return;window.__realynkPendingVideo=f;},false)}
-
-  function enhanceCards(){
-    var list=properties();
-    document.querySelectorAll('.property').forEach(function(card){
-      if(card.getAttribute('data-final-enhanced')==='1')return;
-      var titleEl=card.querySelector('h3'); if(!titleEl)return;
-      var title=titleEl.textContent.trim();
-      var p=list.find(function(x){return String(x.title||'').trim()===title});
-      if(!p)return;
-      card.setAttribute('data-final-enhanced','1');
-      var phone=String(p.phone||profile().accountPhone||'').replace(/\D/g,'');
-      var row=document.createElement('div'); row.className='realynk-actions';
-      row.innerHTML='<button type="button" data-act="call">📞 Call</button><button type="button" data-act="share">↗ Share</button>'+(p.videoName?'<button type="button" data-act="video">🎥 Video</button>':'');
-      card.appendChild(row);
-      row.querySelector('[data-act="call"]').onclick=function(){if(phone)window.location.href='tel:+91'+phone};
-      row.querySelector('[data-act="share"]').onclick=function(){var text=(p.title||'Property')+' - '+(p.area||'')+' '+(p.price||'');if(navigator.share)navigator.share({title:p.title||'REALYNK Property',text:text,url:location.href}).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(text+' '+location.href).then(function(){alert('Property link copied')})};
-      var vb=row.querySelector('[data-act="video"]');
-      if(vb){vb.onclick=function(){getVideo(p.id).then(function(file){if(!file){alert('Video preview is not available on this device.');return}var u=URL.createObjectURL(file);var w=window.open('','_blank');if(w){w.document.write('<title>REALYNK Property Video</title><meta name="viewport" content="width=device-width,initial-scale=1"><video controls autoplay playsinline style="width:100%;height:auto" src="'+u+'"></video>');w.document.close()}}).catch(function(){alert('Property video is not available.')})}}
-    });
-  }
-  function goScreen(id){
-    var el=document.getElementById(id); if(!el)return false;
-    document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
-    el.classList.add('active');
-    window.scrollTo(0,0);
-    return true;
-  }
-  function esc(v){return String(v==null?'':v).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\\':'&#92;','"':'&quot;'}[c]})}
-  function showCategory(type){
-    var list=properties();
-    var bar=document.getElementById('filterBar'), title=document.getElementById('filterTitle'), out=document.getElementById('homeList');
-    if(bar)bar.style.display='flex';
-    if(title)title.textContent=type+' Properties';
-    var filtered=list.filter(function(p){
-      var t=String(p.type||p.listingType||'').toLowerCase();
-      if(type==='Sale') return t==='sale';
-      if(type==='Buy') return t==='buy';
-      if(type==='Rent') return t==='rent';
-      if(type==='Commercial') return t==='commercial';
-      return true;
-    });
-    if(!out)return;
-    if(!filtered.length){out.innerHTML='<div class="panel empty">No '+esc(type)+' properties posted yet.</div>';return;}
-    out.innerHTML=filtered.map(function(p){
-      var price=p.price||p.rent||'—';
-      var broker=p.agentName||p.brokerName||p.companyName||'';
-      return '<div class="panel property"><h3>'+esc(p.title||'Property')+'</h3><div>'+esc(p.area||p.location||'')+'</div><div class="details"><div class="detail"><span>TYPE</span><b>'+esc(p.type||type)+'</b></div><div class="detail"><span>PRICE</span><b>'+esc(price)+'</b></div></div>'+(broker?'<div class="small" style="margin-top:9px">Broker: <b>'+esc(broker)+'</b></div>':'')+'</div>';
-    }).join('');
-    enhanceCards();
-    window.scrollTo(0,document.getElementById('filterBar')?document.getElementById('filterBar').offsetTop:0);
-  }
-  function wireHomeButtons(){
-    var map={buy:'Buy',sale:'Sale',rent:'Rent',commercial:'Commercial'};
-    Object.keys(map).forEach(function(id){
-      var b=document.getElementById(id);if(!b||b.__realynkWired)return;
-      b.__realynkWired=true;b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();goScreen('home');showCategory(map[id]);});
-    });
-    var post=document.getElementById('postQuick');
-    if(post&&!post.__realynkWired){post.__realynkWired=true;post.addEventListener('click',function(){goScreen('post');});}
-    var clear=document.getElementById('clearFilter');
-    if(clear&&!clear.__realynkWired){clear.__realynkWired=true;clear.addEventListener('click',function(){var bar=document.getElementById('filterBar'),out=document.getElementById('homeList');if(bar)bar.style.display='none';if(out)out.innerHTML='';enhanceCards();});}
-  }
-  wireHomeButtons();
-  setTimeout(wireHomeButtons,500);
-  setTimeout(wireHomeButtons,1500);
-
-  function captureVideoAfterPost(){
-    var f=window.__realynkPendingVideo;if(!f)return;
-    var started=Date.now();
-    (function poll(){
-      var p=properties();
-      if(p.length && p[0].videoName===f.name){putVideo(p[0].id,f).then(function(){window.__realynkPendingVideo=null;setTimeout(enhanceCards,100)}).catch(function(){});return}
-      if(Date.now()-started<5000)setTimeout(poll,150);
-    })();
-  }
-  var submit=document.getElementById('submit');
-  if(submit){submit.addEventListener('click',function(){setTimeout(captureVideoAfterPost,250)},true)}
-  var obs=new MutationObserver(function(){enhanceCards();wireHomeButtons();addLogoutButton();clearSeededDefaults()});
-  obs.observe(document.body,{childList:true,subtree:true});
-  setTimeout(function(){clearSeededDefaults();addLogoutButton();enhanceCards()},500);
-  setTimeout(addLogoutButton,1500);
-  if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){})})}
+  var filter='';
+  var allProperties=[];
+  var $=function(id){return document.getElementById(id)};
+  var esc=function(v){return String(v==null?'':v).replace(/[&<>\"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]})};
+  var digits=function(v){return String(v||'').replace(/\D/g,'')};
+  function localList(){try{var a=JSON.parse(localStorage.getItem('realynkProperties')||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+  function active(p){var s=String(p.status||'active').toLowerCase();return ['sold','sold out','soldout','rented out','inactive'].indexOf(s)<0}
+  function matches(p){if(!filter)return true;var t=String(p.type||'').toLowerCase(),title=String(p.title||'').toLowerCase();if(filter==='Heavy Deposit')return t.indexOf('heavy')>=0||title.indexOf('heavy deposit')>=0;return t===filter.toLowerCase()}
+  function merged(){var m={};allProperties.forEach(function(p){if(p&&p.id)m[String(p.id)]=p});localList().forEach(function(p){if(p&&p.id)m[String(p.id)]=Object.assign({},m[String(p.id)]||{},p)});return Object.keys(m).map(function(k){return m[k]})}
+  function card(p){var ph=digits(p.phone||p.brokerPhone||''),url=location.origin+location.pathname+'?property='+encodeURIComponent(p.id||'');return '<div class="panel property rf-card"><h3>'+esc(p.title||'Property')+'</h3><div>📍 '+esc(p.area||p.location||'Location not specified')+'</div><div class="details"><div class="detail"><span>TYPE</span><b>'+esc(p.type||'')+'</b></div><div class="detail"><span>PRICE / RENT</span><b>'+esc(p.price||p.rent||'On Request')+'</b></div></div>'+(p.deposit?'<div style="margin-top:7px"><b>Deposit:</b> '+esc(p.deposit)+'</div>':'')+(p.size?'<div style="margin-top:7px"><b>Area:</b> '+esc(p.size)+'</div>':'')+(p.description||p.desc?'<p>'+esc(p.description||p.desc)+'</p>':'')+'<div class="badge">Broker: '+esc(p.brokerName||p.agentName||'Realynk Broker')+'</div><div class="rf-actions">'+(ph?'<button type="button" class="rf-call" data-phone="'+ph+'">📞 Call Broker</button><button type="button" class="rf-wa" data-phone="'+ph+'">💬 WhatsApp</button>':'')+'<button type="button" class="rf-share" data-url="'+esc(url)+'" data-title="'+esc(p.title||'Realynk Property')+'">↗ Share</button></div></div>'}
+  function render(){var host=$('homeList');if(!host)return;var q=(($('search')||{}).value||'').trim().toLowerCase(),list=merged().filter(active).filter(matches);if(q)list=list.filter(function(p){return [p.title,p.area,p.location,p.type,p.description,p.desc,p.size,p.deposit,p.brokerName].join(' ').toLowerCase().indexOf(q)>=0});var bar=$('filterBar');if(bar)bar.style.display=filter?'flex':'none';if($('filterTitle'))$('filterTitle').textContent=filter||'';host.innerHTML=list.length?list.map(card).join(''):'<div class="empty">No properties found.</div>'}
+  function go(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.toggle('active',s.id===id)});document.querySelectorAll('.bottom button').forEach(function(b){b.classList.toggle('active',b.dataset.nav===id)});window.scrollTo(0,0)}
+  function bind(){if(window.__rfBound)return;window.__rfBound=true;[['buy','Buy'],['sale','Sale'],['rent','Rent'],['commercial','Commercial'],['heavyDeposit','Heavy Deposit']].forEach(function(x){var b=$(x[0]);if(b)b.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();filter=x[1];go('home');render()},true)});var clear=$('clearFilter');if(clear)clear.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();filter='';render()},true);var search=$('search');if(search)search.addEventListener('input',render,true);document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('button');if(!b)return;if(b.classList.contains('rf-call')){e.preventDefault();e.stopImmediatePropagation();location.href='tel:+91'+b.dataset.phone}else if(b.classList.contains('rf-wa')){e.preventDefault();e.stopImmediatePropagation();location.href='https://wa.me/91'+b.dataset.phone}else if(b.classList.contains('rf-share')){e.preventDefault();e.stopImmediatePropagation();var u=b.dataset.url,t=b.dataset.title,txt='Hi, I found this property on Realynk: '+t;if(navigator.share)navigator.share({title:t,text:txt,url:u}).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(txt+'\n'+u).then(function(){alert('Property link copied')});else window.prompt('Copy property link',u)}},true)}
+  async function cloud(){try{var a=await import('https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js'),b=await import('https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js'),c=await import('https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js'),cfg=await import('./firebase-config.js'),app=a.getApps().length?a.getApps()[0]:a.initializeApp(cfg.firebaseConfig),auth=b.getAuth(app),db=c.getFirestore(app);var u=auth.currentUser;if(!u)u=(await b.signInAnonymously(auth)).user;var p={};try{p=JSON.parse(localStorage.getItem('realynkBrokerProfile')||'{}')}catch(e){}localList().slice(0,50).forEach(function(x){if(!x||!x.id)return;c.setDoc(c.doc(db,'properties',String(x.id)),Object.assign({},x,{brokerUid:x.brokerUid||u.uid,brokerName:x.brokerName||p.agentName||'Realynk Broker',brokerPhone:digits(x.brokerPhone||x.phone||p.accountPhone||''),status:x.status||'active',updatedAt:c.serverTimestamp()}),{merge:true}).catch(function(){})});c.onSnapshot(c.collection(db,'properties'),function(s){allProperties=[];s.forEach(function(d){allProperties.push(Object.assign({},d.data(),{id:d.id}))});render()},function(e){console.warn('Realynk property feed',e)});setInterval(function(){localList().forEach(function(x){if(x&&x.id)c.setDoc(c.doc(db,'properties',String(x.id)),x,{merge:true}).catch(function(){})});render()},8000)}catch(e){console.warn('Realynk cloud feed unavailable',e);render()}}
+  function start(){bind();render();cloud();setInterval(render,3000)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
