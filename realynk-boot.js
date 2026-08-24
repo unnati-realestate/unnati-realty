@@ -34,7 +34,7 @@
     loadScript('./property-management-ui.js?v=3');
     loadScript('./realynk-action-fix.js?v=2');
     loadScript('./network-visibility-fix.js?v=2','module');
-    loadScript('./share-repair.js?v=1');
+    loadScript('./share-repair.js?v=2');
     setTimeout(ensureHeavyUI,500);
     setTimeout(ensureHeavyUI,1500);
   }
