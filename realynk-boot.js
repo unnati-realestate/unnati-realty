@@ -1,4 +1,4 @@
-/* REALYNK BOOT - load the stable core plus one master action layer. */
+/* REALYNK BOOT - clean single-engine loader. */
 (function(){
   'use strict';
   function load(src,type){
@@ -10,20 +10,24 @@
     document.body.appendChild(s);
   }
   function heavy(){
-    var quick=document.querySelector('.quick'),post=document.getElementById('postQuick');
-    if(quick&&!document.getElementById('heavyDeposit')){
+    var quick=document.querySelector('.quick'), post=document.getElementById('postQuick');
+    if(quick && !document.getElementById('heavyDeposit')){
       var b=document.createElement('button');b.id='heavyDeposit';b.type='button';b.innerHTML='🔐<b>Heavy Deposit</b>';
-      if(post)quick.insertBefore(b,post);else quick.appendChild(b);
+      if(post) quick.insertBefore(b,post); else quick.appendChild(b);
     }
+    var type=document.getElementById('type');
+    if(type && !type.querySelector('option[value="Heavy Deposit"]')){var o=document.createElement('option');o.value='Heavy Deposit';o.textContent='Heavy Deposit';type.appendChild(o)}
   }
   function start(){
     heavy();
-    load('./pwa-branding.js?v=3');
-    load('./professional-ui.js?v=4');
-    load('./realynk-core.js?v=9','module');
-    load('./property-management.js?v=2','module');
-    load('./video-duration-fix.js?v=4');
-    load('./realynk-master-fix.js?v=1','module');
+    load('./pwa-branding.js?v=2');
+    load('./professional-ui.js?v=3');
+    load('./realynk-core.js?v=8','module');
+    load('./property-management-ui.js?v=5');
+    load('./realynk-hotfix.js?v=2','module');
+    load('./realynk-final-fix.js?v=3');
+    load('./category-stable-fix.js?v=1');
+    load('./video-duration-fix.js?v=3');
     setTimeout(heavy,500);setTimeout(heavy,1500);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
