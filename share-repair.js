@@ -1,4 +1,4 @@
-/* Realynk Share/Contact UI repair — removes malformed injected share markup and restores 3 clean actions. */
+/* Realynk Share/Contact UI repair — clean Call, WhatsApp and branded Share actions. */
 (function(){
   'use strict';
   const digits=v=>String(v||'').replace(/\D/g,'');
@@ -6,9 +6,7 @@
 
   function getPhone(card){
     const data=card.querySelector('[data-call],[data-wa]');
-    if(data){
-      const p=digits(data.dataset.call||data.dataset.wa); if(p)return p;
-    }
+    if(data){ const p=digits(data.dataset.call||data.dataset.wa); if(p)return p; }
     const buttons=card.querySelectorAll('button');
     for(const b of buttons){
       const s=String(b.getAttribute('onclick')||'')+' '+String(b.getAttribute('href')||'');
@@ -19,20 +17,22 @@
   }
 
   function share(card){
-    const title=(card.querySelector('h3')?.textContent||'Property on Realynk').trim();
+    const title=(card.querySelector('h3')?.textContent||'Realynk Property').trim();
     const area=(card.querySelector('.rn-muted,.rt-lock')?.textContent||'').replace(/^📍\s*/,'').trim();
+    const shareUrl=new URL('./share.html',location.href);
+    shareUrl.searchParams.set('title',title);
+    if(area) shareUrl.searchParams.set('area',area);
     const text=title+(area?'\n📍 '+area:'')+'\n\nListed on Realynk — India\'s Real Estate Agent Network.';
-    const url=window.location.href.split('#')[0];
-    if(navigator.share){ navigator.share({title,text,url}).catch(e=>{if(e?.name!=='AbortError')copy(url,text);}); }
-    else copy(url,text);
+    if(navigator.share){ navigator.share({title,text,url:shareUrl.href}).catch(e=>{if(e?.name!=='AbortError')copy(shareUrl.href,text);}); }
+    else copy(shareUrl.href,text);
   }
   function copy(url,text){
     const value=text+'\n'+url;
     if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(value).then(()=>alert('Property link copied. You can paste it on WhatsApp.')).catch(()=>fallback(url));
+      navigator.clipboard.writeText(value).then(()=>alert('Branded Realynk property link copied. You can paste it on WhatsApp.')).catch(()=>fallback(url));
     }else fallback(url);
   }
-  function fallback(url){ window.prompt('Copy this property link:',url); }
+  function fallback(url){ window.prompt('Copy this Realynk property link:',url); }
 
   function repair(){
     document.querySelectorAll('.property').forEach(card=>{
