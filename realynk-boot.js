@@ -6,6 +6,7 @@
     var s=document.createElement('script');
     if(type==='module')s.type='module';
     s.src=src;
+    if(src.indexOf('property-management-ui.js')>=0)s.src='./property-management-ui.js?v=2';
     s.dataset.realynkSrc=src;
     document.head.appendChild(s);
   }
@@ -29,7 +30,7 @@
     loadScript('./realynk-core.js?v=6','module');
     loadScript('./realynk-final-ui.js?v=2','module');
     loadScript('./category-display.js?v=1','module');
-    loadScript('./property-management-ui.js?v=1');
+    loadScript('./property-management-ui.js?v=2');
     setTimeout(ensureHeavyUI,500);
     setTimeout(ensureHeavyUI,1500);
   }
