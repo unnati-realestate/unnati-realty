@@ -1,13 +1,26 @@
-/* REALYNK SAFE BOOT V3
-   The inline index.html is the primary application engine.
-   Keep this boot file tiny: PWA registration + one Heavy Deposit control only.
+/* REALYNK SAFE BOOT V4
+   Tiny runtime only: PWA metadata/registration + Heavy Deposit control.
+   The inline index.html remains the primary application engine.
 */
 (function(){
   'use strict';
 
-  function registerPWA(){
-    if(!('serviceWorker' in navigator)) return;
-    navigator.serviceWorker.register('./sw.js?v=40').catch(function(){});
+  function addLink(rel,href,attrs){
+    if(document.querySelector('link[rel="'+rel+'"]')) return;
+    var l=document.createElement('link');
+    l.rel=rel;
+    l.href=href;
+    if(attrs) Object.keys(attrs).forEach(function(k){l.setAttribute(k,attrs[k]);});
+    document.head.appendChild(l);
+  }
+
+  function setupPWA(){
+    addLink('manifest','./manifest.webmanifest');
+    addLink('icon','./logo.png',{type:'image/png'});
+    addLink('apple-touch-icon','./logo.png',{sizes:'512x512'});
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.register('./sw.js?v=40').catch(function(){});
+    }
   }
 
   function addHeavyDeposit(){
@@ -37,7 +50,6 @@
       };
       if(post) quick.insertBefore(b,post); else quick.appendChild(b);
     }
-
     var type=document.getElementById('type');
     if(type && !type.querySelector('option[value="Heavy Deposit"]')){
       var o=document.createElement('option');
@@ -47,14 +59,7 @@
     }
   }
 
-  function start(){
-    registerPWA();
-    addHeavyDeposit();
-  }
-
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',start,{once:true});
-  }else{
-    start();
-  }
+  function start(){setupPWA();addHeavyDeposit();}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start,{once:true});
+  else start();
 })();
