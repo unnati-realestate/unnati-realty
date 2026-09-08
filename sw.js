@@ -1,7 +1,8 @@
-/* REALYNK SERVICE WORKER — SAFE CACHE V40
-   Keep the PWA shell small. Never pin old JavaScript patch files in the cache.
-   Network is preferred; cache is only a fallback for offline use. */
-const CACHE='realynk-v40';
+/* REALYNK SERVICE WORKER — SAFE CACHE V41
+   Stabilize the live HTML without rewriting the large legacy index file.
+   The network version remains authoritative; the worker only removes duplicate
+   legacy boot tags and points the page at the current safe boot. */
+const CACHE='realynk-v41';
 const SHELL=['./','./index.html','./manifest.webmanifest','./logo.png'];
 
 self.addEventListener('install',event=>{
@@ -22,6 +23,15 @@ self.addEventListener('activate',event=>{
   );
 });
 
+function stabilizeDocument(response){
+  return response.text().then(html=>{
+    html=html.replace(/<script[^>]+src=[\"']\.\/heavy-deposit\.js\?v=20[\"'][^>]*><\\/script>/gi,'');
+    html=html.replace(/<script[^>]+src=[\"']\.\/realynk-boot\.js\?v=1[\"'][^>]*><\\/script>/gi,'');
+    html=html.replace('</body>','<script src="./realynk-boot.js?v=5"></script></body>');
+    return new Response(html,{status:response.status,statusText:response.statusText,headers:response.headers});
+  });
+}
+
 self.addEventListener('fetch',event=>{
   if(event.request.method!=='GET') return;
   const url=new URL(event.request.url);
@@ -30,7 +40,8 @@ self.addEventListener('fetch',event=>{
   event.respondWith(
     fetch(event.request,{cache:'no-store'})
       .then(response=>{
-        if(response && response.ok && event.request.destination!=='document'){
+        if(response && response.ok && event.request.destination==='document') return stabilizeDocument(response);
+        if(response && response.ok){
           const copy=response.clone();
           caches.open(CACHE).then(c=>c.put(event.request,copy)).catch(()=>{});
         }
