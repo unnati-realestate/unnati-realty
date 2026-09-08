@@ -12,6 +12,7 @@ let admin = false;
 let brokers = {};
 let properties = [];
 let unsubs = [];
+let uiHooked = false;
 
 const $ = id => document.getElementById(id);
 const digits = v => String(v || "").replace(/\D/g, "");
@@ -133,6 +134,8 @@ function addHiddenAdminAccess(){
 }
 
 function hookUI(){
+  if(uiHooked)return;
+  uiHooked=true;
   injectCSS();
   blankNewBrokerForm();
   fillAccount(localProfile());
@@ -146,7 +149,6 @@ function hookUI(){
   document.querySelectorAll("[data-back]").forEach(b=>b.addEventListener("click",e=>{e.stopImmediatePropagation();setScreen(b.dataset.back)},true));
   $("submit")?.addEventListener("click",()=>setTimeout(syncLocalProperties,1800),true);
   addHiddenAdminAccess();
-  setTimeout(()=>$("heavyDeposit")?.addEventListener("click",e=>{e.preventDefault();e.stopImmediatePropagation();renderProperties("Heavy Deposit");const fb=$("filterBar"),ft=$("filterTitle");if(fb){fb.style.display="flex";if(ft)ft.textContent="Heavy Deposit";}},true),1200);
   renderProperties();renderBrokers();
 }
 
@@ -156,5 +158,5 @@ onAuthStateChanged(auth,async u=>{
   subscribeCloud();
 });
 
-window.addEventListener("DOMContentLoaded",()=>{hookUI();ensureAuth().then(()=>syncLocalProperties());setTimeout(()=>{hookUI();subscribeCloud();},900);});
-window.addEventListener("load",()=>setTimeout(()=>{hookUI();renderProperties();renderBrokers();},1200));
+window.addEventListener("DOMContentLoaded",()=>{hookUI();ensureAuth().then(()=>syncLocalProperties());setTimeout(()=>subscribeCloud(),900);});
+window.addEventListener("load",()=>setTimeout(()=>{renderProperties();renderBrokers();},1200));
