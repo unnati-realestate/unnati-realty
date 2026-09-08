@@ -1,9 +1,8 @@
-/* REALYNK SERVICE WORKER — SAFE CACHE V42
-   Stabilize the live HTML without rewriting the large legacy index file.
-   Network remains authoritative; this worker removes duplicate legacy boot tags
-   and points the page at the current safe boot. */
-const CACHE='realynk-v42';
-const SHELL=['./','./index.html','./manifest.webmanifest','./logo.png'];
+/* REALYNK SERVICE WORKER — SAFE CACHE V43
+   Network remains authoritative. Stabilize the legacy HTML and inject only
+   lightweight, audited runtime modules. */
+const CACHE='realynk-v43';
+const SHELL=['./','./index.html','./manifest.webmanifest','./logo.png','./realynk-media.js'];
 
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()));
@@ -21,6 +20,9 @@ function stabilizeDocument(response){
     html=html.replace('<script type="module" src="./realynk-boot.js?v=1"></script>','');
     if(html.indexOf('./realynk-boot.js?v=5')<0){
       html=html.replace('</body>','<script src="./realynk-boot.js?v=5"></script></body>');
+    }
+    if(html.indexOf('./realynk-media.js?v=1')<0){
+      html=html.replace('</body>','<script src="./realynk-media.js?v=1"></script></body>');
     }
     return new Response(html,{status:response.status,statusText:response.statusText,headers:response.headers});
   });
