@@ -23,5 +23,5 @@
   meta('twitter:card','summary');
   meta('twitter:title',"Realynk — India's Real Estate Agent Network");
   meta('twitter:image',new URL(logo,location.href).href);
-  if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+  if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js?v=42').catch(()=>{}); }
 })();
