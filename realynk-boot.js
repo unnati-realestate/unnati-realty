@@ -20,7 +20,7 @@
     addLink('icon','./logo.png',{type:'image/png'});
     addLink('apple-touch-icon','./logo.png',{sizes:'512x512'});
     if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('./sw.js?v=40').catch(function(){});
+      navigator.serviceWorker.register('./sw.js?v=42').catch(function(){});
     }
   }
 
