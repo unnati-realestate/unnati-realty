@@ -1,9 +1,10 @@
-/* REALYNK SAFE BOOT V4
-   Tiny runtime only: PWA metadata/registration + Heavy Deposit control.
-   The inline index.html remains the primary application engine.
+/* REALYNK SAFE BOOT V5
+   Tiny runtime only: PWA metadata/registration, Heavy Deposit control,
+   and lazy loading of the professional broker profile module.
 */
 (function(){
   'use strict';
+  var profileLoaded=false;
 
   function addLink(rel,href,attrs){
     if(document.querySelector('link[rel="'+rel+'"]')) return;
@@ -21,6 +22,16 @@
     if('serviceWorker' in navigator){
       navigator.serviceWorker.register('./sw.js?v=40').catch(function(){});
     }
+  }
+
+  function loadProfessionalProfile(){
+    if(profileLoaded) return;
+    profileLoaded=true;
+    var s=document.createElement('script');
+    s.src='./realynk-professional-profile.js?v=2';
+    s.async=true;
+    s.onerror=function(){profileLoaded=false;};
+    document.head.appendChild(s);
   }
 
   function addHeavyDeposit(){
@@ -59,7 +70,14 @@
     }
   }
 
-  function start(){setupPWA();addHeavyDeposit();}
+  function start(){
+    setupPWA();
+    addHeavyDeposit();
+    document.addEventListener('click',function(e){
+      if(e.target.closest('[data-nav="brokers"]')) loadProfessionalProfile();
+    },true);
+  }
+
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start,{once:true});
   else start();
 })();
