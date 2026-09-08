@@ -1,22 +1,37 @@
-/* REALYNK BOOT - restore the working action engine. */
+/* REALYNK SAFE BOOT V2
+   The main index.html already contains the complete navigation/posting engine.
+   Previous layered patch modules could compete for the same DOM and make the page
+   unresponsive. Keep boot intentionally lightweight until each module is audited.
+*/
 (function(){
   'use strict';
-  function load(src,type){
-    if(document.querySelector('script[data-realynk-loader="'+src+'"]')) return;
-    var s=document.createElement('script');
-    if(type==='module') s.type='module';
-    s.src=src;
-    s.dataset.realynkLoader=src;
-    document.body.appendChild(s);
-  }
-  function heavy(){
-    var quick=document.querySelector('.quick'), post=document.getElementById('postQuick');
+  function addHeavyDeposit(){
+    var quick=document.querySelector('.quick');
+    var post=document.getElementById('postQuick');
     if(quick && !document.getElementById('heavyDeposit')){
       var b=document.createElement('button');
       b.id='heavyDeposit';
       b.type='button';
       b.innerHTML='🔐<b>Heavy Deposit</b>';
-      if(post) quick.insertBefore(b,post); else quick.appendChild(b);
+      b.onclick=function(){
+        var home=document.getElementById('home');
+        var list=document.getElementById('homeList');
+        var bar=document.getElementById('filterBar');
+        var title=document.getElementById('filterTitle');
+        document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+        if(home)home.classList.add('active');
+        if(bar)bar.style.display='flex';
+        if(title)title.textContent='Heavy Deposit';
+        if(list){
+          var cards=list.querySelectorAll('.property');
+          cards.forEach(function(card){
+            var text=(card.textContent||'').toLowerCase();
+            card.style.display=text.indexOf('heavy deposit')>=0?'':'none';
+          });
+        }
+        window.scrollTo(0,0);
+      };
+      if(post)quick.insertBefore(b,post);else quick.appendChild(b);
     }
     var type=document.getElementById('type');
     if(type && !type.querySelector('option[value="Heavy Deposit"]')){
@@ -26,18 +41,7 @@
       type.appendChild(o);
     }
   }
-  function start(){
-    heavy();
-    load('./pwa-branding.js?v=5');
-    load('./professional-ui.js?v=4');
-    load('./realynk-core.js?v=11','module');
-    load('./property-management-ui.js?v=7');
-    load('./realynk-hotfix.js?v=3','module');
-    load('./video-duration-fix.js?v=6');
-    setTimeout(heavy,500);
-    setTimeout(heavy,1500);
-    setTimeout(heavy,3000);
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start,{once:true});
+  function start(){addHeavyDeposit();setTimeout(addHeavyDeposit,700);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
   else start();
 })();
