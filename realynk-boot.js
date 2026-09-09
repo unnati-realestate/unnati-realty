@@ -1,8 +1,8 @@
-/* REALYNK SAFE BOOT V32 — deferred startup to prevent browser/PWA freezes */
+/* REALYNK SAFE BOOT V33 — deferred startup to prevent browser/PWA freezes */
 (function(){
 'use strict';
-if(window.__REALYNK_SAFE_BOOT_V32__)return;
-window.__REALYNK_SAFE_BOOT_V32__=true;
+if(window.__REALYNK_SAFE_BOOT_V33__)return;
+window.__REALYNK_SAFE_BOOT_V33__=true;
 function load(src,key,module){
   if(window[key])return;
   var s=document.createElement('script');
@@ -28,6 +28,9 @@ function start(){
     if(nav&&nav.getAttribute('data-nav')==='brokers'){
       load('./realynk-broker-auth.js?v=4','realynkBrokerAuth',true);
       load('./realynk-professional-profile.js?v=2','realynkProfessionalProfile',false);
+    }
+    if(nav&&nav.getAttribute('data-nav')==='dashboard'){
+      load('./realynk-property-actions.js?v=1','realynkPropertyActions',false);
     }
     if(e.target.closest('#account'))load('./realynk-broker-auth.js?v=4','realynkBrokerAuth',true);
     if(e.target.closest('#postQuick,#brokerPost,#add'))load('./realynk-video-replace.js?v=1','realynkVideoReplace',false);
