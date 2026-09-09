@@ -1,8 +1,8 @@
-/* REALYNK SAFE BOOT V14 */
+/* REALYNK SAFE BOOT V15 */
 (function(){'use strict';
 function load(src,key,module){if(window[key])return;var s=document.createElement('script');s.src=src;s.async=true;if(module)s.type='module';document.head.appendChild(s)}
 function start(){
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=48').catch(function(){});
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=49').catch(function(){});
   load('./realynk-media.js?v=2','realynkMedia',false);
   load('./realynk-admin-entry.js?v=5','realynkAdminEntry',true);
   document.addEventListener('click',function(e){
