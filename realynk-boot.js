@@ -1,7 +1,7 @@
-/* REALYNK SAFE BOOT V6 — tiny startup runtime */
+/* REALYNK SAFE BOOT V7 — tiny startup runtime */
 (function(){
   'use strict';
-  var profileLoaded=false, mediaLoaded=false;
+  var profileLoaded=false, mediaLoaded=false, adminLoaded=false;
   function addLink(rel,href,attrs){
     if(document.querySelector('link[rel="'+rel+'"]'))return;
     var l=document.createElement('link');l.rel=rel;l.href=href;
@@ -32,7 +32,11 @@
   function start(){
     setupPWA();addHeavyDeposit();
     load('./realynk-media.js?v=2','realynkMedia');
-    document.addEventListener('click',function(e){if(e.target.closest('[data-nav="brokers"]')&&!profileLoaded){profileLoaded=true;load('./realynk-professional-profile.js?v=2','realynkProfessionalProfile');}},true);
+    document.addEventListener('click',function(e){
+      var nav=e.target.closest('[data-nav]');
+      if(nav&&nav.getAttribute('data-nav')==='brokers'&&!profileLoaded){profileLoaded=true;load('./realynk-professional-profile.js?v=2','realynkProfessionalProfile');}
+      if(nav&&nav.getAttribute('data-nav')==='account'&&!adminLoaded){adminLoaded=true;load('./super-admin.js?v=1','realynkSuperAdmin');}
+    },true);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
