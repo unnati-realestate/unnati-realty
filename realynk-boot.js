@@ -1,16 +1,15 @@
-/* REALYNK SAFE BOOT V37 — deferred startup to prevent browser/PWA freezes */
+/* REALYNK SAFE BOOT V38 — deferred startup to prevent browser/PWA freezes */
 (function(){
 'use strict';
-if(window.__REALYNK_SAFE_BOOT_V37__)return;
-window.__REALYNK_SAFE_BOOT_V37__=true;
+if(window.__REALYNK_SAFE_BOOT_V38__)return;
+window.__REALYNK_SAFE_BOOT_V38__=true;
 function load(src,key,module){if(window[key])return;var s=document.createElement('script');s.src=src;s.async=true;if(module)s.type='module';document.head.appendChild(s)}
 function idle(fn,delay){if(window.requestIdleCallback)window.requestIdleCallback(fn,{timeout:delay||1500});else setTimeout(fn,delay||500)}
 function start(){
  try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})}).catch(function(){})}}catch(_){ }
  idle(function(){
   load('./realynk-media.js?v=3','realynkMedia',false);
-  load('./realynk-property-filter.js?v=8','realynkPropertyFilter',false);
-  load('./realynk-heavy-deposit.js?v=6','realynkHeavyDeposit',false);
+  load('./realynk-category-filter.js?v=1','realynkCategoryFilter',false);
   load('./realynk-heavy-deposit-type.js?v=1','realynkHeavyDepositType',false);
  },1200);
  document.addEventListener('click',function(e){
