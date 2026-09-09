@@ -1,4 +1,4 @@
-/* REALYNK MEDIA V2 — safe property video persistence + cloud handoff */
+/* REALYNK MEDIA V3 — safe property video selection + persistence */
 (function(){
   'use strict';
   var DB='realynk-media', STORE='propertyVideos', selectedFile=null;
@@ -9,8 +9,7 @@
     r.onsuccess=function(){resolve(r.result)};r.onerror=function(){reject(r.error||new Error('DB error'));};
   });}
   function put(id,file){return openDB().then(function(db){return new Promise(function(resolve,reject){
-    var tx=db.transaction(STORE,'readwrite');
-    tx.objectStore(STORE).put({blob:file,name:file.name,type:file.type,size:file.size,savedAt:Date.now()},String(id));
+    var tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put({blob:file,name:file.name,type:file.type,size:file.size,savedAt:Date.now()},String(id));
     tx.oncomplete=function(){db.close();resolve()};tx.onerror=function(){db.close();reject(tx.error)};
   });});}
   function get(id){return openDB().then(function(db){return new Promise(function(resolve,reject){
@@ -22,6 +21,15 @@
     tx.oncomplete=function(){db.close();resolve()};tx.onerror=function(){db.close();reject(tx.error)};
   });});}
   function latest(){try{var a=JSON.parse(localStorage.getItem('realynkProperties')||'[]');return Array.isArray(a)?a[0]:null}catch(_){return null}}
+  function clearSelection(){
+    selectedFile=null;
+    var input=document.getElementById('video');
+    if(input){try{input.value=''}catch(_){} }
+    var box=document.getElementById('videoBox'),player=document.getElementById('videoPlayer');
+    if(player){try{player.pause()}catch(_){};var src=player.getAttribute('src');if(src&&src.indexOf('blob:')===0){try{URL.revokeObjectURL(src)}catch(_){}};player.removeAttribute('src');try{player.load()}catch(_){}}
+    if(box)box.style.display='none';
+    window.dispatchEvent(new CustomEvent('realynkVideoCleared'));
+  }
   function bind(){
     var input=document.getElementById('video');
     if(input&&!input.__realynkMediaBound){input.__realynkMediaBound=true;input.addEventListener('change',function(){selectedFile=input.files&&input.files[0]||null;});}
@@ -38,6 +46,6 @@
       },true);
     }
   }
-  window.realynkMedia={getVideo:get,removeVideo:remove,saveVideo:put};
+  window.realynkMedia={getVideo:get,removeVideo:remove,saveVideo:put,clearVideoSelection:clearSelection};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
 })();
