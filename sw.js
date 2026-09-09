@@ -1,7 +1,6 @@
-/* REALYNK SERVICE WORKER — SAFE CACHE V43
-   Network remains authoritative. Stabilize the legacy HTML and inject only
-   lightweight, audited runtime modules. */
-const CACHE='realynk-v43';
+/* REALYNK SERVICE WORKER — SAFE CACHE V44
+   Network remains authoritative. Inject the current safe runtime modules. */
+const CACHE='realynk-v44';
 const SHELL=['./','./index.html','./manifest.webmanifest','./logo.png','./realynk-media.js'];
 
 self.addEventListener('install',event=>{
@@ -16,14 +15,10 @@ self.addEventListener('activate',event=>{
 
 function stabilizeDocument(response){
   return response.text().then(html=>{
-    html=html.replace('<script src="./heavy-deposit.js?v=20"></script>','');
-    html=html.replace('<script type="module" src="./realynk-boot.js?v=1"></script>','');
-    if(html.indexOf('./realynk-boot.js?v=5')<0){
-      html=html.replace('</body>','<script src="./realynk-boot.js?v=5"></script></body>');
-    }
-    if(html.indexOf('./realynk-media.js?v=1')<0){
-      html=html.replace('</body>','<script src="./realynk-media.js?v=1"></script></body>');
-    }
+    html=html.replace(/<script[^>]+heavy-deposit\.js[^>]*><\/script>/g,'');
+    html=html.replace(/<script[^>]+realynk-boot\.js[^>]*><\/script>/g,'');
+    html=html.replace(/<script[^>]+realynk-media\.js[^>]*><\/script>/g,'');
+    html=html.replace('</body>','<script src="./realynk-boot.js?v=7"></script><script src="./realynk-media.js?v=2"></script></body>');
     return new Response(html,{status:response.status,statusText:response.statusText,headers:response.headers});
   });
 }
