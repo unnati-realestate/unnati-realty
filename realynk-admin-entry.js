@@ -1,10 +1,22 @@
-/* REALYNK SUPER ADMIN ENTRY — admin-only, no visible broker control */
+/* REALYNK SUPER ADMIN ENTRY — admin-only, hidden login trigger */
 (function(){
   'use strict';
   var ADMIN='seagullairexpress@gmail.com', clicks=0, timer=null;
-  function loadAdmin(){
+  async function loadAdmin(){
     if(document.getElementById('realynkSuperAdminLoader'))return;
-    var s=document.createElement('script');s.id='realynkSuperAdminLoader';s.type='module';s.src='./super-admin.js?v=4';document.head.appendChild(s);
+    try{
+      var appmod=await import('https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js');
+      var authmod=await import('https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js');
+      var cfg=await import('./firebase-config.js');
+      var app=appmod.getApps().length?appmod.getApps()[0]:appmod.initializeApp(cfg.firebaseConfig);
+      var auth=authmod.getAuth(app);
+      if(String(auth.currentUser&&auth.currentUser.email||'').toLowerCase()!==ADMIN){
+        var provider=new authmod.GoogleAuthProvider();
+        await authmod.signInWithPopup(auth,provider);
+      }
+      if(String(auth.currentUser&&auth.currentUser.email||'').toLowerCase()!==ADMIN){alert('Super Admin access is restricted.');return;}
+      var s=document.createElement('script');s.id='realynkSuperAdminLoader';s.type='module';s.src='./super-admin.js?v=5';document.head.appendChild(s);
+    }catch(e){console.warn('Super Admin login',e);if(e&&e.code!=='auth/popup-closed-by-user')alert('Super Admin login failed. Please try again.');}
   }
   function addEntry(){
     if(document.getElementById('realynkSuperAdminEntry'))return;
@@ -28,8 +40,9 @@
     }catch(e){console.warn('Admin access check',e)}
   }
   function secret(){
-    var logo=document.querySelector('.logo');if(!logo)return;
-    logo.addEventListener('click',function(){clicks++;clearTimeout(timer);timer=setTimeout(function(){clicks=0},2500);if(clicks>=5){clicks=0;loadAdmin();}});
+    var logo=document.querySelector('img[src*="logo.png"], img[alt*="Realynk"], img[alt*="realynk"]');if(!logo)return;
+    logo.style.cursor='pointer';
+    logo.addEventListener('click',function(){clicks++;clearTimeout(timer);timer=setTimeout(function(){clicks=0},3000);if(clicks>=5){clicks=0;loadAdmin();}});
   }
   function start(){check();secret()}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
