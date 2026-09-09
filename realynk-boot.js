@@ -1,4 +1,4 @@
-/* REALYNK SAFE BOOT V7 — tiny startup runtime */
+/* REALYNK SAFE BOOT V8 — lightweight runtime loader */
 (function(){
   'use strict';
   var profileLoaded=false, mediaLoaded=false, adminLoaded=false;
@@ -8,16 +8,18 @@
     if(attrs)Object.keys(attrs).forEach(function(k){l.setAttribute(k,attrs[k]);});
     document.head.appendChild(l);
   }
-  function load(src,key){
+  function load(src,key,isModule){
     if(window[key])return;
-    var s=document.createElement('script');s.src=src;s.async=true;
+    var s=document.createElement('script');
+    s.src=src;s.async=true;
+    if(isModule)s.type='module';
     document.head.appendChild(s);
   }
   function setupPWA(){
     addLink('manifest','./manifest.webmanifest');
     addLink('icon','./logo.png',{type:'image/png'});
     addLink('apple-touch-icon','./logo.png',{sizes:'512x512'});
-    if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=43').catch(function(){});
+    if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js?v=44').catch(function(){});
   }
   function addHeavyDeposit(){
     var quick=document.querySelector('.quick'),post=document.getElementById('postQuick');
@@ -31,11 +33,11 @@
   }
   function start(){
     setupPWA();addHeavyDeposit();
-    load('./realynk-media.js?v=2','realynkMedia');
+    load('./realynk-media.js?v=2','realynkMedia',false);
     document.addEventListener('click',function(e){
       var nav=e.target.closest('[data-nav]');
-      if(nav&&nav.getAttribute('data-nav')==='brokers'&&!profileLoaded){profileLoaded=true;load('./realynk-professional-profile.js?v=2','realynkProfessionalProfile');}
-      if(nav&&nav.getAttribute('data-nav')==='account'&&!adminLoaded){adminLoaded=true;load('./super-admin.js?v=1','realynkSuperAdmin');}
+      if(nav&&nav.getAttribute('data-nav')==='brokers'&&!profileLoaded){profileLoaded=true;load('./realynk-professional-profile.js?v=2','realynkProfessionalProfile',false);}
+      if(nav&&nav.getAttribute('data-nav')==='account'&&!adminLoaded){adminLoaded=true;load('./super-admin.js?v=2','realynkSuperAdmin',true);}
     },true);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
