@@ -1,38 +1,11 @@
-/* REALYNK PUBLIC PROPERTY ACTIONS — direct stable loader */
+/* REALYNK PUBLIC PROPERTY ACTIONS V2 — public home controls only */
 (function(){
 'use strict';
-if(window.__REALYNK_PUBLIC_ACTIONS_V1__)return;
-window.__REALYNK_PUBLIC_ACTIONS_V1__=true;
-function styles(){
- if(document.getElementById('realynkPublicActionStyles'))return;
- var s=document.createElement('style');s.id='realynkPublicActionStyles';
- s.textContent='.realynkPublicActions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}.realynkPublicActions button{border:0;border-radius:11px;padding:13px 8px;font-weight:800;font-size:14px;cursor:pointer;background:#0b3768;color:#fff}.realynkPublicActions .enq{background:#155a9c}.realynkPublicActions .share{background:#f4b400;color:#17324d}.realynkPublicActions button:active{transform:scale(.98)}';
- document.head.appendChild(s);
-}
-function phoneFrom(card){
- var b=Array.prototype.slice.call(card.querySelectorAll('button')).find(function(x){return String(x.getAttribute('onclick')||'').indexOf('wa.me')>=0});
- var m=b&&String(b.getAttribute('onclick')||'').match(/wa\.me\/91([0-9]+)/);
- return m?m[1]:'';
-}
-function add(root){
- if(!root)return;
- var cards=[];
- if(root.matches&&root.matches('.property'))cards=[root];
- cards=cards.concat(Array.prototype.slice.call(root.querySelectorAll?root.querySelectorAll('.property'):[]));
- cards.forEach(function(card){
-  if(card.querySelector('.realynkPublicActions'))return;
-  var phone=phoneFrom(card),title=(card.querySelector('h3')?.textContent||'Property').trim();
-  var old=Array.prototype.slice.call(card.querySelectorAll('button')).find(function(x){return String(x.textContent||'').toLowerCase().indexOf('whatsapp')>=0});
-  if(old&&old.parentNode)old.parentNode.removeChild(old);
-  var box=document.createElement('div');box.className='realynkPublicActions';
-  function btn(text,fn,cl){var b=document.createElement('button');b.type='button';b.textContent=text;if(cl)b.className=cl;b.onclick=fn;box.appendChild(b)}
-  btn('📞 Call',function(){if(phone)location.href='tel:+91'+phone});
-  btn('💬 WhatsApp',function(){if(phone)window.open('https://wa.me/91'+phone+'?text='+encodeURIComponent('Hi, I found this property on Realynk: '+title),'_blank')});
-  btn('✉️ Enquire',function(){if(phone)window.open('https://wa.me/91'+phone+'?text='+encodeURIComponent('Hello, I want to enquire about this property on Realynk: '+title+'. Please share more details and arrange a site visit.'),'_blank')},'enq');
-  btn('🔗 Share',function(){var url=location.href.split('#')[0];if(navigator.share)navigator.share({title:title,text:'Check this property on Realynk',url:url}).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(url).then(function(){alert('Property link copied')});else prompt('Copy property link:',url)},'share');
-  card.appendChild(box);
- });
-}
-function start(){styles();add(document.getElementById('homeList'));add(document.getElementById('myList'));setTimeout(function(){add(document.getElementById('homeList'));add(document.getElementById('myList'))},500);setTimeout(function(){add(document.getElementById('homeList'));add(document.getElementById('myList'))},1500)}
+if(window.__REALYNK_PUBLIC_ACTIONS_V2__)return;
+window.__REALYNK_PUBLIC_ACTIONS_V2__=true;
+function styles(){if(document.getElementById('realynkPublicActionStyles'))return;var s=document.createElement('style');s.id='realynkPublicActionStyles';s.textContent='.realynkPublicActions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}.realynkPublicActions button{border:0;border-radius:11px;padding:13px 8px;font-weight:800;font-size:14px;cursor:pointer;background:#0b3768;color:#fff}.realynkPublicActions .enq{background:#155a9c}.realynkPublicActions .share{background:#f4b400;color:#17324d}.realynkPublicActions button:active{transform:scale(.98)}';document.head.appendChild(s)}
+function phoneFrom(card){var b=Array.prototype.slice.call(card.querySelectorAll('button')).find(function(x){return String(x.getAttribute('onclick')||'').indexOf('wa.me')>=0});var m=b&&String(b.getAttribute('onclick')||'').match(/wa\.me\/91([0-9]+)/);return m?m[1]:''}
+function add(root){if(!root)return;var cards=[];if(root.matches&&root.matches('.property'))cards=[root];cards=cards.concat(Array.prototype.slice.call(root.querySelectorAll?root.querySelectorAll('.property'):[]));cards.forEach(function(card){if(card.querySelector('.realynkPublicActions'))return;var phone=phoneFrom(card),title=(card.querySelector('h3')?.textContent||'Property').trim();var old=Array.prototype.slice.call(card.querySelectorAll('button')).find(function(x){return String(x.textContent||'').toLowerCase().indexOf('whatsapp')>=0});if(old&&old.parentNode)old.parentNode.removeChild(old);var box=document.createElement('div');box.className='realynkPublicActions';function btn(text,fn,cl){var b=document.createElement('button');b.type='button';b.textContent=text;if(cl)b.className=cl;b.onclick=fn;box.appendChild(b)}btn('📞 Call',function(){if(phone)location.href='tel:+91'+phone});btn('💬 WhatsApp',function(){if(phone)window.open('https://wa.me/91'+phone+'?text='+encodeURIComponent('Hi, I found this property on Realynk: '+title),'_blank')});btn('✉️ Enquire',function(){if(phone)window.open('https://wa.me/91'+phone+'?text='+encodeURIComponent('Hello, I want to enquire about this property on Realynk: '+title+'. Please share more details and arrange a site visit.'),'_blank')},'enq');btn('🔗 Share',function(){var url=location.href.split('#')[0];if(navigator.share)navigator.share({title:title,text:'Check this property on Realynk',url:url}).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(url).then(function(){alert('Property link copied')});else prompt('Copy property link:',url)},'share');card.appendChild(box)})}
+function start(){styles();add(document.getElementById('homeList'));setTimeout(function(){add(document.getElementById('homeList'))},500);setTimeout(function(){add(document.getElementById('homeList'))},1500)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
