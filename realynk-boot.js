@@ -1,8 +1,8 @@
-/* REALYNK SAFE BOOT V42 — broker share card */
+/* REALYNK SAFE BOOT V43 — business WhatsApp sharing */
 (function(){
 'use strict';
-if(window.__REALYNK_SAFE_BOOT_V42__)return;
-window.__REALYNK_SAFE_BOOT_V42__=true;
+if(window.__REALYNK_SAFE_BOOT_V43__)return;
+window.__REALYNK_SAFE_BOOT_V43__=true;
 function load(src,key,module){if(window[key])return;var s=document.createElement('script');s.src=src;s.async=true;if(module)s.type='module';document.head.appendChild(s)}
 function idle(fn,delay){if(window.requestIdleCallback)window.requestIdleCallback(fn,{timeout:delay||1500});else setTimeout(fn,delay||500)}
 function start(){
@@ -11,7 +11,7 @@ function start(){
   load('./realynk-media.js?v=3','realynkMedia',false);
   load('./realynk-category-filter.js?v=1','realynkCategoryFilter',false);
   load('./realynk-heavy-deposit-type.js?v=1','realynkHeavyDepositType',false);
-  load('./realynk-public-actions.js?v=2','realynkPublicActions',false);
+  load('./realynk-public-actions.js?v=3','realynkPublicActions',false);
  },1200);
  document.addEventListener('click',function(e){
   var nav=e.target.closest('[data-nav]');
