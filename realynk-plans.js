@@ -1,13 +1,17 @@
-// Realynk plan UI — pricing presentation only; payment/billing will be connected later.
+/* REALYNK PLANS V2 — pricing UI + subscription entitlement foundation */
 (function(){'use strict';
-const plans=[
- {name:'FREE',price:'₹0',period:'Launch access',tag:'First 30 Days',features:['Basic broker profile','Up to 5 active properties','Basic enquiries','Call & WhatsApp']},
- {name:'BASIC',price:'₹99',period:'/ month',tag:'For individual brokers',features:['Up to 20 active properties','Lead & enquiry management','Call & WhatsApp','Basic performance insights']},
- {name:'PREMIUM',price:'₹249',period:'/ month',tag:'Most Popular',features:['Up to 100 active properties','Priority leads','Property Boost','Advanced insights','Verified Broker profile']},
- {name:'PRO / AGENCY',price:'₹499',period:'/ month',tag:'For teams & agencies',features:['High listing limit','Multiple team members','Lead assignment','Reports & analytics','Agency profile']}
-];
-function css(){if(document.getElementById('rl-plan-css'))return;const s=document.createElement('style');s.id='rl-plan-css';s.textContent=`.rl-plans{margin-top:14px}.rl-plan-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.rl-plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.rl-plan{border:1px solid #dfe6ee;border-radius:16px;padding:14px;background:#fff}.rl-plan.pop{border:2px solid #f4b400;background:#fffaf0}.rl-plan h4{margin:0;color:#0b3768;font-size:18px}.rl-price{font-size:24px;font-weight:900;color:#0b3768;margin:8px 0 2px}.rl-period{font-size:11px;color:#6b7a8c}.rl-tag{font-size:11px;font-weight:800;color:#18864b;margin:7px 0}.rl-plan ul{padding-left:18px;margin:8px 0 0;color:#44586b;font-size:12px;line-height:1.65}.rl-plan-note{font-size:12px;color:#6b7a8c;line-height:1.5;margin-top:12px}@media(max-width:480px){.rl-plan-grid{grid-template-columns:1fr}}`;document.head.appendChild(s)}
-function render(){const account=document.getElementById('account');if(!account||document.getElementById('realynkPlans'))return;css();const host=account.querySelector('.page')||account;const box=document.createElement('section');box.id='realynkPlans';box.className='panel rl-plans';box.innerHTML=`<div class="rl-plan-head"><div><h3 style="margin:0;color:#0b3768">💎 Realynk Plans</h3><div class="rl-plan-note">Start free, then choose the plan that fits your business.</div></div></div><div class="rl-plan-grid">${plans.map(p=>`<article class="rl-plan ${p.name==='PREMIUM'?'pop':''}"><h4>${p.name}</h4><div class="rl-price">${p.price} <span class="rl-period">${p.period}</span></div><div class="rl-tag">${p.tag}</div><ul>${p.features.map(x=>`<li>${x}</li>`).join('')}</ul></article>`).join('')}</div><div class="rl-plan-note"><b>Launch Offer:</b> First 30 days free. Paid subscription checkout will be enabled before public launch.</div>`;host.appendChild(box)}
-function start(){render();setTimeout(render,500);setTimeout(render,1500)}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+if(window.__REALYNK_PLANS_V2__)return;window.__REALYNK_PLANS_V2__=true;
+var plans={
+ FREE:{id:'FREE',name:'Free',price:0,listingLimit:5,featured:false,analytics:false,agency:false},
+ BASIC:{id:'BASIC',name:'Basic',price:99,listingLimit:20,featured:false,analytics:true,agency:false},
+ PREMIUM:{id:'PREMIUM',name:'Premium',price:249,listingLimit:100,featured:true,analytics:true,agency:false},
+ PRO:{id:'PRO',name:'Pro / Agency',price:499,listingLimit:500,featured:true,analytics:true,agency:true}
+};
+var KEY='realynkSubscription';
+function get(){try{var x=JSON.parse(localStorage.getItem(KEY)||'null');return x&&x.plan?x:{plan:'FREE',status:'active',expiresAt:null}}catch(e){return{plan:'FREE',status:'active',expiresAt:null}}}
+function current(){var x=get();return Object.assign({},plans[x.plan]||plans.FREE,x)}
+function save(plan,status,expiresAt,gateway){var x={plan:plans[plan]?plan:'FREE',status:status||'active',expiresAt:expiresAt||null,gateway:gateway||null,updatedAt:new Date().toISOString()};localStorage.setItem(KEY,JSON.stringify(x));return x}
+function can(feature){var p=current();return feature==='featured'?!!p.featured:feature==='analytics'?!!p.analytics:feature==='agency'?!!p.agency:true}
+function listingAllowed(count){return Number(count||0)<Number(current().listingLimit)}
+window.realynkPlans={plans:plans,get:get,current:current,save:save,can:can,listingAllowed:listingAllowed};
 })();
