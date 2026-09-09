@@ -1,12 +1,13 @@
-/* REALYNK SAFE BOOT V27 */
+/* REALYNK SAFE BOOT V28 */
 (function(){'use strict';
 function load(src,key,module){if(window[key])return;var s=document.createElement('script');s.src=src;s.async=true;if(module)s.type='module';document.head.appendChild(s)}
 function start(){
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=55').catch(function(){});
-  load('./realynk-media.js?v=2','realynkMedia',false);
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=56').catch(function(){});
+  load('./realynk-media.js?v=3','realynkMedia',false);
   load('./realynk-admin-entry.js?v=8','realynkAdminEntry',true);
   load('./realynk-broker-auth.js?v=4','realynkBrokerAuth',true);
   load('./realynk-property-filter.js?v=2','realynkPropertyFilter',false);
+  load('./realynk-video-replace.js?v=1','realynkVideoReplace',false);
   document.addEventListener('click',function(e){
     var nav=e.target.closest('[data-nav]');
     if(nav&&nav.getAttribute('data-nav')==='brokers')load('./realynk-professional-profile.js?v=2','realynkProfessionalProfile',false);
