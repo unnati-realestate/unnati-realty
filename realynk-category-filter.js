@@ -1,93 +1,15 @@
-/* REALYNK CATEGORY FILTER V4 — instant filtered-list focus + broker invite bridge */
+/* REALYNK CATEGORY FILTER V6 */
 (function(){
 'use strict';
-if(window.__REALYNK_CATEGORY_FILTER_V4__)return;
-window.__REALYNK_CATEGORY_FILTER_V4__=true;
+if(window.__REALYNK_CATEGORY_FILTER_V6__)return;window.__REALYNK_CATEGORY_FILTER_V6__=true;
 var active='All';
-function injectHeavy(){
- var q=document.querySelector('.quick');
- if(!q||document.getElementById('heavyDeposit'))return;
- var b=document.createElement('button');
- b.id='heavyDeposit';b.type='button';b.className='heavy';b.innerHTML='💰<b>Heavy Deposit</b>';
- q.appendChild(b);
-}
-function typeOf(card){
- var d=card.querySelector('.details .detail:first-child b');
- if(d&&d.textContent.trim()){
-   var v=d.textContent.trim();
-   if(/^buy$/i.test(v)||/^sale$/i.test(v)||/^rent$/i.test(v)||/^commercial$/i.test(v)||/^heavy deposit$/i.test(v))return v;
- }
- var text=String(card.textContent||'').toLowerCase();
- if(text.indexOf('heavy deposit')>=0)return 'Heavy Deposit';
- if(text.indexOf('commercial')>=0)return 'Commercial';
- if(text.indexOf('rent')>=0)return 'Rent';
- if(text.indexOf('sale')>=0)return 'Sale';
- if(text.indexOf('buy')>=0)return 'Buy';
- return '';
-}
-function cards(){
- var list=document.getElementById('homeList');
- if(!list)return [];
- return Array.prototype.slice.call(list.querySelectorAll('.property'));
-}
-function apply(){
- var list=document.getElementById('homeList');
- if(!list)return 0;
- var bar=document.getElementById('filterBar'),title=document.getElementById('filterTitle');
- if(bar)bar.style.display=active==='All'?'none':'flex';
- if(title)title.textContent=active==='All'?'':active+' Properties';
- var wanted=active.toLowerCase(),visible=0;
- cards().forEach(function(c){
-   var show=active==='All'||typeOf(c).toLowerCase()===wanted;
-   c.style.display=show?'':'none';
-   if(show)visible++;
- });
- var empty=document.getElementById('realynkCategoryEmpty');
- if(active!=='All'&&!visible){
-   if(!empty){empty=document.createElement('div');empty.id='realynkCategoryEmpty';empty.className='empty';list.appendChild(empty)}
-   empty.textContent='No '+active.toLowerCase()+' properties available.';empty.style.display='';
- }else if(empty)empty.style.display='none';
- return visible;
-}
-function focusResults(){
- if(active==='All')return;
- var list=document.getElementById('homeList');
- if(!list)return;
- var target=cards().find(function(c){return c.style.display!=='none';});
- if(!target)return;
- var y=target.getBoundingClientRect().top+window.scrollY-118;
- if(y<0)y=0;
- window.scrollTo(0,y);
-}
-function run(v){
- active=v||'All';
- apply();
- focusResults();
- [120,450,900,1500].forEach(function(ms){setTimeout(function(){if(apply())focusResults();},ms)});
-}
-function bind(){
- injectHeavy();
- var map={buy:'Buy',sale:'Sale',rent:'Rent',commercial:'Commercial',heavyDeposit:'Heavy Deposit',clearFilter:'All'};
- Object.keys(map).forEach(function(id){
-   var b=document.getElementById(id);if(!b)return;
-   b.onclick=function(e){e.preventDefault();run(map[id]);};
- });
- var s=document.getElementById('search');
- if(s)s.addEventListener('input',function(){active='All';setTimeout(apply,50)},false);
- var c=document.getElementById('clearFilter');
- if(c)c.onclick=function(e){e.preventDefault();if(s)s.value='';run('All');};
- apply();
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(bind,50)},{once:true});else setTimeout(bind,50);
-window.realynkCategoryFilter={setFilter:run,refresh:apply};
+function injectHeavy(){var q=document.querySelector('.quick');if(!q||document.getElementById('heavyDeposit'))return;var b=document.createElement('button');b.id='heavyDeposit';b.type='button';b.className='heavy';b.innerHTML='💰<b>Heavy Deposit</b>';q.appendChild(b)}
+function typeOf(c){var d=c.querySelector('.details .detail:first-child b');if(d&&d.textContent.trim())return d.textContent.trim();var t=String(c.textContent||'').toLowerCase();if(t.includes('heavy deposit'))return'Heavy Deposit';if(t.includes('commercial'))return'Commercial';if(t.includes('rent'))return'Rent';if(t.includes('sale'))return'Sale';if(t.includes('buy'))return'Buy';return''}
+function cards(){var l=document.getElementById('homeList');return l?[...l.querySelectorAll('.property')]:[]}
+function apply(){var l=document.getElementById('homeList');if(!l)return 0;var bar=document.getElementById('filterBar'),title=document.getElementById('filterTitle');if(bar)bar.style.display=active==='All'?'none':'flex';if(title)title.textContent=active==='All'?'':active+' Properties';var n=0;cards().forEach(function(c){var ok=active==='All'||typeOf(c).toLowerCase()===active.toLowerCase();c.style.display=ok?'':'none';if(ok)n++});return n}
+function focus(){if(active==='All')return;var c=cards().find(function(x){return x.style.display!=='none'});if(c)window.scrollTo(0,Math.max(0,c.getBoundingClientRect().top+scrollY-118))}
+function run(v){active=v||'All';apply();focus();[120,450,900,1500].forEach(function(ms){setTimeout(function(){if(apply())focus()},ms)})}
+function bind(){injectHeavy();var m={buy:'Buy',sale:'Sale',rent:'Rent',commercial:'Commercial',heavyDeposit:'Heavy Deposit',clearFilter:'All'};Object.keys(m).forEach(function(id){var b=document.getElementById(id);if(b)b.onclick=function(e){e.preventDefault();run(m[id])}});apply()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(bind,50)},{once:true});else setTimeout(bind,50);window.realynkCategoryFilter={setFilter:run,refresh:apply};
 })();
-/* Legacy-load bridge: ensure Broker Invite is available even if an older boot URL is cached. */
-(function(){
- 'use strict';
- if(window.realynkBrokerInvite||document.querySelector('script[data-realynk-broker-invite]'))return;
- var s=document.createElement('script');
- s.src='./realynk-broker-invite.js?v=2';
- s.async=true;
- s.setAttribute('data-realynk-broker-invite','1');
- document.head.appendChild(s);
-})();
+(function(){'use strict';function load(src,key){if(window[key]||document.querySelector('script[data-realynk-loader="'+key+'"]'))return;var s=document.createElement('script');s.src=src;s.async=true;s.dataset.realynkLoader=key;document.head.appendChild(s)}load('./realynk-broker-invite.js?v=4','realynkBrokerInvite');load('./realynk-broker-invite-cloud.js?v=1','realynkBrokerInviteCloud')})();
