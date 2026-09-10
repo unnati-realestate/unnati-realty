@@ -1,8 +1,8 @@
-/* REALYNK CATEGORY FILTER V3 — instant filtered-list focus */
+/* REALYNK CATEGORY FILTER V4 — instant filtered-list focus + broker invite bridge */
 (function(){
 'use strict';
-if(window.__REALYNK_CATEGORY_FILTER_V3__)return;
-window.__REALYNK_CATEGORY_FILTER_V3__=true;
+if(window.__REALYNK_CATEGORY_FILTER_V4__)return;
+window.__REALYNK_CATEGORY_FILTER_V4__=true;
 var active='All';
 function injectHeavy(){
  var q=document.querySelector('.quick');
@@ -80,4 +80,14 @@ function bind(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(bind,50)},{once:true});else setTimeout(bind,50);
 window.realynkCategoryFilter={setFilter:run,refresh:apply};
+})();
+/* Legacy-load bridge: ensure Broker Invite is available even if an older boot URL is cached. */
+(function(){
+ 'use strict';
+ if(window.realynkBrokerInvite||document.querySelector('script[data-realynk-broker-invite]'))return;
+ var s=document.createElement('script');
+ s.src='./realynk-broker-invite.js?v=2';
+ s.async=true;
+ s.setAttribute('data-realynk-broker-invite','1');
+ document.head.appendChild(s);
 })();
