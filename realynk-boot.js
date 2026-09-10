@@ -1,15 +1,15 @@
-/* REALYNK SAFE BOOT V49 — production-stable category navigation */
+/* REALYNK SAFE BOOT V50 — production-stable category navigation + cache-safe assets */
 (function(){
 'use strict';
-if(window.__REALYNK_SAFE_BOOT_V49__)return;
-window.__REALYNK_SAFE_BOOT_V49__=true;
+if(window.__REALYNK_SAFE_BOOT_V50__)return;
+window.__REALYNK_SAFE_BOOT_V50__=true;
 function load(src,key,module){if(window[key])return;var s=document.createElement('script');s.src=src;s.async=true;if(module)s.type='module';document.head.appendChild(s)}
 function idle(fn,delay){if(window.requestIdleCallback)window.requestIdleCallback(fn,{timeout:delay||1500});else setTimeout(fn,delay||500)}
 function start(){
  try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})}).catch(function(){})}}catch(_){ }
  idle(function(){
   load('./realynk-media.js?v=3','realynkMedia',false);
-  load('./realynk-category-filter.js?v=2','realynkCategoryFilter',false);
+  load('./realynk-category-filter.js?v=3','realynkCategoryFilter',false);
   load('./realynk-heavy-deposit-type.js?v=1','realynkHeavyDepositType',false);
   load('./realynk-public-actions.js?v=5','realynkPublicActions',false);
   load('./realynk-broker-share-card.js?v=3','realynkRefreshBrokerShareCard',false);
