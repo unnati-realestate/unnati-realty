@@ -1,8 +1,8 @@
-/* REALYNK CATEGORY FILTER — stable single owner for Home category buttons */
+/* REALYNK CATEGORY FILTER V2 — instant jump to selected property list */
 (function(){
 'use strict';
-if(window.__REALYNK_CATEGORY_FILTER_V1__)return;
-window.__REALYNK_CATEGORY_FILTER_V1__=true;
+if(window.__REALYNK_CATEGORY_FILTER_V2__)return;
+window.__REALYNK_CATEGORY_FILTER_V2__=true;
 var active='All';
 function injectHeavy(){
  var q=document.querySelector('.quick');
@@ -27,7 +27,7 @@ function typeOf(card){
 }
 function apply(){
  var list=document.getElementById('homeList');
- if(!list)return;
+ if(!list)return 0;
  var bar=document.getElementById('filterBar'),title=document.getElementById('filterTitle');
  if(bar)bar.style.display=active==='All'?'none':'flex';
  if(title)title.textContent=active==='All'?'':active+' Properties';
@@ -43,11 +43,21 @@ function apply(){
    if(!empty){empty=document.createElement('div');empty.id='realynkCategoryEmpty';empty.className='empty';list.appendChild(empty)}
    empty.textContent='No '+active.toLowerCase()+' properties available.';empty.style.display='';
  }else if(empty)empty.style.display='none';
+ return visible;
+}
+function jumpToResults(){
+ if(active==='All')return;
+ var target=document.getElementById('filterBar')||document.getElementById('homeList');
+ if(!target)return;
+ var y=target.getBoundingClientRect().top+window.scrollY-104;
+ if(y<0)y=0;
+ window.scrollTo({top:y,behavior:'auto'});
 }
 function run(v){
  active=v||'All';
  apply();
- [100,500,1200].forEach(function(ms){setTimeout(apply,ms)});
+ jumpToResults();
+ [100,500,1200].forEach(function(ms){setTimeout(function(){if(apply())jumpToResults();},ms)});
 }
 function bind(){
  injectHeavy();
