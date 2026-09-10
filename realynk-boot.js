@@ -1,8 +1,8 @@
-/* REALYNK SAFE BOOT V50 — production-stable category navigation + cache-safe assets */
+/* REALYNK SAFE BOOT V51 — production-stable category navigation + requirements */
 (function(){
 'use strict';
-if(window.__REALYNK_SAFE_BOOT_V50__)return;
-window.__REALYNK_SAFE_BOOT_V50__=true;
+if(window.__REALYNK_SAFE_BOOT_V51__)return;
+window.__REALYNK_SAFE_BOOT_V51__=true;
 function load(src,key,module){if(window[key])return;var s=document.createElement('script');s.src=src;s.async=true;if(module)s.type='module';document.head.appendChild(s)}
 function idle(fn,delay){if(window.requestIdleCallback)window.requestIdleCallback(fn,{timeout:delay||1500});else setTimeout(fn,delay||500)}
 function start(){
@@ -13,7 +13,8 @@ function start(){
   load('./realynk-heavy-deposit-type.js?v=1','realynkHeavyDepositType',false);
   load('./realynk-public-actions.js?v=5','realynkPublicActions',false);
   load('./realynk-broker-share-card.js?v=3','realynkRefreshBrokerShareCard',false);
- },1000);
+  load('./realynk-requirements.js?v=1','realynkRequirements',false);
+ },700);
  document.addEventListener('click',function(e){
   var nav=e.target.closest('[data-nav]');
   if(nav&&nav.getAttribute('data-nav')==='brokers'){
@@ -29,7 +30,7 @@ function start(){
   if(e.target.closest('#postQuick,#brokerPost,#add'))load('./realynk-video-replace.js?v=1','realynkVideoReplace',false);
   if(e.target.closest('#submit'))load('./firebase-cloud.js?v=4','realynkCloudSync',true);
  },true);
- idle(function(){load('./realynk-admin-entry.js?v=8','realynkAdminEntry',true)},2500);
+ idle(function(){load('./realynk-admin-entry.js?v=8','realynkAdminEntry',true)},2200);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
