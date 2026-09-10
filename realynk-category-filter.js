@@ -1,8 +1,8 @@
-/* REALYNK CATEGORY FILTER V2 — instant jump to selected property list */
+/* REALYNK CATEGORY FILTER V3 — instant filtered-list focus */
 (function(){
 'use strict';
-if(window.__REALYNK_CATEGORY_FILTER_V2__)return;
-window.__REALYNK_CATEGORY_FILTER_V2__=true;
+if(window.__REALYNK_CATEGORY_FILTER_V3__)return;
+window.__REALYNK_CATEGORY_FILTER_V3__=true;
 var active='All';
 function injectHeavy(){
  var q=document.querySelector('.quick');
@@ -25,15 +25,19 @@ function typeOf(card){
  if(text.indexOf('buy')>=0)return 'Buy';
  return '';
 }
+function cards(){
+ var list=document.getElementById('homeList');
+ if(!list)return [];
+ return Array.prototype.slice.call(list.querySelectorAll('.property'));
+}
 function apply(){
  var list=document.getElementById('homeList');
  if(!list)return 0;
  var bar=document.getElementById('filterBar'),title=document.getElementById('filterTitle');
  if(bar)bar.style.display=active==='All'?'none':'flex';
  if(title)title.textContent=active==='All'?'':active+' Properties';
- var cards=Array.prototype.slice.call(list.children||[]).filter(function(c){return !c.classList.contains('empty')&&!c.id;});
  var wanted=active.toLowerCase(),visible=0;
- cards.forEach(function(c){
+ cards().forEach(function(c){
    var show=active==='All'||typeOf(c).toLowerCase()===wanted;
    c.style.display=show?'':'none';
    if(show)visible++;
@@ -45,19 +49,21 @@ function apply(){
  }else if(empty)empty.style.display='none';
  return visible;
 }
-function jumpToResults(){
+function focusResults(){
  if(active==='All')return;
- var target=document.getElementById('filterBar')||document.getElementById('homeList');
+ var list=document.getElementById('homeList');
+ if(!list)return;
+ var target=cards().find(function(c){return c.style.display!=='none';});
  if(!target)return;
- var y=target.getBoundingClientRect().top+window.scrollY-104;
+ var y=target.getBoundingClientRect().top+window.scrollY-118;
  if(y<0)y=0;
- window.scrollTo({top:y,behavior:'auto'});
+ window.scrollTo(0,y);
 }
 function run(v){
  active=v||'All';
  apply();
- jumpToResults();
- [100,500,1200].forEach(function(ms){setTimeout(function(){if(apply())jumpToResults();},ms)});
+ focusResults();
+ [120,450,900,1500].forEach(function(ms){setTimeout(function(){if(apply())focusResults();},ms)});
 }
 function bind(){
  injectHeavy();
