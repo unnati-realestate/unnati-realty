@@ -1,14 +1,17 @@
-/* REALYNK SAFE BOOT V55 — production-stable category navigation + permanent broker verification sync */
+/* REALYNK SAFE BOOT V56 — production property cloud restore + broker verification sync */
 (function(){
 'use strict';
-if(window.__REALYNK_SAFE_BOOT_V55__)return;
-window.__REALYNK_SAFE_BOOT_V55__=true;
+if(window.__REALYNK_SAFE_BOOT_V56__)return;
+window.__REALYNK_SAFE_BOOT_V56__=true;
 function load(src,key,module){if(window[key]||document.querySelector('script[data-realynk-loader="'+key+'"]'))return;var s=document.createElement('script');s.src=src;s.async=true;if(module)s.type='module';s.dataset.realynkLoader=key;document.head.appendChild(s)}
 function idle(fn,delay){if(window.requestIdleCallback)window.requestIdleCallback(fn,{timeout:delay||1500});else setTimeout(fn,delay||500)}
+function refreshPropertyViews(){setTimeout(function(){try{if(typeof window.render==='function')window.render();}catch(_){}try{if(typeof window.dashboard==='function')window.dashboard();}catch(_){}},80)}
 function start(){
  try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})}).catch(function(){})}}catch(_){ }
+ window.addEventListener('realynkCloudPropertiesRestored',refreshPropertyViews,false);
  idle(function(){
   load('./realynk-media.js?v=3','realynkMedia',false);
+  load('./firebase-cloud.js?v=5','realynkCloudSync',true);
   load('./realynk-category-filter.js?v=4','realynkCategoryFilter',false);
   load('./realynk-heavy-deposit-type.js?v=1','realynkHeavyDepositType',false);
   load('./realynk-public-actions.js?v=5','realynkPublicActions',false);
@@ -36,7 +39,6 @@ function start(){
    load('./realynk-broker-verification-sync.js?v=2','realynkBrokerVerificationSync',true)
   }
   if(e.target.closest('#postQuick,#brokerPost,#add'))load('./realynk-video-replace.js?v=1','realynkVideoReplace',false);
-  if(e.target.closest('#submit'))load('./firebase-cloud.js?v=4','realynkCloudSync',true);
  },true);
  idle(function(){load('./realynk-admin-entry.js?v=8','realynkAdminEntry',true)},2200);
 }
