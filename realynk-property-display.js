@@ -1,0 +1,13 @@
+/* REALYNK PROPERTY DISPLAY V1 — consistent listing detail rows */
+(function(){'use strict';
+if(window.__REALYNK_PROPERTY_DISPLAY_V1__)return;window.__REALYNK_PROPERTY_DISPLAY_V1__=true;
+function read(){try{var x=JSON.parse(localStorage.getItem('realynkProperties')||'[]');return Array.isArray(x)?x:[]}catch(_){return[]}}
+function norm(x){return String(x||'').toLowerCase().replace(/[^a-z0-9\u0900-\u097f]+/g,' ').trim()}
+function findProp(card,list,index){var h=card.querySelector('h3'),title=norm(h&&h.textContent),areaText='';var ps=card.querySelectorAll('p');for(var i=0;i<ps.length;i++){var s=String(ps[i].textContent||'');if(/📍/.test(s)){areaText=norm(s.replace('📍',''));break}}var exact=list.find(function(p){return norm(p.title)===title&&(!areaText||norm(p.area)===areaText)});if(exact)return exact;exact=list.find(function(p){return norm(p.title)===title});return exact||list[index]||null}
+function money(v){if(v===0||v==='0')return '₹ 0';var s=String(v==null?'':v).trim();return s||'—'}
+function setDetail(box,label,value){var d=document.createElement('div');d.className='detail';var sp=document.createElement('span');sp.textContent=label;var b=document.createElement('b');b.textContent=value;d.appendChild(sp);d.appendChild(b);box.appendChild(d)}
+function apply(){var list=read(),cards=Array.prototype.slice.call(document.querySelectorAll('#homeList .property'));cards.forEach(function(card,i){var p=findProp(card,list,i);if(!p)return;var type=String(p.type||'').trim(),old=card.querySelector('.details'),box=old||document.createElement('div');box.className='details';box.innerHTML='';if(type==='Rent'){setDetail(box,'RENT',money(p.price));setDetail(box,'DEPOSIT',money(p.deposit));if(p.size)setDetail(box,'CARPET / USABLE AREA',String(p.size))}else if(type==='Heavy Deposit'){setDetail(box,'AMOUNT',money(p.price));if(p.deposit)setDetail(box,'DEPOSIT',money(p.deposit));if(p.size)setDetail(box,'CARPET / USABLE AREA',String(p.size))}else{setDetail(box,'PRICE',money(p.price));if(p.size)setDetail(box,'CARPET / USABLE AREA',String(p.size))}if(old&&old!==box)old.replaceWith(box);else if(!old){var media=card.querySelector('.listingMedia');if(media)media.before(box);else card.appendChild(box)}})}
+function start(){apply();[100,400,900,1800,3000].forEach(function(ms){setTimeout(apply,ms)});window.addEventListener('realynkCloudPropertiesRestored',function(){setTimeout(apply,80);setTimeout(apply,700)})}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(start,80)},{once:true});else setTimeout(start,80);
+window.realynkPropertyDisplay={refresh:apply};
+})();
