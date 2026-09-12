@@ -1,8 +1,8 @@
-/* REALYNK SAFE BOOT V62 — shared catalog + persistent property display */
+/* REALYNK SAFE BOOT V63 — single source loaders, no duplicate legacy modules */
 (function(){
 'use strict';
-if(window.__REALYNK_SAFE_BOOT_V62__)return;
-window.__REALYNK_SAFE_BOOT_V62__=true;
+if(window.__REALYNK_SAFE_BOOT_V63__)return;
+window.__REALYNK_SAFE_BOOT_V63__=true;
 function load(src,key,module){if(window[key]||document.querySelector('script[data-realynk-loader="'+key+'"]'))return;var s=document.createElement('script');s.src=src;s.async=true;if(module)s.type='module';s.dataset.realynkLoader=key;document.head.appendChild(s)}
 function idle(fn,delay){if(window.requestIdleCallback)window.requestIdleCallback(fn,{timeout:delay||1500});else setTimeout(fn,delay||500)}
 function refreshPropertyViews(){setTimeout(function(){try{var active=document.querySelector('.screen.active'),id=active&&active.id,btn=id&&document.querySelector('[data-nav="'+id+'"]');if(btn)btn.click();}catch(_){}},80)}
@@ -11,11 +11,6 @@ function start(){
  window.addEventListener('realynkCloudPropertiesRestored',refreshPropertyViews,false);
  idle(function(){
   load('./realynk-media.js?v=3','realynkMedia',false);
-  load('./firebase-cloud.js?v=7','realynkCloudSync',true);
-  load('./realynk-public-catalog.js?v=2','realynkPublicCatalog',false);
-  load('./realynk-property-form.js?v=2','realynkPropertyForm',false);
-  load('./realynk-property-display.js?v=4','realynkPropertyDisplayV4',false);
-  load('./realynk-category-filter.js?v=16','realynkCategoryFilterV16',false);
   load('./realynk-heavy-deposit-type.js?v=1','realynkHeavyDepositType',false);
   load('./realynk-public-actions.js?v=5','realynkPublicActions',false);
   load('./realynk-broker-share-card.js?v=3','realynkRefreshBrokerShareCard',false);
@@ -41,7 +36,7 @@ function start(){
    load('./realynk-digital-card.js?v=1','realynkDigitalCard',false);
    load('./realynk-verification-sync.js?v=3','realynkBrokerVerificationSyncV3',true)
   }
-  if(e.target.closest('#postQuick,#brokerPost,#add')){load('./realynk-video-replace.js?v=1','realynkVideoReplace',false);load('./realynk-property-form.js?v=2','realynkPropertyForm',false)}
+  if(e.target.closest('#postQuick,#brokerPost,#add'))load('./realynk-video-replace.js?v=1','realynkVideoReplace',false);
  },true);
  idle(function(){load('./realynk-admin-entry.js?v=8','realynkAdminEntry',true)},2200);
 }
