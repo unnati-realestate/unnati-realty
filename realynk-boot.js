@@ -1,11 +1,14 @@
-/* REALYNK SAFE BOOT V63 — single source loaders, no duplicate legacy modules */
+/* REALYNK SAFE BOOT V64 — cloud restore refreshes content without resetting scroll/filter */
 (function(){
 'use strict';
-if(window.__REALYNK_SAFE_BOOT_V63__)return;
-window.__REALYNK_SAFE_BOOT_V63__=true;
+if(window.__REALYNK_SAFE_BOOT_V64__)return;window.__REALYNK_SAFE_BOOT_V64__=true;
 function load(src,key,module){if(window[key]||document.querySelector('script[data-realynk-loader="'+key+'"]'))return;var s=document.createElement('script');s.src=src;s.async=true;if(module)s.type='module';s.dataset.realynkLoader=key;document.head.appendChild(s)}
 function idle(fn,delay){if(window.requestIdleCallback)window.requestIdleCallback(fn,{timeout:delay||1500});else setTimeout(fn,delay||500)}
-function refreshPropertyViews(){setTimeout(function(){try{var active=document.querySelector('.screen.active'),id=active&&active.id,btn=id&&document.querySelector('[data-nav="'+id+'"]');if(btn)btn.click();}catch(_){}},80)}
+function refreshPropertyViews(){setTimeout(function(){try{
+  var active=document.querySelector('.screen.active');
+  if(active&&active.id==='home'&&typeof render==='function')render();
+  setTimeout(function(){try{if(window.realynkPropertyDisplay&&window.realynkPropertyDisplay.refresh)window.realynkPropertyDisplay.refresh();if(window.realynkCategoryFilter&&window.realynkCategoryFilter.refresh)window.realynkCategoryFilter.refresh()}catch(_){ }},120);
+}catch(_){}},80)}
 function start(){
  try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})}).catch(function(){})}}catch(_){ }
  window.addEventListener('realynkCloudPropertiesRestored',refreshPropertyViews,false);
