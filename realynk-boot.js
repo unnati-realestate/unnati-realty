@@ -1,7 +1,7 @@
-/* REALYNK SAFE BOOT V64 — cloud restore refreshes content without resetting scroll/filter */
+/* REALYNK SAFE BOOT V65 — reliable Account Digital Card + QR on mobile */
 (function(){
 'use strict';
-if(window.__REALYNK_SAFE_BOOT_V64__)return;window.__REALYNK_SAFE_BOOT_V64__=true;
+if(window.__REALYNK_SAFE_BOOT_V65__)return;window.__REALYNK_SAFE_BOOT_V65__=true;
 function load(src,key,module){if(window[key]||document.querySelector('script[data-realynk-loader="'+key+'"]'))return;var s=document.createElement('script');s.src=src;s.async=true;if(module)s.type='module';s.dataset.realynkLoader=key;document.head.appendChild(s)}
 function idle(fn,delay){if(window.requestIdleCallback)window.requestIdleCallback(fn,{timeout:delay||1500});else setTimeout(fn,delay||500)}
 function refreshPropertyViews(){setTimeout(function(){try{
@@ -34,10 +34,10 @@ function start(){
    load('./realynk-property-actions.js?v=5','realynkPropertyActions',false);
    load('./realynk-status-actions.js?v=1','realynkStatusActions',false);
   }
-  if(e.target.closest('#account')){
+  if(nav&&nav.getAttribute('data-nav')==='account'){
    load('./realynk-broker-auth.js?v=6','realynkBrokerAuthV6',true);
-   load('./realynk-digital-card.js?v=1','realynkDigitalCard',false);
-   load('./realynk-verification-sync.js?v=3','realynkBrokerVerificationSyncV3',true)
+   load('./realynk-digital-card.js?v=5','realynkDigitalCard',false);
+   load('./realynk-verification-sync.js?v=3','realynkBrokerVerificationSyncV3',true);
   }
   if(e.target.closest('#postQuick,#brokerPost,#add'))load('./realynk-video-replace.js?v=1','realynkVideoReplace',false);
  },true);
