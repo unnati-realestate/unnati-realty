@@ -1,7 +1,7 @@
-/* REALYNK MEDIA V3 — safe property video selection + persistence */
+/* REALYNK MEDIA V4 — safe video persistence + mobile photo compression */
 (function(){
   'use strict';
-  var DB='realynk-media', STORE='propertyVideos', selectedFile=null;
+  var DB='realynk-media', STORE='propertyVideos', selectedFile=null, compressingPhotos=false;
   function openDB(){return new Promise(function(resolve,reject){
     if(!window.indexedDB)return reject(new Error('IndexedDB unavailable'));
     var r=indexedDB.open(DB,1);
@@ -30,7 +30,40 @@
     if(box)box.style.display='none';
     window.dispatchEvent(new CustomEvent('realynkVideoCleared'));
   }
+  function compressImage(file){return new Promise(function(resolve){
+    if(!file||!/^image\//i.test(file.type)){resolve(file);return;}
+    var img=new Image(),url=URL.createObjectURL(file);
+    img.onload=function(){
+      try{
+        var max=1280,w=img.naturalWidth||img.width,h=img.naturalHeight||img.height,scale=Math.min(1,max/Math.max(w,h));
+        var cw=Math.max(1,Math.round(w*scale)),ch=Math.max(1,Math.round(h*scale)),c=document.createElement('canvas');c.width=cw;c.height=ch;
+        var ctx=c.getContext('2d');ctx.drawImage(img,0,0,cw,ch);
+        c.toBlob(function(blob){URL.revokeObjectURL(url);if(!blob){resolve(file);return;}resolve(new File([blob],(file.name||'photo') .replace(/\.[^.]+$/i,'.jpg'),{type:'image/jpeg',lastModified:Date.now()}));},'image/jpeg',0.68);
+      }catch(e){URL.revokeObjectURL(url);resolve(file)}
+    };
+    img.onerror=function(){URL.revokeObjectURL(url);resolve(file)};img.src=url;
+  });}
+  async function compressSelectedPhotos(input,originalEvent){
+    if(compressingPhotos||!input||!input.files||!input.files.length)return;
+    compressingPhotos=true;
+    try{
+      var files=Array.prototype.slice.call(input.files,0,10),out=[];
+      for(var i=0;i<files.length;i++)out.push(await compressImage(files[i]));
+      var dt=new DataTransfer();out.forEach(function(f){dt.items.add(f)});input.files=dt.files;
+      input.dataset.realynkCompressed='1';
+      input.dispatchEvent(new Event('change',{bubbles:true}));
+    }catch(e){console.warn('Realynk photo compression failed',e)}
+    compressingPhotos=false;
+  }
   function bind(){
+    var photoInput=document.getElementById('photos');
+    if(photoInput&&!photoInput.__realynkPhotoCompressionBound){
+      photoInput.__realynkPhotoCompressionBound=true;
+      photoInput.addEventListener('change',function(e){
+        if(photoInput.dataset.realynkCompressed==='1'){delete photoInput.dataset.realynkCompressed;return;}
+        if(photoInput.files&&photoInput.files.length&&!compressingPhotos){e.stopImmediatePropagation();compressSelectedPhotos(photoInput,e);}
+      },true);
+    }
     var input=document.getElementById('video');
     if(input&&!input.__realynkMediaBound){input.__realynkMediaBound=true;input.addEventListener('change',function(){selectedFile=input.files&&input.files[0]||null;});}
     var submit=document.getElementById('submit');
