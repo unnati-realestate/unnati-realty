@@ -1,14 +1,14 @@
-/* REALYNK SAFE BOOT V72 — cloud-first property core */
+/* REALYNK SAFE BOOT V73 — cloud-first property core */
 (function(){
 'use strict';
-if(window.__REALYNK_SAFE_BOOT_V72__)return;window.__REALYNK_SAFE_BOOT_V72__=true;
+if(window.__REALYNK_SAFE_BOOT_V73__)return;window.__REALYNK_SAFE_BOOT_V73__=true;
 function load(src,key,module){if(window[key]||document.querySelector('script[data-realynk-loader="'+key+'"]'))return;var s=document.createElement('script');s.src=src;s.async=true;if(module)s.type='module';s.dataset.realynkLoader=key;document.head.appendChild(s)}
 function idle(fn,delay){if(window.requestIdleCallback)window.requestIdleCallback(fn,{timeout:delay||1500});else setTimeout(fn,delay||500)}
 function refreshPropertyViews(){setTimeout(function(){try{var active=document.querySelector('.screen.active');if(active&&active.id==='home'&&typeof render==='function')render();setTimeout(function(){try{if(window.realynkPublicCatalog&&window.realynkPublicCatalog.refresh)window.realynkPublicCatalog.refresh();if(window.realynkPropertyDisplay&&window.realynkPropertyDisplay.refresh)window.realynkPropertyDisplay.refresh();if(window.realynkCategoryFilter&&window.realynkCategoryFilter.refresh)window.realynkCategoryFilter.refresh()}catch(_){ }},160)}catch(_){}},80)}
 function start(){
 try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})}).catch(function(){})}}catch(_){ }
 window.addEventListener('realynkCloudPropertiesRestored',refreshPropertyViews,false);
-load('./realynk-stability.js?v=5','realynkStabilityV5',true);
+load('./realynk-stability.js?v=6','realynkStabilityV6',true);
 idle(function(){
  load('./firebase-auth.js?v=22','realynkAuthEntryV22',false);
  load('./realynk-media.js?v=4','realynkMedia',false);
