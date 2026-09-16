@@ -1,7 +1,7 @@
-/* REALYNK SAFE BOOT V88 — load dashboard Status V4 with visible owner controls */
+/* REALYNK SAFE BOOT V89 — one cloud source for mobile + laptop */
 (function(){
 'use strict';
-if(window.__REALYNK_SAFE_BOOT_V88__)return;window.__REALYNK_SAFE_BOOT_V88__=true;
+if(window.__REALYNK_SAFE_BOOT_V89__)return;window.__REALYNK_SAFE_BOOT_V89__=true;
 window.__REALYNK_CLOUD_FIRST__=true;
 function load(src,key,module){if(window[key]||document.querySelector('script[data-realynk-loader="'+key+'"]'))return;var s=document.createElement('script');s.src=src;s.async=true;if(module)s.type='module';s.dataset.realynkLoader=key;document.head.appendChild(s)}
 function idle(fn,delay){if(window.requestIdleCallback)window.requestIdleCallback(fn,{timeout:delay||1500});else setTimeout(fn,delay||500)}
@@ -10,6 +10,7 @@ function start(){
 try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})}).catch(function(){})}}catch(_){ }
 window.addEventListener('realynkCloudPropertiesRestored',refreshPropertyViews,false);
 load('./realynk-stability.js?v=10','realynkStabilityV10',true);
+load('./realynk-cloud-unify.js?v=1','realynkCloudUnify',false);
 load('./realynk-broker-name-fix.js?v=1','realynkBrokerNameFixV1',false);
 load('./realynk-payment-core.js?v=1','realynkPaymentCoreV1',false);
 load('./realynk-payment-adapter.js?v=1','realynkPaymentAdapterV1',true);
