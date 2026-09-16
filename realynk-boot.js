@@ -1,7 +1,7 @@
-/* REALYNK SAFE BOOT V84 — cloud-first property core + synced dashboard */
+/* REALYNK SAFE BOOT V85 — cloud-first property core + broker earning */
 (function(){
 'use strict';
-if(window.__REALYNK_SAFE_BOOT_V84__)return;window.__REALYNK_SAFE_BOOT_V84__=true;
+if(window.__REALYNK_SAFE_BOOT_V85__)return;window.__REALYNK_SAFE_BOOT_V85__=true;
 window.__REALYNK_CLOUD_FIRST__=true;
 function load(src,key,module){if(window[key]||document.querySelector('script[data-realynk-loader="'+key+'"]'))return;var s=document.createElement('script');s.src=src;s.async=true;if(module)s.type='module';s.dataset.realynkLoader=key;document.head.appendChild(s)}
 function idle(fn,delay){if(window.requestIdleCallback)window.requestIdleCallback(fn,{timeout:delay||1500});else setTimeout(fn,delay||500)}
@@ -11,6 +11,8 @@ try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().
 window.addEventListener('realynkCloudPropertiesRestored',refreshPropertyViews,false);
 load('./realynk-stability.js?v=10','realynkStabilityV10',true);
 load('./realynk-broker-name-fix.js?v=1','realynkBrokerNameFixV1',false);
+load('./realynk-payment-core.js?v=1','realynkPaymentCoreV1',false);
+load('./realynk-payment-adapter.js?v=1','realynkPaymentAdapterV1',true);
 idle(function(){
  load('./firebase-auth.js?v=23','realynkAuthEntryV23',false);
  load('./realynk-media.js?v=4','realynkMedia',false);
