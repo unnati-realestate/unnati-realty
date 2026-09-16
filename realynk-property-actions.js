@@ -1,10 +1,7 @@
-/* REALYNK PROPERTY ACTIONS V9 — cloud-card id actions; no localStorage ownership mapping */
+/* REALYNK PROPERTY ACTIONS — disabled duplicate injector
+   Edit, Status and Delete are rendered by realynk-stability.js only.
+*/
 (function(){
-'use strict';
-if(window.__REALYNK_PROPERTY_ACTIONS_V9__)return;
-window.__REALYNK_PROPERTY_ACTIONS_V9__=true;
-function addStyles(){if(document.getElementById('realynkPropertyActionStylesV9'))return;var s=document.createElement('style');s.id='realynkPropertyActionStylesV9';s.textContent='.realynkOwnerActionsV9{display:inline-flex;gap:7px;align-items:center;margin-left:8px;vertical-align:middle}.realynkOwnerActionsV9 button{border-radius:8px;padding:7px 10px;font-weight:800;cursor:pointer;font-size:12px}.realynkEditBtnV9{border:1px solid #cfd9e5;background:#fff;color:#0b3768}.realynkDeleteBtnV9{border:1px solid #efc5c2;background:#fff;color:#b42318}';document.head.appendChild(s)}
-function dashboardCards(){var list=document.getElementById('myList');if(!list)return;var cards=Array.prototype.slice.call(list.querySelectorAll('.property'));cards.forEach(function(card){var id=card.getAttribute('data-property-id')||card.dataset.propertyId;if(!id)return;if(card.querySelector('.realynkOwnerActionsV9'))return;var status=Array.prototype.slice.call(card.querySelectorAll('*')).find(function(x){var t=String(x.textContent||'').trim().toLowerCase();return ['active','sold','off market','sold out'].indexOf(t)>=0});var host=(status&&status.parentElement)||card;var box=document.createElement('span');box.className='realynkOwnerActionsV9';var e=document.createElement('button');e.type='button';e.className='realynkEditBtnV9';e.textContent='✎ Edit';e.dataset.propertyAction='edit';e.dataset.id=String(id);var d=document.createElement('button');d.type='button';d.className='realynkDeleteBtnV9';d.textContent='🗑 Delete';d.dataset.propertyAction='delete';d.dataset.id=String(id);box.append(e,d);host.appendChild(box)})}
-function bind(){document.addEventListener('click',function(e){var b=e.target.closest('[data-property-action]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();var id=b.dataset.id;if(b.dataset.propertyAction==='delete'&&window.realynkPropertyDelete)window.realynkPropertyDelete(id);else if(b.dataset.propertyAction==='edit'&&window.realynkPropertyEdit)window.realynkPropertyEdit(id)},true);setInterval(dashboardCards,1500);setTimeout(dashboardCards,400)}
-addStyles();bind();window.realynkPropertyActions={refresh:dashboardCards};
+  'use strict';
+  window.realynkPropertyActions={refresh:function(){}};
 })();
