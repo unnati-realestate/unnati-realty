@@ -1,7 +1,7 @@
-/* REALYNK SAFE BOOT V82 — cloud-first property core + mobile posting refresh + dashboard controls */
+/* REALYNK SAFE BOOT V83 — cloud-first property core + synced dashboard */
 (function(){
 'use strict';
-if(window.__REALYNK_SAFE_BOOT_V82__)return;window.__REALYNK_SAFE_BOOT_V82__=true;
+if(window.__REALYNK_SAFE_BOOT_V83__)return;window.__REALYNK_SAFE_BOOT_V83__=true;
 window.__REALYNK_CLOUD_FIRST__=true;
 function load(src,key,module){if(window[key]||document.querySelector('script[data-realynk-loader="'+key+'"]'))return;var s=document.createElement('script');s.src=src;s.async=true;if(module)s.type='module';s.dataset.realynkLoader=key;document.head.appendChild(s)}
 function idle(fn,delay){if(window.requestIdleCallback)window.requestIdleCallback(fn,{timeout:delay||1500});else setTimeout(fn,delay||500)}
@@ -9,7 +9,7 @@ function refreshPropertyViews(){setTimeout(function(){try{const active=document.
 function start(){
 try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})}).catch(function(){})}}catch(_){ }
 window.addEventListener('realynkCloudPropertiesRestored',refreshPropertyViews,false);
-load('./realynk-stability.js?v=9','realynkStabilityV9',true);
+load('./realynk-stability.js?v=10','realynkStabilityV10',true);
 load('./realynk-broker-name-fix.js?v=1','realynkBrokerNameFixV1',false);
 idle(function(){
  load('./firebase-auth.js?v=23','realynkAuthEntryV23',false);
@@ -20,6 +20,7 @@ idle(function(){
  load('./realynk-requirements.js?v=1','realynkRequirements',false);
  load('./realynk-broker-invite.js?v=6','realynkBrokerInvite',false);
  load('./realynk-broker-verification-sync.js?v=3','realynkBrokerVerificationSyncV3',true);
+ load('./realynk-list-dedupe.js?v=1','realynkListDedupeV1',false);
 },300);
 document.addEventListener('click',function(e){
 var nav=e.target.closest('[data-nav]');
