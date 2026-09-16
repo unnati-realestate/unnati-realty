@@ -100,7 +100,9 @@
           if(window.realynkPropertyStatus) window.realynkPropertyStatus(id,select.value);
           else if(window.realynkPropertyStatus===undefined && window.realynkPropertyStatusChange) window.realynkPropertyStatusChange(id,select.value);
         });
-        old.replaceWith(select);
+        old.style.display='none';
+        old.setAttribute('aria-hidden','true');
+        old.parentNode.insertBefore(select,old.nextSibling);
       }
       var st=card.querySelector('.realynkStatusSelect');
       if(st){
