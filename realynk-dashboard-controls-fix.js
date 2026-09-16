@@ -1,11 +1,42 @@
-/* REALYNK DASHBOARD CONTROLS V1 — restore Edit/Delete/Status without touching mobile flow */
+/* REALYNK DASHBOARD CONTROLS V2 — reliable Edit/Delete on cloud dashboard, preserves Status */
 (function(){
 'use strict';
-if(window.__REALYNK_DASHBOARD_CONTROLS_V1__)return;
-window.__REALYNK_DASHBOARD_CONTROLS_V1__=true;
-function styles(){if(document.getElementById('realynkDashControlStyleV1'))return;var s=document.createElement('style');s.id='realynkDashControlStyleV1';s.textContent='.realynkDashControlsV1{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.realynkDashControlsV1 button,.realynkDashControlsV1 select{width:100%;min-height:40px;border:1px solid #cfd9e5;border-radius:9px;background:#fff;color:#17324d;font-weight:800;font-size:12px;padding:8px}.realynkDashControlsV1 select{cursor:pointer}.realynkDashDeleteV1{color:#b42318!important}';document.head.appendChild(s)}
-function add(){var host=document.getElementById('myList');if(!host)return;host.querySelectorAll('.property').forEach(function(card){var id=card.getAttribute('data-property-id')||card.dataset.propertyId;if(!id)return;var box=card.querySelector('.realynkDashControlsV1');if(!box){box=document.createElement('div');box.className='realynkDashControlsV1';card.appendChild(box)}if(!box.querySelector('.realynkDashEditV1')){var e=document.createElement('button');e.type='button';e.className='realynkDashEditV1';e.textContent='✎ Edit';e.dataset.id=id;e.onclick=function(ev){ev.preventDefault();ev.stopPropagation();if(window.realynkPropertyEdit)window.realynkPropertyEdit(id)};box.appendChild(e)}if(!box.querySelector('.realynkDashStatusV1')){var sel=document.createElement('select');sel.className='realynkDashStatusV1';sel.dataset.id=id;['Active','Sold','Off Market'].forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent='Status: '+v;sel.appendChild(o)});var badge=card.querySelector('.badge');var bt=(badge?.textContent||'').toLowerCase();sel.value=bt.includes('sold')?'Sold':bt.includes('off market')?'Off Market':'Active';sel.onchange=function(ev){ev.stopPropagation();var v=sel.value;if(window.realynkPropertyStatus)window.realynkPropertyStatus(id,v.toLowerCase())};box.appendChild(sel)}if(!box.querySelector('.realynkDashDeleteV1')){var d=document.createElement('button');d.type='button';d.className='realynkDashDeleteV1';d.textContent='🗑 Delete';d.dataset.id=id;d.onclick=function(ev){ev.preventDefault();ev.stopPropagation();if(window.realynkPropertyDelete)window.realynkPropertyDelete(id)};box.appendChild(d)}})}
-function start(){styles();[200,700,1500,3000].forEach(function(ms){setTimeout(add,ms)});var host=document.getElementById('myList');if(host&&window.MutationObserver)new MutationObserver(function(){setTimeout(add,20)}).observe(host,{childList:true,subtree:true})}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else setTimeout(start,500);
-window.realynkDashboardControls={refresh:add};
+if(window.__REALYNK_DASHBOARD_CONTROLS_V2__)return;
+window.__REALYNK_DASHBOARD_CONTROLS_V2__=true;
+function styles(){
+ if(document.getElementById('realynkDashControlStyleV2'))return;
+ var s=document.createElement('style');s.id='realynkDashControlStyleV2';
+ s.textContent='.realynkDashControlsV2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.realynkDashControlsV2 button{width:100%;min-height:40px;border:1px solid #cfd9e5;border-radius:9px;background:#fff;color:#17324d;font-weight:800;font-size:12px;padding:8px;cursor:pointer}.realynkDashDeleteV2{color:#b42318!important;border-color:#e2caca!important}';
+ document.head.appendChild(s);
+}
+function callAction(name,id){
+ var fn=window[name];
+ if(typeof fn==='function'){fn(String(id));return}
+ setTimeout(function(){if(typeof window[name]==='function')window[name](String(id));},250);
+}
+function add(){
+ var host=document.getElementById('myList');if(!host)return;
+ host.querySelectorAll('.property').forEach(function(card){
+  var id=card.getAttribute('data-property-id')||card.dataset.propertyId;if(!id)return;
+  var box=card.querySelector('.realynkDashControlsV2');
+  if(!box){box=document.createElement('div');box.className='realynkDashControlsV2';card.appendChild(box)}
+  if(!box.querySelector('.realynkDashEditV2')){
+   var e=document.createElement('button');e.type='button';e.className='realynkDashEditV2';e.textContent='✎ Edit';
+   e.onclick=function(ev){ev.preventDefault();ev.stopImmediatePropagation();callAction('realynkPropertyEdit',id)};box.appendChild(e);
+  }
+  if(!box.querySelector('.realynkDashDeleteV2')){
+   var d=document.createElement('button');d.type='button';d.className='realynkDashDeleteV2';d.textContent='🗑 Delete';
+   d.onclick=function(ev){ev.preventDefault();ev.stopImmediatePropagation();callAction('realynkPropertyDelete',id)};box.appendChild(d);
+  }
+ });
+}
+function start(){
+ styles();
+ [100,400,900,1800,3500,6000].forEach(function(ms){setTimeout(add,ms)});
+ var host=document.getElementById('myList');
+ if(host&&window.MutationObserver)new MutationObserver(function(){setTimeout(add,30)}).observe(host,{childList:true,subtree:true});
+ if(window.MutationObserver)new MutationObserver(function(){if(document.getElementById('myList'))add()}).observe(document.body,{childList:true,subtree:true});
+ window.realynkDashboardControls={refresh:add};
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else setTimeout(start,300);
 })();
