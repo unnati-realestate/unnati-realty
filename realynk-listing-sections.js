@@ -83,7 +83,7 @@
   function styleStatusControls(){
     document.querySelectorAll('#myList .property').forEach(function(card){
       var old=card.querySelector('.realynkPermanentControls .rt-status');
-      if(old && old.tagName==='BUTTON'){
+      if(old && old.tagName==='BUTTON' && !card.querySelector('.realynkStatusSelect')){
         var id=old.dataset.id||card.dataset.propertyId;
         var current=old.dataset.status||'sold';
         var typeNode=card.querySelector('.details .detail:first-child b');
@@ -120,8 +120,6 @@
   function makeSections(){
     var host=document.getElementById('homeList');
     if(!host) return;
-    /* Only regroup fresh, direct property cards. Once grouped, do nothing.
-       This prevents the old observer loop that repeatedly rebuilt the page. */
     var cards=[].slice.call(host.querySelectorAll(':scope > .property'));
     if(!cards.length) return;
     var groups={}; CATS.forEach(function(c){groups[c.key]=[]}); var other=[];
@@ -179,7 +177,6 @@
     var host=document.getElementById('homeList');
     if(host){
       var observer=new MutationObserver(function(){
-        /* Run only when stability has supplied fresh direct property cards. */
         if(host.querySelector(':scope > .property')) setTimeout(makeSections,0);
       });
       observer.observe(host,{childList:true});
