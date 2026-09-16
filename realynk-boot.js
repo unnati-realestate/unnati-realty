@@ -13,6 +13,7 @@ window.addEventListener('realynkCloudPropertiesChanged',refreshPropertyViews,fal
 /* realynk-stability.js is the ONLY property renderer/action owner */
 load('./realynk-stability.js?v=11','realynkStabilityV11',true);
 load('./realynk-listing-sections.js?v=1','realynkListingSectionsV1',false);
+load('./realynk-deal-fields.js?v=2','realynkDealFieldsV2',true);
 load('./realynk-cloud-unify.js?v=1','realynkCloudUnify',false);
 load('./realynk-broker-name-fix.js?v=1','realynkBrokerNameFixV1',false);
 load('./realynk-payment-core.js?v=1','realynkPaymentCoreV1',false);
