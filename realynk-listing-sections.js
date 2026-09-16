@@ -12,6 +12,7 @@
     {key:'Heavy Deposit',label:'💰 Heavy Deposit Properties'},
     {key:'Land / Plot',label:'🌳 Land / Plot Properties'}
   ];
+  var cloudById={};
 
   function addTypeOption(){
     var type=document.getElementById('type');
@@ -43,16 +44,22 @@
     var typeNode=details.querySelector('.detail:first-child b');
     var type=typeNode?typeNode.textContent.trim():'';
     if(type!=='Rent' && type!=='Heavy Deposit') return;
+    var p=cloudById[String(card.dataset.propertyId||'')];
+    var deposit=p&&p.deposit?String(p.deposit).trim():'';
     var old=[].slice.call(card.children).find(function(el){return /^\s*Deposit\s*:/i.test(el.textContent||'')});
-    if(old){
-      var val=(old.textContent||'').replace(/^\s*Deposit\s*:\s*/i,'').trim();
-      var tile=document.createElement('div');
-      tile.className='detail realynkDepositDetail';
-      tile.innerHTML='<span>DEPOSIT</span><b></b>';
-      tile.querySelector('b').textContent=val||'Not specified';
-      details.appendChild(tile);
-      old.remove();
-    }
+    if(old && !deposit) deposit=(old.textContent||'').replace(/^\s*Deposit\s*:\s*/i,'').trim();
+    var existing=details.querySelector('.realynkDepositDetail');
+    if(existing){if(existing.querySelector('b'))existing.querySelector('b').textContent=deposit||'Not specified';if(old)old.remove();return;}
+    var tile=document.createElement('div');
+    tile.className='detail realynkDepositDetail';
+    tile.innerHTML='<span>DEPOSIT</span><b></b>';
+    tile.querySelector('b').textContent=deposit||'Not specified';
+    details.appendChild(tile);
+    if(old)old.remove();
+  }
+
+  function decorateAll(){
+    document.querySelectorAll('#homeList .property,#myList .property').forEach(fixDeposit);
   }
 
   function makeSections(){
@@ -86,6 +93,7 @@
       section.appendChild(wrap); host.appendChild(section);
     });
     if(other.length) other.forEach(function(card){host.appendChild(card)});
+    decorateAll();
   }
 
   function addQuickButtons(){
@@ -110,8 +118,22 @@
     document.head.appendChild(s);
   }
 
+  async function bindCloud(){
+    try{
+      var fa=await import('https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js');
+      var ff=await import('https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js');
+      var cfg=await import('./firebase-config.js');
+      var app=fa.getApps().length?fa.getApps()[0]:fa.initializeApp(cfg.firebaseConfig);
+      var db=ff.getFirestore(app);
+      ff.onSnapshot(ff.collection(db,'properties'),function(s){
+        cloudById={};s.forEach(function(d){cloudById[String(d.id)]={...d.data(),id:d.id}});
+        decorateAll();
+      });
+    }catch(e){console.warn('Realynk listing section cloud map',e)}
+  }
+
   function start(){
-    addStyle(); addTypeOption(); addQuickButtons();
+    addStyle(); addTypeOption(); addQuickButtons(); bindCloud();
     var host=document.getElementById('homeList');
     if(host){
       var busy=false;
@@ -119,6 +141,8 @@
       new MutationObserver(function(){setTimeout(run,0)}).observe(host,{childList:true});
       setTimeout(run,300);
     }
+    var dash=document.getElementById('myList');
+    if(dash)new MutationObserver(function(){setTimeout(decorateAll,0)}).observe(dash,{childList:true,subtree:true});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else setTimeout(start,100);
   window.realynkListingSections={refresh:makeSections};
