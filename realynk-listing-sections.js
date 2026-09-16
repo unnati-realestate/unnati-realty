@@ -1,8 +1,8 @@
-/* REALYNK LISTING SECTIONS — separate home rows + clear rent deposit + land/plot + professional status */
+/* REALYNK LISTING SECTIONS — stable rows + clear rent deposit + land/plot + stable status */
 (function(){
   'use strict';
-  if(window.__REALYNK_LISTING_SECTIONS_V1__) return;
-  window.__REALYNK_LISTING_SECTIONS_V1__=true;
+  if(window.__REALYNK_LISTING_SECTIONS_V2__) return;
+  window.__REALYNK_LISTING_SECTIONS_V2__=true;
 
   var CATS=[
     {key:'Rent',label:'🔑 Rent Properties'},
@@ -67,10 +67,10 @@
     var type=String(p&&p.type||'').toLowerCase();
     if(s==='off market') return '🟠 Off Market';
     if(s==='sold'){
-      if(type==='rent') return '🔴 Rented';
-      if(type==='heavy deposit') return '🔴 Booked';
-      if(type==='commercial') return '🔴 Closed';
-      return '🔴 Sold';
+      if(type==='rent') return '🟣 Rented';
+      if(type==='heavy deposit') return '🟣 Booked';
+      if(type==='commercial') return '🟣 Closed';
+      return '🟣 Sold';
     }
     return '🟢 Active';
   }
@@ -81,24 +81,24 @@
   }
 
   function styleStatusControls(){
-    var cards=document.querySelectorAll('#myList .property');
-    cards.forEach(function(card){
+    document.querySelectorAll('#myList .property').forEach(function(card){
       var old=card.querySelector('.realynkPermanentControls .rt-status');
       if(old && old.tagName==='BUTTON'){
         var id=old.dataset.id||card.dataset.propertyId;
         var current=old.dataset.status||'sold';
+        var typeNode=card.querySelector('.details .detail:first-child b');
+        var p={type:typeNode?typeNode.textContent.trim():''};
         var select=document.createElement('select');
         select.className='realynkStatusSelect '+statusClass(current);
         select.dataset.id=id;
         select.setAttribute('aria-label','Property status');
-        [['active','🟢 Active'],['sold',statusText({type:(card.querySelector('.details .detail:first-child b')||{}).textContent},'sold')],['off market','🟠 Off Market']].forEach(function(x){
+        [['active','🟢 Active'],['sold',statusText(p,'sold')],['off market','🟠 Off Market']].forEach(function(x){
           var op=document.createElement('option');op.value=x[0];op.textContent=x[1];if(x[0]===current)op.selected=true;select.appendChild(op);
         });
         select.addEventListener('change',function(){
-          var value=select.value;
-          select.className='realynkStatusSelect '+statusClass(value);
-          if(window.realynkPropertyStatus) window.realynkPropertyStatus(id,value);
-          setTimeout(styleStatusControls,250);
+          select.className='realynkStatusSelect '+statusClass(select.value);
+          if(window.realynkPropertyStatus) window.realynkPropertyStatus(id,select.value);
+          else if(window.realynkPropertyStatus===undefined && window.realynkPropertyStatusChange) window.realynkPropertyStatusChange(id,select.value);
         });
         old.replaceWith(select);
       }
@@ -118,11 +118,11 @@
   function makeSections(){
     var host=document.getElementById('homeList');
     if(!host) return;
+    /* Only regroup fresh, direct property cards. Once grouped, do nothing.
+       This prevents the old observer loop that repeatedly rebuilt the page. */
     var cards=[].slice.call(host.querySelectorAll(':scope > .property'));
     if(!cards.length) return;
-    var groups={};
-    CATS.forEach(function(c){groups[c.key]=[]});
-    var other=[];
+    var groups={}; CATS.forEach(function(c){groups[c.key]=[]}); var other=[];
     cards.forEach(function(card){
       fixDeposit(card);
       var b=card.querySelector('.details .detail:first-child b');
@@ -132,26 +132,18 @@
     });
     host.innerHTML='';
     CATS.forEach(function(c){
-      var arr=groups[c.key];
-      if(!arr.length) return;
-      var section=document.createElement('section');
-      section.className='realynkListingRow';
-      section.dataset.type=c.key;
-      var h=document.createElement('h3');
-      h.textContent=c.label;
-      section.appendChild(h);
-      var wrap=document.createElement('div');
-      wrap.className='realynkSectionCards';
-      arr.forEach(function(card){wrap.appendChild(card)});
-      section.appendChild(wrap); host.appendChild(section);
+      var arr=groups[c.key]; if(!arr.length) return;
+      var section=document.createElement('section'); section.className='realynkListingRow'; section.dataset.type=c.key;
+      var h=document.createElement('h3'); h.textContent=c.label; section.appendChild(h);
+      var wrap=document.createElement('div'); wrap.className='realynkSectionCards';
+      arr.forEach(function(card){wrap.appendChild(card)}); section.appendChild(wrap); host.appendChild(section);
     });
-    if(other.length) other.forEach(function(card){host.appendChild(card)});
+    other.forEach(function(card){host.appendChild(card)});
     decorateAll();
   }
 
   function addQuickButtons(){
-    var q=document.querySelector('.quick');
-    if(!q) return;
+    var q=document.querySelector('.quick'); if(!q) return;
     [['heavyDeposit','💰','Heavy Deposit'],['landPlot','🌳','Land / Plot']].forEach(function(x){
       if(document.getElementById(x[0])) return;
       var b=document.createElement('button'); b.id=x[0]; b.type='button'; b.innerHTML=x[1]+'<b>'+x[2]+'</b>';
@@ -159,15 +151,14 @@
         var s=document.querySelector('.realynkListingRow[data-type="'+x[2]+'"]');
         if(s) s.scrollIntoView({behavior:'smooth',block:'start'});
         else {var post=document.getElementById('postQuick'); if(post) post.click(); setTimeout(function(){var t=document.getElementById('type');if(t){t.value=x[2];t.dispatchEvent(new Event('change'))}},100)}
-      });
-      q.appendChild(b);
+      }); q.appendChild(b);
     });
   }
 
   function addStyle(){
     if(document.getElementById('realynkListingSectionsCSS')) return;
-    var s=document.createElement('style');s.id='realynkListingSectionsCSS';
-    s.textContent='.realynkListingRow{margin:22px 0}.realynkListingRow h3{margin:0 0 10px;padding:0 4px;font-size:21px;color:#0b3768}.realynkSectionCards{display:grid;gap:10px}.realynkListingRow .property{margin:0}.realynkDepositDetail{display:block!important}.realynkDepositDetail b{font-size:16px;color:#0b3768}.quick button{min-height:86px}.realynkListingRow:before{content:"";display:block;height:1px;background:#dfe6ee;margin-bottom:16px}.realynkPermanentControls{grid-template-columns:1fr 1fr!important;align-items:center!important}.realynkPermanentControls .rt-edit,.realynkPermanentControls .rt-delete{min-height:46px!important;border-radius:12px!important;font-weight:700!important}.realynkStatusSelect{width:100%;min-height:46px;padding:0 12px;border-radius:12px;border:2px solid #cbd5e1;font-size:15px;font-weight:800;background:#fff;cursor:pointer}.realynkStatusSelect.active{border-color:#22c55e;background:#ecfdf5;color:#15803d}.realynkStatusSelect.sold{border-color:#ef4444;background:#fef2f2;color:#b91c1c}.realynkStatusSelect.offmarket{border-color:#f59e0b;background:#fffbeb;color:#b45309}.realynkCardActive{border-left:5px solid #22c55e!important}.realynkCardSold{border-left:5px solid #ef4444!important}.realynkCardOffMarket{border-left:5px solid #f59e0b!important}@media(max-width:480px){.realynkListingRow h3{font-size:19px}.quick button{min-height:78px}.realynkPermanentControls{grid-template-columns:1fr 1fr!important}.realynkStatusSelect{min-height:44px;font-size:14px}}';
+    var s=document.createElement('style'); s.id='realynkListingSectionsCSS';
+    s.textContent='.realynkListingRow{margin:22px 0}.realynkListingRow h3{margin:0 0 10px;padding:0 4px;font-size:21px;color:#0b3768}.realynkSectionCards{display:grid;gap:10px}.realynkListingRow .property{margin:0}.realynkDepositDetail{display:block!important}.realynkDepositDetail b{font-size:16px;color:#0b3768}.quick button{min-height:86px}.realynkListingRow:before{content:"";display:block;height:1px;background:#dfe6ee;margin-bottom:16px}.realynkPermanentControls{grid-template-columns:1fr 1fr!important;align-items:center!important}.realynkPermanentControls .rt-edit,.realynkPermanentControls .rt-delete{min-height:46px!important;border-radius:12px!important;font-weight:700!important}.realynkStatusSelect{width:100%;min-height:46px;padding:0 12px;border-radius:12px;border:2px solid #cbd5e1;font-size:15px;font-weight:800;background:#fff;cursor:pointer}.realynkStatusSelect.active{border-color:#22c55e;background:#ecfdf5;color:#15803d}.realynkStatusSelect.sold{border-color:#8b5cf6;background:#f5f3ff;color:#6d28d9}.realynkStatusSelect.offmarket{border-color:#f59e0b;background:#fffbeb;color:#b45309}.realynkCardActive{border-left:5px solid #22c55e!important}.realynkCardSold{border-left:5px solid #8b5cf6!important}.realynkCardOffMarket{border-left:5px solid #f59e0b!important}@media(max-width:480px){.realynkListingRow h3{font-size:19px}.quick button{min-height:78px}.realynkPermanentControls{grid-template-columns:1fr 1fr!important}.realynkStatusSelect{min-height:44px;font-size:14px}}';
     document.head.appendChild(s);
   }
 
@@ -176,13 +167,8 @@
       var fa=await import('https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js');
       var ff=await import('https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js');
       var cfg=await import('./firebase-config.js');
-      var app=fa.getApps().length?fa.getApps()[0]:fa.initializeApp(cfg.firebaseConfig);
-      var db=ff.getFirestore(app);
-      ff.onSnapshot(ff.collection(db,'properties'),function(s){
-        cloudById={};s.forEach(function(d){cloudById[String(d.id)]={...d.data(),id:d.id}});
-        decorateAll();
-        styleStatusControls();
-      });
+      var app=fa.getApps().length?fa.getApps()[0]:fa.initializeApp(cfg.firebaseConfig); var db=ff.getFirestore(app);
+      ff.onSnapshot(ff.collection(db,'properties'),function(s){cloudById={};s.forEach(function(d){cloudById[String(d.id)]={...d.data(),id:d.id}});decorateAll();styleStatusControls()});
     }catch(e){console.warn('Realynk listing section cloud map',e)}
   }
 
@@ -190,14 +176,15 @@
     addStyle(); addTypeOption(); addQuickButtons(); bindCloud();
     var host=document.getElementById('homeList');
     if(host){
-      var busy=false;
-      var run=function(){if(busy)return;busy=true;try{makeSections()}finally{busy=false}};
-      new MutationObserver(function(){setTimeout(run,0)}).observe(host,{childList:true});
-      setTimeout(run,300);
+      var observer=new MutationObserver(function(){
+        /* Run only when stability has supplied fresh direct property cards. */
+        if(host.querySelector(':scope > .property')) setTimeout(makeSections,0);
+      });
+      observer.observe(host,{childList:true});
+      setTimeout(makeSections,300);
     }
     var dash=document.getElementById('myList');
     if(dash)new MutationObserver(function(){setTimeout(function(){decorateAll();styleStatusControls()},0)}).observe(dash,{childList:true,subtree:true});
-    setInterval(styleStatusControls,1000);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else setTimeout(start,100);
   window.realynkListingSections={refresh:makeSections};
