@@ -55,7 +55,7 @@ load('./realynk-payment-adapter.js?v=1','realynkPaymentAdapterV1',true);
 idle(function(){
  load('./firebase-auth.js?v=24','realynkAuthEntryV24',false);
  load('./realynk-media.js?v=4','realynkMedia',false);
- load('./realynk-heavy-deposit-type.js?v=1','realynkHeavyDepositType',false);
+ load('./realynk-heavy-deposit-type.js?v=2','realynkHeavyDepositType',false);
  load('./realynk-public-actions.js?v=5','realynkPublicActions',false);
  load('./realynk-broker-share-card.js?v=4','realynkRefreshBrokerShareCard',false);
  load('./realynk-requirements.js?v=1','realynkRequirements',false);
