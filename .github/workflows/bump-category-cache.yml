@@ -1,0 +1,33 @@
+name: Bump Category Controller Cache
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  bump:
+    if: ${{ !contains(github.event.head_commit.message, 'Bump category controller cache') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bump controller URL
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('realynk-boot.js')
+          s=p.read_text(encoding='utf-8')
+          old="realynk-heavy-deposit-type.js?v=1"
+          new="realynk-heavy-deposit-type.js?v=2"
+          if old not in s:
+              raise SystemExit(0)
+          p.write_text(s.replace(old,new),encoding='utf-8')
+          PY
+      - name: Commit cache bump
+        run: |
+          git config user.name 'Realynk Bot'
+          git config user.email 'realynk-bot@users.noreply.github.com'
+          git add realynk-boot.js
+          git diff --cached --quiet && exit 0
+          git commit -m 'Bump category controller cache'
+          git push
