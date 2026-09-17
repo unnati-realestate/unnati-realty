@@ -6,14 +6,48 @@ window.__REALYNK_CLOUD_FIRST__=true;
 function load(src,key,module,ordered){if(window[key]||document.querySelector('script[data-realynk-loader="'+key+'"]'))return;var s=document.createElement('script');s.src=src;s.async=ordered?false:true;if(module)s.type='module';s.dataset.realynkLoader=key;document.head.appendChild(s)}
 function idle(fn,delay){if(window.requestIdleCallback)window.requestIdleCallback(fn,{timeout:delay||1500});else setTimeout(fn,delay||500)}
 function refreshPropertyViews(){setTimeout(function(){try{if(window.realynkCategoryFilter&&window.realynkCategoryFilter.refresh)window.realynkCategoryFilter.refresh()}catch(_){}},120)}
+
+/* CATEGORY CLICK OWNER: installed before any async property script can bind. */
+function installCategoryControl(){
+ if(window.__REALYNK_BOOT_CATEGORY_CONTROL__)return;
+ window.__REALYNK_BOOT_CATEGORY_CONTROL__=true;
+ var active='';
+ function clean(v){return String(v||'').trim().toLowerCase()}
+ function commercialType(v){v=clean(v);return v==='commercial'||v.indexOf('commercial')!==-1||v==='shop'||v==='office'||v==='showroom'||v==='warehouse'||v==='land / plot'||v==='land'||v==='plot'}
+ function match(v,w){v=clean(v);w=clean(w);return w==='commercial'?commercialType(v):w==='heavy deposit'?(v==='heavy deposit'||v.indexOf('heavy deposit')!==-1):v===w}
+ function typeOf(card){var b=card&&card.querySelector('.details .detail:first-child b');return b?b.textContent:''}
+ function clearActive(){document.querySelectorAll('.quick button').forEach(function(b){b.classList.remove('active')})}
+ function clearViews(){var host=document.getElementById('homeList');if(!host)return;[].slice.call(host.querySelectorAll('.realynkListingRow,.property')).forEach(function(x){x.style.display=''})}
+ function apply(){
+  if(!active)return;
+  var host=document.getElementById('homeList');if(!host)return;
+  var wanted=active, target=null;
+  [].slice.call(host.querySelectorAll('.realynkListingRow')).forEach(function(row){var ok=match(row.dataset.type||'',wanted);row.style.display=ok?'':'none';if(ok&&!target)target=row});
+  [].slice.call(host.querySelectorAll('.property')).forEach(function(card){var ok=match(typeOf(card),wanted);card.style.display=ok?'':'none';if(ok&&!target)target=card});
+  if(target&&target.scrollIntoView)target.scrollIntoView({behavior:'smooth',block:'start'});
+ }
+ document.addEventListener('click',function(e){
+  var b=e.target&&e.target.closest?e.target.closest('.quick button'):null;if(!b)return;
+  clearActive();
+  if(b.id==='commercial'||b.id==='heavyDeposit'){
+   e.preventDefault();e.stopImmediatePropagation();active=b.id==='commercial'?'Commercial':'Heavy Deposit';apply();
+   [50,150,300,600,1000,1800,3000].forEach(function(ms){setTimeout(apply,ms)});
+  }else{active='';clearViews()}
+ },true);
+ function watch(){var host=document.getElementById('homeList');if(!host||host.__realynkBootCategoryObserver)return;host.__realynkBootCategoryObserver=true;new MutationObserver(function(){if(active)setTimeout(apply,0)}).observe(host,{childList:true,subtree:true})}
+ watch();setInterval(watch,300);
+ function removeLand(){var type=document.getElementById('type');if(!type)return;[].slice.call(type.options).forEach(function(o){if(clean(o.value)==='land / plot'||clean(o.textContent).indexOf('land / plot')!==-1)o.remove()})}
+ removeLand();setInterval(removeLand,500);
+}
+
 function start(){
 try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})}).catch(function(){})}}catch(_){ }
+installCategoryControl();
 window.addEventListener('realynkCloudPropertiesRestored',refreshPropertyViews,false);
 window.addEventListener('realynkCloudPropertiesChanged',refreshPropertyViews,false);
-/* Category click fix and stability MUST execute in this order before other property scripts. */
-load('./realynk-category-click-fix.js?v=3','realynkCategoryClickFix',false,true);
-load('./realynk-stability.js?v=16','realynkStabilityV16',true,true);
-load('./realynk-listing-sections.js?v=4','realynkListingSectionsV4',false,true);
+/* Existing renderer remains intact for Buy/Sale/Rent. */
+load('./realynk-stability.js?v=17','realynkStabilityV17',true,true);
+load('./realynk-listing-sections.js?v=5','realynkListingSectionsV5',false,true);
 load('./realynk-deal-fields.js?v=4','realynkDealFieldsV4',true);
 load('./realynk-cloud-unify.js?v=1','realynkCloudUnify',false);
 load('./realynk-payment-core.js?v=1','realynkPaymentCoreV1',false);
@@ -33,7 +67,7 @@ document.addEventListener('click',function(e){
 var nav=e.target.closest('[data-nav]');
 if(nav&&nav.getAttribute('data-nav')==='brokers'){load('./realynk-broker-auth.js?v=7','realynkBrokerAuthV7',true);load('./realynk-professional-profile.js?v=2','realynkProfessionalProfile',false);load('./realynk-broker-share-card.js?v=4','realynkRefreshBrokerShareCard',false);load('./realynk-broker-invite.js?v=6','realynkBrokerInvite',false)}
 if(nav&&nav.getAttribute('data-nav')==='dashboard'){load('./realynk-broker-dashboard.js?v=1','realynkBrokerDashboardV1',false);load('./realynk-broker-earning.js?v=3','realynkBrokerEarningV3',false)}
-if(nav&&nav.getAttribute('data-nav')==='account'){load('./realynk-broker-auth.js?v=7','realynkBrokerAuthV7',true);load('./realynk-digital-card.js?v=5','realynkDigitalCard',false);load('./realynk-verification-sync.js?v=3','realynkBrokerVerificationSyncV3',true);}
+if(nav&&nav.getAttribute('data-nav')==='account'){load('./realynk-broker-auth.js?v=7','realynkBrokerAuthV7',true);load('./realynk-digital-card.js?v=5','realynkDigitalCard',false);load('./realynk-verification-sync.js?v=3','realynkBrokerVerificationSyncV3',true);load('./realynk-verification-sync.js?v=3','realynkBrokerVerificationSyncV3',true);}
 if(e.target.closest('#postQuick,#brokerPost,#add'))load('./realynk-video-replace.js?v=1','realynkVideoReplace',false);
 },true);
 idle(function(){load('./realynk-admin-entry.js?v=8','realynkAdminEntry',true)},2200);
