@@ -19,9 +19,10 @@ jobs:
           s=p.read_text(encoding='utf-8')
           marker='REALYNK_BOOT_V1'
           if marker in s:
-              raise SystemExit(0)
-          patch='<!-- REALYNK_BOOT_V1 --><script type="module" src="./realynk-boot.js?v=1"></script>'
-          s=s.replace('</body>', patch+'\n</body>')
+              s=s.replace('./realynk-boot.js?v=1','./realynk-boot.js?v=2')
+          else:
+              patch='<!-- REALYNK_BOOT_V1 --><script type="module" src="./realynk-boot.js?v=2"></script>'
+              s=s.replace('</body>', patch+'\n</body>')
           p.write_text(s,encoding='utf-8')
           PY
       - name: Commit boot patch
