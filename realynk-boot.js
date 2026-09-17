@@ -3,19 +3,19 @@
 'use strict';
 if(window.__REALYNK_SAFE_BOOT_SINGLE_SOURCE__)return;window.__REALYNK_SAFE_BOOT_SINGLE_SOURCE__=true;
 window.__REALYNK_CLOUD_FIRST__=true;
-function load(src,key,module){if(window[key]||document.querySelector('script[data-realynk-loader="'+key+'"]'))return;var s=document.createElement('script');s.src=src;s.async=true;if(module)s.type='module';s.dataset.realynkLoader=key;document.head.appendChild(s)}
+function load(src,key,module,ordered){if(window[key]||document.querySelector('script[data-realynk-loader="'+key+'"]'))return;var s=document.createElement('script');s.src=src;s.async=ordered?false:true;if(module)s.type='module';s.dataset.realynkLoader=key;document.head.appendChild(s)}
 function idle(fn,delay){if(window.requestIdleCallback)window.requestIdleCallback(fn,{timeout:delay||1500});else setTimeout(fn,delay||500)}
 function refreshPropertyViews(){setTimeout(function(){try{if(window.realynkCategoryFilter&&window.realynkCategoryFilter.refresh)window.realynkCategoryFilter.refresh()}catch(_){}},120)}
 function start(){
 try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})}).catch(function(){})}}catch(_){ }
 window.addEventListener('realynkCloudPropertiesRestored',refreshPropertyViews,false);
 window.addEventListener('realynkCloudPropertiesChanged',refreshPropertyViews,false);
-/* Category click fix MUST load before stability so Commercial + Heavy Deposit own the first click. */
-load('./realynk-category-click-fix.js?v=1','realynkCategoryClickFix',false);
+/* Category click fix MUST execute before stability binds its buttons. */
+load('./realynk-category-click-fix.js?v=2','realynkCategoryClickFix',false,true);
 /* realynk-stability.js is the ONLY property renderer/action owner */
-load('./realynk-stability.js?v=14','realynkStabilityV14',true);
+load('./realynk-stability.js?v=15','realynkStabilityV15',true);
 /* Listing sections: Land / Plot is grouped inside Commercial; no separate Land / Plot quick button. */
-load('./realynk-listing-sections.js?v=2','realynkListingSectionsV2',false);
+load('./realynk-listing-sections.js?v=3','realynkListingSectionsV3',false);
 load('./realynk-deal-fields.js?v=4','realynkDealFieldsV4',true);
 load('./realynk-cloud-unify.js?v=1','realynkCloudUnify',false);
 load('./realynk-payment-core.js?v=1','realynkPaymentCoreV1',false);
