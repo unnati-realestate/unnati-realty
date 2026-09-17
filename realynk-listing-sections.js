@@ -16,10 +16,11 @@
   function addTypeOption(){
     var type=document.getElementById('type');
     if(!type) return;
-    if(!type.querySelector('option[value="Land / Plot"]')){
-      var o=document.createElement('option');
-      o.value='Land / Plot'; o.textContent='🌳 Land / Plot'; type.appendChild(o);
-    }
+    [].slice.call(type.options).forEach(function(o){
+      var v=String(o.value||'').trim().toLowerCase();
+      var t=String(o.textContent||'').trim().toLowerCase();
+      if(v==='land / plot'||v==='land'||v==='plot'||t.indexOf('land / plot')!==-1)o.remove();
+    });
     function sync(){
       var v=String(type.value||'');
       var deposit=document.getElementById('depositField');
