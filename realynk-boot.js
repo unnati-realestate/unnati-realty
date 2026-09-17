@@ -28,6 +28,7 @@ idle(function(){
  load('./realynk-broker-verification-sync.js?v=3','realynkBrokerVerificationSyncV3',true);
  load('./realynk-list-dedupe.js?v=1','realynkListDedupeV1',false);
  load('./realynk-heavy-deposit-quick-fix.js?v=1','realynkHeavyDepositQuickFixV1',false);
+ load('./realynk-category-filter-fix.js?v=1','realynkCategoryFilterFixV1',false);
 },300);
 document.addEventListener('click',function(e){
 var nav=e.target.closest('[data-nav]');
