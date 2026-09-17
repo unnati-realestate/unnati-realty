@@ -47,7 +47,7 @@ window.addEventListener('realynkCloudPropertiesRestored',refreshPropertyViews,fa
 window.addEventListener('realynkCloudPropertiesChanged',refreshPropertyViews,false);
 /* Existing renderer remains intact for Buy/Sale/Rent. */
 load('./realynk-stability.js?v=19','realynkStabilityV19',true,true);
-load('./realynk-listing-sections.js?v=7','realynkListingSectionsV7',false,true);
+load('./realynk-listing-sections.js?v=8','realynkListingSectionsV8',false,true);
 load('./realynk-deal-fields.js?v=4','realynkDealFieldsV4',true);
 load('./realynk-cloud-unify.js?v=1','realynkCloudUnify',false);
 load('./realynk-payment-core.js?v=1','realynkPaymentCoreV1',false);
