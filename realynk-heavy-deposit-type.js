@@ -1,4 +1,4 @@
-/* REALYNK CATEGORY FINAL CONTROLLER — Heavy Deposit + Commercial */
+/* REALYNK CATEGORY FINAL CONTROLLER — DOM FILTER OWNER */
 (function(){
 'use strict';
 if(window.__REALYNK_CATEGORY_FINAL_CONTROLLER__)return;
@@ -15,7 +15,7 @@ function cardType(card){
   var b=card&&card.querySelector('.details .detail:first-child b');
   return b?b.textContent:'';
 }
-function apply(){
+function apply(scroll){
   var wanted=window.__REALYNK_CATEGORY_FILTER__||'';
   var host=document.getElementById('homeList');
   if(!host||!wanted)return;
@@ -25,31 +25,32 @@ function apply(){
     row.style.display=ok?'':'none';
     if(ok&&!first)first=row;
   });
-  host.querySelectorAll('.property').forEach(function(card){
+  /* Do not hide individual cards when they are inside a category row. */
+  host.querySelectorAll('.realynkListingRow .property').forEach(function(card){card.style.display=''})
+  host.querySelectorAll(':scope > .property').forEach(function(card){
     var ok=matches(cardType(card),wanted);
     card.style.display=ok?'':'none';
     if(ok&&!first)first=card;
   });
-  if(first && window.__REALYNK_CATEGORY_SCROLL__){
-    window.__REALYNK_CATEGORY_SCROLL__=false;
-    try{first.scrollIntoView({behavior:'smooth',block:'start'})}catch(_){first.scrollIntoView()}
-  }
+  if(scroll&&first){try{first.scrollIntoView({behavior:'smooth',block:'start'})}catch(_){first.scrollIntoView()}}
 }
 function selectCategory(id){
   var wanted=id==='commercial'?'Commercial':'Heavy Deposit';
   window.__REALYNK_CATEGORY_FILTER__=wanted;
   document.querySelectorAll('.quick button').forEach(function(b){b.classList.remove('active')});
   var btn=document.getElementById(id);if(btn)btn.classList.add('active');
-  window.__REALYNK_CATEGORY_SCROLL__=true;
-  var s=document.getElementById('search');
-  if(s)s.dispatchEvent(new Event('input',{bubbles:true}));
-  [0,50,150,300,600,1000,1800,3000].forEach(function(ms){setTimeout(apply,ms)});
+  /* IMPORTANT: do not trigger Stability render here. Its renderer would filter
+     before Listing Sections can classify aliases and would produce an empty list. */
+  apply(true);
+  [50,150,300,600,1000,1800,3000].forEach(function(ms){setTimeout(function(){apply(false)},ms)});
 }
 function installClick(){
   window.addEventListener('click',function(e){
     var b=e.target&&e.target.closest?e.target.closest('.quick button'):null;
     if(!b)return;
     if(b.id==='commercial'||b.id==='heavyDeposit'){
+      e.preventDefault();
+      e.stopImmediatePropagation();
       selectCategory(b.id);
     }
   },true);
@@ -63,11 +64,11 @@ function installObserver(){
   var observer=new MutationObserver(function(){
     if(!window.__REALYNK_CATEGORY_FILTER__)return;
     clearTimeout(timer);
-    timer=setTimeout(apply,0);
+    timer=setTimeout(function(){apply(false)},0);
   });
   observer.observe(host,{childList:true,subtree:true});
-  window.__REALYNK_CATEGORY_FINAL_REFRESH__=apply;
-  setTimeout(apply,100);
+  window.__REALYNK_CATEGORY_FINAL_REFRESH__=function(){apply(false)};
+  setTimeout(function(){apply(false)},100);
 }
 function removeLand(){
   var type=document.getElementById('type');
