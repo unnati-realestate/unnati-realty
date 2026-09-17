@@ -11,7 +11,7 @@ try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().
 window.addEventListener('realynkCloudPropertiesRestored',refreshPropertyViews,false);
 window.addEventListener('realynkCloudPropertiesChanged',refreshPropertyViews,false);
 /* realynk-stability.js is the ONLY property renderer/action owner */
-load('./realynk-stability.js?v=12','realynkStabilityV11',true);
+load('./realynk-stability.js?v=13','realynkStabilityV13',true);
 load('./realynk-listing-sections.js?v=1','realynkListingSectionsV1',false);
 load('./realynk-deal-fields.js?v=4','realynkDealFieldsV4',true);
 load('./realynk-cloud-unify.js?v=1','realynkCloudUnify',false);
@@ -33,7 +33,7 @@ document.addEventListener('click',function(e){
 var nav=e.target.closest('[data-nav]');
 if(nav&&nav.getAttribute('data-nav')==='brokers'){load('./realynk-broker-auth.js?v=7','realynkBrokerAuthV7',true);load('./realynk-professional-profile.js?v=2','realynkProfessionalProfile',false);load('./realynk-broker-share-card.js?v=4','realynkRefreshBrokerShareCard',false);load('./realynk-broker-invite.js?v=6','realynkBrokerInvite',false)}
 if(nav&&nav.getAttribute('data-nav')==='dashboard'){load('./realynk-broker-dashboard.js?v=1','realynkBrokerDashboardV1',false);load('./realynk-broker-earning.js?v=3','realynkBrokerEarningV3',false)}
-if(nav&&nav.getAttribute('data-nav')==='account'){load('./realynk-broker-auth.js?v=7','realynkBrokerAuthV7',true);load('./realynk-digital-card.js?v=5','realynkDigitalCard',false);load('./realynk-verification-sync.js?v=3','realynkBrokerVerificationSyncV3',true)}
+if(nav&&nav.getAttribute('data-nav')==='account'){load('./realynk-broker-auth.js?v=7','realynkBrokerAuthV7',true);load('./realynk-digital-card.js?v=5','realynkDigitalCard',false);load('./realynk-verification-sync.js?v=3','realynkBrokerVerificationSyncV3',true);}
 if(e.target.closest('#postQuick,#brokerPost,#add'))load('./realynk-video-replace.js?v=1','realynkVideoReplace',false);
 },true);
 idle(function(){load('./realynk-admin-entry.js?v=8','realynkAdminEntry',true)},2200);
