@@ -30,14 +30,15 @@ function installCategoryControl(){
   var b=e.target&&e.target.closest?e.target.closest('.quick button'):null;if(!b)return;
   clearActive();
   if(b.id==='commercial'||b.id==='heavyDeposit'){
-   e.preventDefault();e.stopImmediatePropagation();active=b.id==='commercial'?'Commercial':'Heavy Deposit';apply();
+   e.preventDefault();e.stopImmediatePropagation();active=b.id==='commercial'?'Commercial':'Heavy Deposit';window.__REALYNK_CATEGORY_FILTER__=active;apply();
    [50,150,300,600,1000,1800,3000].forEach(function(ms){setTimeout(apply,ms)});
-  }else{active='';clearViews()}
+  }else{active='';window.__REALYNK_CATEGORY_FILTER__='';clearViews()}
  },true);
  function watch(){var host=document.getElementById('homeList');if(!host||host.__realynkBootCategoryObserver)return;host.__realynkBootCategoryObserver=true;new MutationObserver(function(){if(active)setTimeout(apply,0)}).observe(host,{childList:true,subtree:true})}
  watch();setInterval(watch,300);
  function removeLand(){var type=document.getElementById('type');if(!type)return;[].slice.call(type.options).forEach(function(o){if(clean(o.value)==='land / plot'||clean(o.textContent).indexOf('land / plot')!==-1)o.remove()})}
  removeLand();setInterval(removeLand,500);
+ var css=document.createElement('style');css.textContent='#commercial:focus,#commercial:focus-visible,#heavyDeposit:focus,#heavyDeposit:focus-visible{outline:none!important;box-shadow:none!important}';document.head.appendChild(css);
 }
 
 function start(){
@@ -46,8 +47,8 @@ installCategoryControl();
 window.addEventListener('realynkCloudPropertiesRestored',refreshPropertyViews,false);
 window.addEventListener('realynkCloudPropertiesChanged',refreshPropertyViews,false);
 /* Existing renderer remains intact for Buy/Sale/Rent. */
-load('./realynk-stability.js?v=17','realynkStabilityV17',true,true);
-load('./realynk-listing-sections.js?v=5','realynkListingSectionsV5',false,true);
+load('./realynk-stability.js?v=18','realynkStabilityV18',true,true);
+load('./realynk-listing-sections.js?v=6','realynkListingSectionsV6',false,true);
 load('./realynk-deal-fields.js?v=4','realynkDealFieldsV4',true);
 load('./realynk-cloud-unify.js?v=1','realynkCloudUnify',false);
 load('./realynk-payment-core.js?v=1','realynkPaymentCoreV1',false);
