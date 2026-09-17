@@ -114,6 +114,20 @@
     });
   }
 
+  function applyActiveCategory(){
+    var wanted=String(window.__REALYNK_CATEGORY_FILTER__||'').trim().toLowerCase();
+    if(!wanted) return;
+    function clean(v){return String(v||'').trim().toLowerCase()}
+    function commercial(v){v=clean(v);return v==='commercial'||v.indexOf('commercial')!==-1||v==='shop'||v==='office'||v==='showroom'||v==='warehouse'||v==='land / plot'||v==='land'||v==='plot'}
+    function match(v){v=clean(v);return wanted==='commercial'?commercial(v):wanted==='heavy deposit'?(v==='heavy deposit'||v.indexOf('heavy deposit')!==-1):v===wanted}
+    var host=document.getElementById('homeList');
+    if(!host)return;
+    var target=null;
+    [].slice.call(host.querySelectorAll('.realynkListingRow')).forEach(function(row){var ok=match(row.dataset.type||'');row.style.display=ok?'':'none';if(ok&&!target)target=row});
+    [].slice.call(host.querySelectorAll('.property')).forEach(function(card){var n=card.querySelector('.details .detail:first-child b');var ok=match(n?n.textContent:'');card.style.display=ok?'':'none';if(ok&&!target)target=card});
+    if(target&&target.scrollIntoView)target.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
   function makeSections(){
     var host=document.getElementById('homeList');
     if(!host) return;
@@ -137,6 +151,7 @@
     });
     other.forEach(function(card){host.appendChild(card)});
     decorateAll();
+    applyActiveCategory();
   }
 
   function addQuickButtons(){
