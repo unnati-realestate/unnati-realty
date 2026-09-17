@@ -13,7 +13,6 @@ window.addEventListener('realynkCloudPropertiesChanged',refreshPropertyViews,fal
 /* realynk-stability.js is the ONLY property renderer/action owner */
 load('./realynk-stability.js?v=11','realynkStabilityV11',true);
 load('./realynk-listing-sections.js?v=1','realynkListingSectionsV1',false);
-load('./realynk-commercial-quick-fix.js?v=1','realynkCommercialQuickFixV1',false);
 load('./realynk-deal-fields.js?v=4','realynkDealFieldsV4',true);
 load('./realynk-cloud-unify.js?v=1','realynkCloudUnify',false);
 load('./realynk-payment-core.js?v=1','realynkPaymentCoreV1',false);
@@ -28,6 +27,7 @@ idle(function(){
  load('./realynk-broker-invite.js?v=6','realynkBrokerInvite',false);
  load('./realynk-broker-verification-sync.js?v=3','realynkBrokerVerificationSyncV3',true);
  load('./realynk-list-dedupe.js?v=1','realynkListDedupeV1',false);
+ load('./realynk-heavy-deposit-quick-fix.js?v=1','realynkHeavyDepositQuickFixV1',false);
 },300);
 document.addEventListener('click',function(e){
 var nav=e.target.closest('[data-nav]');
