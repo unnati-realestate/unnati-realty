@@ -1,16 +1,15 @@
-/* REALYNK LISTING SECTIONS — stable rows + clear rent deposit + land/plot + stable status */
+/* REALYNK LISTING SECTIONS — stable rows + clear rent deposit + commercial includes land/plot */
 (function(){
   'use strict';
-  if(window.__REALYNK_LISTING_SECTIONS_V2__) return;
-  window.__REALYNK_LISTING_SECTIONS_V2__=true;
+  if(window.__REALYNK_LISTING_SECTIONS_V3__) return;
+  window.__REALYNK_LISTING_SECTIONS_V3__=true;
 
   var CATS=[
     {key:'Rent',label:'🔑 Rent Properties'},
     {key:'Sale',label:'🏷️ Sale Properties'},
     {key:'Buy',label:'🏠 Buy Properties'},
     {key:'Commercial',label:'🏢 Commercial Properties'},
-    {key:'Heavy Deposit',label:'💰 Heavy Deposit Properties'},
-    {key:'Land / Plot',label:'🌳 Land / Plot Properties'}
+    {key:'Heavy Deposit',label:'💰 Heavy Deposit Properties'}
   ];
   var cloudById={};
 
@@ -35,6 +34,7 @@
 
   function sectionFor(type){
     var t=String(type||'').trim().toLowerCase();
+    if(t==='land / plot' || t==='land' || t==='plot' || t==='shop' || t==='office' || t==='showroom' || t==='warehouse') return CATS.find(function(c){return c.key==='Commercial'});
     return CATS.find(function(c){return c.key.toLowerCase()===t})||null;
   }
 
@@ -58,9 +58,7 @@
     if(old)old.remove();
   }
 
-  function decorateAll(){
-    document.querySelectorAll('#homeList .property,#myList .property').forEach(fixDeposit);
-  }
+  function decorateAll(){document.querySelectorAll('#homeList .property,#myList .property').forEach(fixDeposit)}
 
   function statusText(p,status){
     var s=String(status||'active').toLowerCase();
@@ -69,7 +67,7 @@
     if(s==='sold'){
       if(type==='rent') return '🟣 Rented';
       if(type==='heavy deposit') return '🟣 Booked';
-      if(type==='commercial') return '🟣 Closed';
+      if(type==='commercial'||type==='land / plot'||type==='shop'||type==='office'||type==='showroom'||type==='warehouse') return '🟣 Closed';
       return '🟣 Sold';
     }
     return '🟢 Active';
@@ -100,9 +98,7 @@
           if(window.realynkPropertyStatus) window.realynkPropertyStatus(id,select.value);
           else if(window.realynkPropertyStatus===undefined && window.realynkPropertyStatusChange) window.realynkPropertyStatusChange(id,select.value);
         });
-        old.style.display='none';
-        old.setAttribute('aria-hidden','true');
-        old.parentNode.insertBefore(select,old.nextSibling);
+        old.style.display='none'; old.setAttribute('aria-hidden','true'); old.parentNode.insertBefore(select,old.nextSibling);
       }
       var st=card.querySelector('.realynkStatusSelect');
       if(st){
@@ -144,15 +140,12 @@
 
   function addQuickButtons(){
     var q=document.querySelector('.quick'); if(!q) return;
-    [['heavyDeposit','💰','Heavy Deposit'],['landPlot','🌳','Land / Plot']].forEach(function(x){
-      if(document.getElementById(x[0])) return;
-      var b=document.createElement('button'); b.id=x[0]; b.type='button'; b.innerHTML=x[1]+'<b>'+x[2]+'</b>';
-      b.addEventListener('click',function(){
-        var s=document.querySelector('.realynkListingRow[data-type="'+x[2]+'"]');
-        if(s) s.scrollIntoView({behavior:'smooth',block:'start'});
-        else {var post=document.getElementById('postQuick'); if(post) post.click(); setTimeout(function(){var t=document.getElementById('type');if(t){t.value=x[2];t.dispatchEvent(new Event('change'))}},100)}
-      }); q.appendChild(b);
-    });
+    var b=document.getElementById('heavyDeposit');
+    if(!b){
+      b=document.createElement('button'); b.id='heavyDeposit'; b.type='button'; b.innerHTML='💰<b>Heavy Deposit</b>'; q.appendChild(b);
+    }
+    var land=document.getElementById('landPlot');
+    if(land) land.remove();
   }
 
   function addStyle(){
@@ -176,9 +169,7 @@
     addStyle(); addTypeOption(); addQuickButtons(); bindCloud();
     var host=document.getElementById('homeList');
     if(host){
-      var observer=new MutationObserver(function(){
-        if(host.querySelector(':scope > .property')) setTimeout(makeSections,0);
-      });
+      var observer=new MutationObserver(function(){if(host.querySelector(':scope > .property')) setTimeout(makeSections,0)});
       observer.observe(host,{childList:true});
       setTimeout(makeSections,300);
     }
