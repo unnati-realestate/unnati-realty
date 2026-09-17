@@ -1,95 +1,39 @@
-/* REALYNK EARLY CATEGORY CLICK OWNER — loaded synchronously before the module boot.
-   Keeps the existing UI, but prevents the old inline renderer from stealing
-   Commercial / Heavy Deposit clicks. */
+/* REALYNK QUICK CATEGORY CONTROLLER — synchronous, all categories */
 (function(){
-  'use strict';
-  if(window.__REALYNK_EARLY_CATEGORY_CLICK_OWNER__) return;
-  window.__REALYNK_EARLY_CATEGORY_CLICK_OWNER__=true;
-
-  var active='';
-
-  function typeOf(card){
-    var b=card.querySelector('.details .detail:first-child b');
-    return String(b&&b.textContent||'').trim().toLowerCase();
-  }
-
-  function match(type,wanted){
-    type=String(type||'').trim().toLowerCase();
-    if(wanted==='commercial'){
-      return type==='commercial'||type.indexOf('commercial')!==-1||type==='shop'||type==='office'||type==='showroom'||type==='warehouse';
-    }
-    if(wanted==='heavy deposit'){
-      return type==='heavy deposit'||type.indexOf('heavy deposit')!==-1;
-    }
-    return type===wanted;
-  }
-
-  function clearButtons(id){
-    document.querySelectorAll('.quick button').forEach(function(b){
-      b.classList.toggle('active',b.id===id);
-    });
-  }
-
-  function apply(){
-    if(!active) return;
-    var host=document.getElementById('homeList');
-    if(!host) return;
-    var wanted=active.toLowerCase();
-    var rows=[].slice.call(host.querySelectorAll('.realynkListingRow'));
-    var cards=[].slice.call(host.querySelectorAll('.property'));
-    var target=null;
-
-    rows.forEach(function(row){
-      var ok=match(row.dataset.type||'',wanted);
-      row.style.display=ok?'':'none';
-      if(ok&&!target) target=row;
-    });
-
-    cards.forEach(function(card){
-      var ok=match(typeOf(card),wanted);
-      card.style.display=ok?'':'none';
-      if(ok&&!target) target=card;
-    });
-
-    if(target) target.scrollIntoView({behavior:'smooth',block:'start'});
-  }
-
-  function choose(id,type,e){
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    active=type;
-    clearButtons(id);
-    apply();
-    [50,150,350,700,1200,2000].forEach(function(ms){setTimeout(apply,ms);});
-  }
-
-  /* Capture handler is installed synchronously, before the async/module boot.
-     Therefore the legacy inline Commercial onclick cannot overwrite the filter. */
-  document.addEventListener('click',function(e){
-    var b=e.target&&e.target.closest?e.target.closest('#commercial,#heavyDeposit'):null;
-    if(!b) return;
-    choose(b.id,b.id==='commercial'?'Commercial':'Heavy Deposit',e);
-  },true);
-
-  /* When Buy/Sale/Rent is selected, release this category filter and leave
-     those existing controls completely untouched. */
-  document.addEventListener('click',function(e){
-    var b=e.target&&e.target.closest?e.target.closest('.quick button'):null;
-    if(!b||b.id==='commercial'||b.id==='heavyDeposit') return;
-    active='';
-    var host=document.getElementById('homeList');
-    if(host){
-      [].slice.call(host.querySelectorAll('.realynkListingRow,.property')).forEach(function(x){x.style.display=''});
-    }
-  },false);
-
-  function watch(){
-    var host=document.getElementById('homeList');
-    if(!host||host.__realynkEarlyCategoryObserver) return;
-    host.__realynkEarlyCategoryObserver=true;
-    new MutationObserver(function(){if(active)setTimeout(apply,0);}).observe(host,{childList:true,subtree:true});
-  }
-
-  watch();
-  setInterval(watch,300);
+'use strict';
+if(window.__REALYNK_EARLY_CATEGORY_CLICK_OWNER__)return;
+window.__REALYNK_EARLY_CATEGORY_CLICK_OWNER__=true;
+var active='';
+var ids={buy:'Buy',sale:'Sale',rent:'Rent',commercial:'Commercial',heavyDeposit:'Heavy Deposit'};
+function clean(v){return String(v||'').trim().toLowerCase()}
+function commercial(v){v=clean(v);return v==='commercial'||v.indexOf('commercial')!==-1||v==='shop'||v==='office'||v==='showroom'||v==='warehouse'||v==='land / plot'||v==='land'||v==='plot'}
+function match(v,w){v=clean(v);w=clean(w);if(!w)return true;if(w==='commercial')return commercial(v);if(w==='heavy deposit')return v==='heavy deposit'||v.indexOf('heavy deposit')!==-1;return v===w}
+function typeOf(card){var b=card&&card.querySelector('.details .detail:first-child b');return b?b.textContent:''}
+function clearButtons(id){document.querySelectorAll('.quick button').forEach(function(b){b.classList.toggle('active',b.id===id)})}
+function apply(scroll){
+ var host=document.getElementById('homeList');if(!host)return;
+ var wanted=active,target=null;
+ host.querySelectorAll('.realynkListingRow').forEach(function(row){var ok=!wanted||match(row.dataset.type||'',wanted);row.style.display=ok?'':'none';if(ok&&!target)target=row});
+ host.querySelectorAll('.property').forEach(function(card){var ok=!wanted||match(typeOf(card),wanted);card.style.display=ok?'':'none';if(ok&&!target)target=card});
+ if(scroll&&target&&target.scrollIntoView){try{target.scrollIntoView({behavior:'smooth',block:'start'})}catch(_){target.scrollIntoView()}}
+}
+function choose(id,e){
+ e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+ active=ids[id]||'';
+ window.__REALYNK_CATEGORY_FILTER__='';
+ window.__REALYNK_CATEGORY_UI_FILTER__=active;
+ clearButtons(id);
+ var search=document.getElementById('search');if(search)search.value='';
+ var home=document.getElementById('home');if(home&&!home.classList.contains('active')){document.querySelectorAll('.screen').forEach(function(s){s.classList.toggle('active',s===home)});document.querySelectorAll('.bottom button').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-nav')==='home')});window.scrollTo(0,0)}
+ apply(true);
+ [50,150,350,700,1200,2000,3500].forEach(function(ms){setTimeout(function(){apply(false)},ms)});
+}
+document.addEventListener('click',function(e){var b=e.target&&e.target.closest?e.target.closest('.quick button'):null;if(!b||!ids[b.id])return;choose(b.id,e)},true);
+function ensureHeavy(){var q=document.querySelector('.quick');if(!q)return;var b=document.getElementById('heavyDeposit');if(!b){b=document.createElement('button');b.id='heavyDeposit';b.type='button';b.innerHTML='💰<b>Heavy Deposit</b>';q.appendChild(b)}}
+function removeLand(){var type=document.getElementById('type');if(!type)return;Array.prototype.slice.call(type.options).forEach(function(o){var v=clean(o.value),t=clean(o.textContent);if(v==='land / plot'||v==='land'||v==='plot'||t.indexOf('land / plot')!==-1)o.remove()});if(!type.querySelector('option[value="Heavy Deposit"]')){var o=document.createElement('option');o.value='Heavy Deposit';o.textContent='💰 Heavy Deposit';type.appendChild(o)}}
+function watch(){ensureHeavy();removeLand();apply(false)}
+function start(){watch();var host=document.getElementById('homeList');if(host&&!host.__realynkCategoryObserver){host.__realynkCategoryObserver=true;new MutationObserver(function(){if(active)setTimeout(function(){apply(false)},0)}).observe(host,{childList:true,subtree:true})}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+setInterval(function(){ensureHeavy();removeLand()},500);
+var style=document.createElement('style');style.textContent='.quick button:focus,.quick button:focus-visible,.quick button.active{outline:none!important;box-shadow:none!important}.quick button.active{border:1px solid var(--line)!important;background:#fff!important}';document.head.appendChild(style);
 })();
