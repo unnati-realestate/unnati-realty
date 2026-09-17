@@ -10,12 +10,10 @@ function start(){
 try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})}).catch(function(){})}}catch(_){ }
 window.addEventListener('realynkCloudPropertiesRestored',refreshPropertyViews,false);
 window.addEventListener('realynkCloudPropertiesChanged',refreshPropertyViews,false);
-/* Category click fix MUST execute before stability binds its buttons. */
-load('./realynk-category-click-fix.js?v=2','realynkCategoryClickFix',false,true);
-/* realynk-stability.js is the ONLY property renderer/action owner */
-load('./realynk-stability.js?v=15','realynkStabilityV15',true);
-/* Listing sections: Land / Plot is grouped inside Commercial; no separate Land / Plot quick button. */
-load('./realynk-listing-sections.js?v=3','realynkListingSectionsV3',false);
+/* Category click fix and stability MUST execute in this order before other property scripts. */
+load('./realynk-category-click-fix.js?v=3','realynkCategoryClickFix',false,true);
+load('./realynk-stability.js?v=16','realynkStabilityV16',true,true);
+load('./realynk-listing-sections.js?v=4','realynkListingSectionsV4',false,true);
 load('./realynk-deal-fields.js?v=4','realynkDealFieldsV4',true);
 load('./realynk-cloud-unify.js?v=1','realynkCloudUnify',false);
 load('./realynk-payment-core.js?v=1','realynkPaymentCoreV1',false);
