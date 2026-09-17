@@ -18,6 +18,7 @@ function installCategoryControl(){
  function typeOf(card){var b=card&&card.querySelector('.details .detail:first-child b');return b?b.textContent:''}
  function clearActive(){document.querySelectorAll('.quick button').forEach(function(b){b.classList.remove('active')})}
  function clearViews(){var host=document.getElementById('homeList');if(!host)return;[].slice.call(host.querySelectorAll('.realynkListingRow,.property')).forEach(function(x){x.style.display=''})}
+ function rerender(){var s=document.getElementById('search');if(s)s.dispatchEvent(new Event('input',{bubbles:true}))}
  function apply(){
   if(!active)return;
   var host=document.getElementById('homeList');if(!host)return;
@@ -30,11 +31,11 @@ function installCategoryControl(){
   var b=e.target&&e.target.closest?e.target.closest('.quick button'):null;if(!b)return;
   clearActive();
   if(b.id==='commercial'||b.id==='heavyDeposit'){
-   e.preventDefault();e.stopImmediatePropagation();active=b.id==='commercial'?'Commercial':'Heavy Deposit';window.__REALYNK_CATEGORY_FILTER__=active;apply();
-   [50,150,300,600,1000,1800,3000].forEach(function(ms){setTimeout(apply,ms)});
-  }else{active='';window.__REALYNK_CATEGORY_FILTER__='';clearViews()}
+   e.preventDefault();e.stopImmediatePropagation();active=b.id==='commercial'?'Commercial':'Heavy Deposit';window.__REALYNK_CATEGORY_FILTER__=active;rerender();apply();
+   [50,150,300,600,1000,1800,3000].forEach(function(ms){setTimeout(function(){rerender();apply()},ms)});
+  }else{active='';window.__REALYNK_CATEGORY_FILTER__='';clearViews();rerender()}
  },true);
- function watch(){var host=document.getElementById('homeList');if(!host||host.__realynkBootCategoryObserver)return;host.__realynkBootCategoryObserver=true;new MutationObserver(function(){if(active)setTimeout(apply,0)}).observe(host,{childList:true,subtree:true})}
+ function watch(){var host=document.getElementById('homeList');if(!host||host.__realynkBootCategoryObserver)return;host.__realynkBootCategoryObserver=true;new MutationObserver(function(){if(active)setTimeout(function(){rerender();apply()},0)}).observe(host,{childList:true,subtree:true})}
  watch();setInterval(watch,300);
  function removeLand(){var type=document.getElementById('type');if(!type)return;[].slice.call(type.options).forEach(function(o){if(clean(o.value)==='land / plot'||clean(o.textContent).indexOf('land / plot')!==-1)o.remove()})}
  removeLand();setInterval(removeLand,500);
