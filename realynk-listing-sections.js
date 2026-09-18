@@ -183,12 +183,10 @@
 
   function start(){
     addStyle(); addTypeOption(); addQuickButtons(); bindCloud();
+    /* Firebase renderer owns #homeList. Do not rebuild its cards into sections here;
+       rebuilding was racing the category filter and could erase the selected result set. */
     var host=document.getElementById('homeList');
-    if(host){
-      var observer=new MutationObserver(function(){if(host.querySelector(':scope > .property')) setTimeout(makeSections,0)});
-      observer.observe(host,{childList:true});
-      setTimeout(makeSections,300);
-    }
+    if(host){ decorateAll(); }
     var dash=document.getElementById('myList');
     if(dash)new MutationObserver(function(){setTimeout(function(){decorateAll();styleStatusControls()},0)}).observe(dash,{childList:true,subtree:true});
   }
