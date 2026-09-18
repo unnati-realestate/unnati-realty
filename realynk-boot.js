@@ -12,7 +12,7 @@ function start(){
  load('./heavy-deposit.js?v=32','realynkQuickCategoryOwnerV30',false,true);
  window.addEventListener('realynkCloudPropertiesRestored',refreshPropertyViews,false);
  window.addEventListener('realynkCloudPropertiesChanged',refreshPropertyViews,false);
- load('./realynk-stability.js?v=21','realynkStabilityV20',true,true);
+ load('./realynk-stability.js?v=22','realynkStabilityV20',true,true);
  load('./realynk-listing-sections.js?v=8','realynkListingSectionsV8',false,true);
  load('./realynk-deal-fields.js?v=4','realynkDealFieldsV4',true);
  load('./realynk-cloud-unify.js?v=1','realynkCloudUnify',false);
