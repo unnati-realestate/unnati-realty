@@ -9,10 +9,10 @@ function refreshPropertyViews(){setTimeout(function(){try{if(window.realynkCateg
 function start(){
  try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister()})}).catch(function(){})}}catch(_){}
  /* ONE owner for Buy, Sale, Rent, Commercial and Heavy Deposit. Load it now, not during idle time. */
- load('./heavy-deposit.js?v=31','realynkQuickCategoryOwnerV30',false,true);
+ load('./heavy-deposit.js?v=32','realynkQuickCategoryOwnerV30',false,true);
  window.addEventListener('realynkCloudPropertiesRestored',refreshPropertyViews,false);
  window.addEventListener('realynkCloudPropertiesChanged',refreshPropertyViews,false);
- load('./realynk-stability.js?v=20','realynkStabilityV20',true,true);
+ load('./realynk-stability.js?v=21','realynkStabilityV20',true,true);
  load('./realynk-listing-sections.js?v=8','realynkListingSectionsV8',false,true);
  load('./realynk-deal-fields.js?v=4','realynkDealFieldsV4',true);
  load('./realynk-cloud-unify.js?v=1','realynkCloudUnify',false);
