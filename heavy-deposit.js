@@ -27,8 +27,8 @@ function choose(id,e){
  clearButtons(id);
  var search=document.getElementById('search');if(search)search.value='';
  showHome();
- apply(true);
- [0,50,150,300,600,1000,1800,3000,5000].forEach(function(ms){setTimeout(function(){apply(false)},ms)});
+ if(window.__REALYNK_RENDER_PROPERTIES__)window.__REALYNK_RENDER_PROPERTIES__();
+ else apply(false);
 }
 /* WINDOW capture is intentional: it runs before document-capture handlers from the legacy app, Firebase renderer and other controllers. */
 window.addEventListener('click',function(e){var b=e.target&&e.target.closest?e.target.closest('.quick button'):null;if(!b||!ids[b.id])return;choose(b.id,e)},true);
