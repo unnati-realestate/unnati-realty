@@ -29,6 +29,11 @@ function choose(id,e){
  showHome();
  if(window.__REALYNK_RENDER_PROPERTIES__)window.__REALYNK_RENDER_PROPERTIES__();
  else apply(false);
+ /* After Firebase redraw, take the user directly to the first matching property. */
+ setTimeout(function(){
+   var first=document.querySelector('#homeList .property:not([style*="display: none"])');
+   if(first&&first.scrollIntoView){try{first.scrollIntoView({behavior:'smooth',block:'start'})}catch(_){first.scrollIntoView()}}
+ },120);
 }
 /* WINDOW capture is intentional: it runs before document-capture handlers from the legacy app, Firebase renderer and other controllers. */
 window.addEventListener('click',function(e){var b=e.target&&e.target.closest?e.target.closest('.quick button'):null;if(!b||!ids[b.id])return;choose(b.id,e)},true);
