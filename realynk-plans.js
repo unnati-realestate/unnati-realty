@@ -18,6 +18,12 @@ let cloudUser=null, cloudDb=null, cloudReady=false;
 
 function profile(){try{return JSON.parse(localStorage.getItem('realynkBrokerProfile')||'{}')||{}}catch(e){return{}}}
 function getSub(){try{const x=JSON.parse(localStorage.getItem(SUB_KEY)||'null');return x&&x.plan?x:{plan:'FREE',status:'active',expiresAt:null}}catch(e){return{plan:'FREE',status:'active',expiresAt:null}}}
+function applyCloudSubscription(d){
+ if(!d||!d.planId)return;
+ const exp=d.planExpiresAt?.toDate?d.planExpiresAt.toDate():d.planExpiresAt;
+ if(d.planStatus==='active' && (!exp || new Date(exp)>new Date())) saveSub(d.planId,'active',exp?new Date(exp).toISOString():null);
+ else if(d.planStatus==='expired' || (exp && new Date(exp)<=new Date())) saveSub('FREE','active',null);
+}
 function bonusLocal(){return Math.max(0,Number(localStorage.getItem(BONUS_KEY)||0))}
 function saveSub(plan,status,expiresAt){const x={plan:PLANS[plan]?plan:'FREE',status:status||'active',expiresAt:expiresAt||null,updatedAt:new Date().toISOString()};localStorage.setItem(SUB_KEY,JSON.stringify(x));return x}
 function isAdmin(){
@@ -66,7 +72,8 @@ function render(){
  document.querySelectorAll('[data-rpv-plan]').forEach(b=>b.onclick=function(){
    const id=b.getAttribute('data-rpv-plan');
    if(id==='FREE'){saveSub('FREE','active',null);render();return}
-   alert('Plan '+id+' select ho gaya. Payment activation ko next step mein Razorpay/UPI se connect kiya jayega.');
+   if(listingCount()<effectiveLimit()){alert('Pehle FREE plan ki listing limit complete karein. Paid plan uske baad available hoga.');return}
+   if(window.realynkSubscriptionPayment?.open){window.realynkSubscriptionPayment.open(id)}else{alert('Payment module loading... thoda wait karke dobara try karein.');}
  });
 }
 async function initCloud(){
@@ -82,6 +89,7 @@ async function initCloud(){
   au.onAuthStateChanged(auth,u=>{cloudUser=u||null; if(u&&!isAdmin()){
     fs.onSnapshot(fs.doc(cloudDb,'brokerEntitlements',u.uid),snap=>{
       const d=snap.exists()?snap.data():{};
+      applyCloudSubscription(d);
       const b=Math.max(0,Number(d.bonusListings||0));
       localStorage.setItem(BONUS_KEY,String(b));
       render();
