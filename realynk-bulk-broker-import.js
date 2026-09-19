@@ -1,7 +1,7 @@
-/* REALYNK BULK BROKER IMPORT V2 — Excel/CSV with current plans + referral bonus */
+/* REALYNK BULK BROKER IMPORT V3 — current professional invitation + poster */
 (function(){
 'use strict';
-if(window.__REALYNK_BULK_BROKER_IMPORT_V1__)return;
+if(window.__REALYNK_BULK_BROKER_IMPORT_V2__)return;
 window.__REALYNK_BULK_BROKER_IMPORT_V1__=true;
 var ADMIN='seagullairexpress@gmail.com';
 var XLSX_URL='https://cdn.sheetjs.com/xlsx-0.20.3/package/xlsx.mjs';
