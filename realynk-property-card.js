@@ -1,8 +1,8 @@
 /* REALYNK DIGITAL PROPERTY CARD V2 — Dashboard + Home property cards */
 (function(){
 'use strict';
-if(window.__REALYNK_PROPERTY_CARD_V1__)return;
-window.__REALYNK_PROPERTY_CARD_V1__=true;
+if(window.__REALYNK_PROPERTY_CARD_V2__)return;
+window.__REALYNK_PROPERTY_CARD_V2__=true;
 
 function styles(){
  if(document.getElementById('realynkPropertyCardActionCSS'))return;
@@ -26,8 +26,7 @@ function add(){
 }
 function start(){
  styles();[0,400,1000,2000,3500].forEach(function(ms){setTimeout(add,ms)});
- var host=document.getElementById('homeList');
- if(host&&window.MutationObserver)new MutationObserver(function(){setTimeout(add,20)}).observe(host,{childList:true,subtree:true});
+ [document.getElementById('homeList'),document.getElementById('myList')].filter(Boolean).forEach(function(host){if(window.MutationObserver)new MutationObserver(function(){setTimeout(add,20)}).observe(host,{childList:true,subtree:true})});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
