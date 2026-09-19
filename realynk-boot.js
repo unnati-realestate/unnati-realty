@@ -16,7 +16,7 @@ function start(){
  load('./realynk-deal-fields.js?v=4','realynkDealFieldsV4',true);
  load('./realynk-cloud-unify.js?v=1','realynkCloudUnify',false);
  load('./realynk-plans.js?v=6','realynkPlansV4',false,true);
- load('./realynk-subscription-payment.js?v=1','realynkSubscriptionPaymentV1',true);
+ load('./realynk-subscription-payment.js?v=2','realynkSubscriptionPaymentV1',true);
  load('./realynk-payment-core.js?v=1','realynkPaymentCoreV1',false);
  load('./realynk-payment-adapter.js?v=1','realynkPaymentAdapterV1',true);
  idle(function(){load('./firebase-auth.js?v=24','realynkAuthEntryV24',false);load('./realynk-media.js?v=4','realynkMedia',false);load('./realynk-heavy-deposit-type.js?v=2','realynkHeavyDepositType',false);load('./realynk-public-actions.js?v=5','realynkPublicActions',false);load('./realynk-broker-share-card.js?v=4','realynkRefreshBrokerShareCard',false);load('./realynk-requirements.js?v=1','realynkRequirements',false);load('./realynk-broker-invite.js?v=13','realynkBrokerInvite',false);load('./realynk-broker-verification-sync.js?v=4','realynkBrokerVerificationSyncV4',true);load('./realynk-list-dedupe.js?v=1','realynkListDedupeV1',false);load('./realynk-bulk-broker-import.js?v=2','realynkBulkBrokerImportV1',false)},300);
