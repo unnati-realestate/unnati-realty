@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b3768">
+<title>ReaLynk — Digital Property Card</title>
+<style>
+:root{--n:#0b3768;--n2:#155a9c;--g:#f4b400;--bg:#f4f7fb;--t:#17324d;--m:#6b7a8c;--l:#dce5ef;--ok:#18864b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font-family:Arial,sans-serif}
+.app{max-width:760px;margin:auto;min-height:100vh}.top{height:72px;background:#fff;border-bottom:1px solid var(--l);display:flex;align-items:center;justify-content:space-between;padding:8px 16px;position:sticky;top:0;z-index:10}.logo{width:80px;height:56px;object-fit:contain}.top button{border:1px solid var(--l);background:#fff;border-radius:12px;padding:10px 14px;font-weight:800;color:var(--n)}
+.hero{background:linear-gradient(135deg,var(--n),var(--n2));padding:22px 18px 28px;color:#fff}.hero h1{margin:0;font-size:25px}.hero p{margin:7px 0 0;opacity:.9;font-size:13px}.card{background:#fff;margin:-18px 14px 20px;border-radius:20px;position:relative;padding:0 16px 20px;box-shadow:0 12px 35px rgba(15,45,75,.12)}.gallery{height:270px;border-radius:16px;overflow:hidden;background:#edf2f7;margin-top:16px;display:flex;position:relative}.gallery img{width:100%;height:100%;object-fit:cover}.gallery .empty{width:100%;display:flex;align-items:center;justify-content:center;font-size:52px}.dots{position:absolute;bottom:10px;left:0;right:0;text-align:center}.dots span{display:inline-block;width:7px;height:7px;border-radius:50%;background:#fff;margin:0 3px;box-shadow:0 1px 4px #555}.title{font-size:24px;font-weight:900;color:var(--n);margin:16px 0 6px}.location{color:var(--m);font-size:14px}.price{font-size:22px;font-weight:900;color:var(--n);margin-top:12px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:13px}.tile{background:#f8fbff;border:1px solid var(--l);border-radius:12px;padding:11px}.tile span{display:block;color:var(--m);font-size:11px;font-weight:800;margin-bottom:4px}.tile b{font-size:15px}.desc{margin-top:15px;line-height:1.55;color:#44586b;font-size:14px;white-space:pre-wrap}.broker{margin-top:16px;padding:13px;border:1px solid var(--l);border-radius:14px;display:flex;gap:12px;align-items:center}.broker img{width:62px;height:62px;border-radius:50%;object-fit:cover;background:#edf2f7}.broker h3{margin:0;color:var(--n);font-size:17px}.broker p{margin:4px 0;color:var(--m);font-size:12px}.verified{color:var(--ok)!important;font-weight:900}.qrBox{text-align:center;border-top:1px dashed var(--l);margin-top:18px;padding-top:18px}.qrBox img{width:190px;height:190px;border:8px solid #fff;box-shadow:0 4px 18px rgba(0,0,0,.08)}.qrBox h3{margin:8px 0 4px;color:var(--n)}.qrBox p{margin:0;color:var(--m);font-size:12px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}.actions button{border:0;border-radius:12px;padding:13px 8px;font-weight:900;cursor:pointer;background:var(--n);color:#fff}.actions .wa{background:#18864b}.actions .share{background:var(--g);color:#17324d}.actions .copy{background:#eaf1f8;color:var(--n)}.loading{text-align:center;padding:70px 20px;color:var(--m)}.error{text-align:center;padding:60px 20px}.error h2{color:var(--n)}.footer{text-align:center;color:var(--m);font-size:11px;padding:18px}
+@media(max-width:480px){.gallery{height:230px}.title{font-size:21px}.grid{grid-template-columns:1fr 1fr}}
+</style></head>
+<body><div class="app">
+<header class="top"><img class="logo" src="./logo.png" alt="ReaLynk"><button id="back">← Back</button></header>
+<section class="hero"><h1>ReaLynk Digital Property Card</h1><p>Property details • Broker details • Photos • QR Code</p></section>
+<main id="root" class="loading">Property card load ho raha hai…</main>
+<div class="footer">Powered by ReaLynk • India's Real Estate Agent Network</div>
+</div>
+<script type="module">
+import{getApps,initializeApp}from'https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js';
+import{getFirestore,doc,getDoc}from'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+import{firebaseConfig}from'./firebase-config.js';
+
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const q=new URLSearchParams(location.search),id=q.get('id');
+const root=document.getElementById('root');
+document.getElementById('back').onclick=()=>history.length>1?history.back():location.href='./index.html';
+
+function money(v){const s=String(v??'').trim();if(!s)return'On Request';if(/^₹/.test(s))return s;const n=Number(s.replace(/,/g,''));return Number.isFinite(n)?'₹'+n.toLocaleString('en-IN'):s}
+function arrPhotos(p){let a=p.photos||p.photoUrls||p.imageUrls||p.images||[];if(typeof a==='string')a=[a];return Array.isArray(a)?a.filter(Boolean).slice(0,10):[]}
+function brokerFromLocal(){try{return JSON.parse(localStorage.getItem('realynkBrokerProfile')||'{}')||{}}catch{return{}}}
+function buildUrl(){return location.href.split('#')[0]}
+function qrUrl(url){return'https://api.qrserver.com/v1/create-qr-code/?size=280x280&data='+encodeURIComponent(url)}
+function render(p,b){
+ const photos=arrPhotos(p), url=buildUrl(), qr=qrUrl(url);
+ const type=String(p.type||'').trim(), brokerName=b.fullName||b.agentName||p.brokerName||'ReaLynk Broker', company=b.companyName||p.companyName||'ReaLynk Broker Network';
+ const city=b.city||p.city||'',state=b.state||p.state||'',phone=String(p.phone||b.phone||b.accountPhone||'').replace(/\D/g,'');
+ const photo=b.photoURL||b.photo||'./logo.png';
+ const area=p.area||p.location||'Location not specified', desc=p.description||p.desc||'';
+ const tiles=[['PROPERTY TYPE',type||'—'],[type.toLowerCase()==='rent'?'RENT':'PRICE',money(p.price)],[(type.toLowerCase()==='rent'||type.toLowerCase()==='heavy deposit')?'DEPOSIT':'AREA',type.toLowerCase()==='rent'||type.toLowerCase()==='heavy deposit'?money(p.deposit):String(p.size||'—')],['CARPET / USABLE AREA',String(p.size||'—')]];
+ root.className='';
+ root.innerHTML='<section class="card"><div class="gallery">'+(photos.length?'<img id="mainPhoto" src="'+esc(photos[0])+'" alt="Property photo">':'<div class="empty">🏠</div>')+'</div><div class="title">'+esc(p.title||'Property')+'</div><div class="location">📍 '+esc(area)+(city?', '+esc(city):'')+'</div><div class="price">'+esc(money(p.price))+'</div><div class="grid">'+tiles.map(x=>'<div class="tile"><span>'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>').join('')+'</div>'+(desc?'<div class="desc">'+esc(desc)+'</div>':'')+'<div class="broker"><img src="'+esc(photo)+'" alt="Broker photo"><div><h3>'+esc(brokerName)+'</h3><p>'+esc(company)+'</p><p>'+esc([city,state].filter(Boolean).join(', '))+'</p><p class="verified">✓ ReaLynk Broker Network</p></div></div><div class="qrBox"><img src="'+qr+'" alt="QR code"><h3>Scan QR to open this property</h3><p>QR code opens this exact Digital Property Card.</p></div><div class="actions"><button class="wa">💬 WhatsApp</button><button class="share">↗ Share Card</button><button class="copy">📋 Copy Link</button><button class="call">📞 Call Broker</button></div></section>';
+ if(photos.length>1){const g=root.querySelector('.gallery'),img=root.querySelector('#mainPhoto');let i=0;setInterval(()=>{i=(i+1)%photos.length;img.src=photos[i]},3000)}
+ const text='🏠 ReaLynk Digital Property Card\n'+(p.title||'Property')+'\n📍 '+area+'\n💰 '+money(p.price)+'\n\n🔗 '+url;
+ root.querySelector('.wa').onclick=()=>window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
+ root.querySelector('.share').onclick=async()=>{try{if(navigator.share){await navigator.share({title:p.title||'ReaLynk Property',text:'ReaLynk Digital Property Card',url});return}}catch(e){if(e.name==='AbortError')return}window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank')};
+ root.querySelector('.copy').onclick=()=>navigator.clipboard?navigator.clipboard.writeText(url).then(()=>alert('Digital Property Card link copied')):prompt('Copy property card link:',url);
+ if(phone)root.querySelector('.call').onclick=()=>location.href='tel:+91'+phone;else root.querySelector('.call').disabled=true;
+}
+(async function(){
+ if(!id){root.className='error';root.innerHTML='<h2>Property not found</h2><p>Valid property link is required.</p>';return}
+ try{
+  const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig),db=getFirestore(app);
+  const snap=await getDoc(doc(db,'properties',id));
+  if(!snap.exists()){root.className='error';root.innerHTML='<h2>Property not found</h2><p>This property may have been removed or is no longer available.</p>';return}
+  const p={...snap.data(),id:snap.id};let b=brokerFromLocal();
+  if(p.brokerUid){try{const bs=await getDoc(doc(db,'brokers',p.brokerUid));if(bs.exists())b={...b,...bs.data()}}catch(e){}}
+  render(p,b);
+ }catch(e){console.error(e);root.className='error';root.innerHTML='<h2>Property card could not load</h2><p>Please refresh and try again.</p>'}
+})();
+</script></body></html>
