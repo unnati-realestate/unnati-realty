@@ -1,8 +1,8 @@
-/* REALYNK PLANS V3 — production plan limits, referral bonus and plan UI */
+/* REALYNK PLANS V4 — production plan limits, referral bonus and plan UI */
 (function(){
 'use strict';
-if(window.__REALYNK_PLANS_V3__) return;
-window.__REALYNK_PLANS_V3__=true;
+if(window.__REALYNK_PLANS_V4__) return;
+window.__REALYNK_PLANS_V4__=true;
 
 const PLANS={
   FREE:{id:'FREE',name:'FREE',price:0,listingLimit:10},
@@ -56,7 +56,7 @@ function css(){
 function panelHTML(){
  const p=current(), count=listingCount(), limit=effectiveLimit(), ref=String(profile().uid||'').trim();
  const plans=Object.values(PLANS).map(x=>'<div class="rpv3-plan"><strong>'+x.name+'</strong><div class="rpv3-price">'+(x.price?'₹'+x.price+'/month':'₹0')+'</div><div class="rpv3-muted">'+formatLimit(x.listingLimit)+' listings'+(x.id==='FREE'?'':' / month')+'</div><button class="rpv3-btn '+(x.id==='FREE'?'rpv3-free':'')+'" data-rpv-plan="'+x.id+'">'+(x.id===p.id?'Current Plan':x.price?'Choose Plan':'Use FREE')+'</button></div>').join('');
- return '<div class="rpv3-current"><b>'+p.name+'</b> · '+(p.price?'₹'+p.price+'/month':'₹0')+'<br><span class="rpv3-muted">Listings: '+count+' / '+formatLimit(limit)+(bonusLocal()?' · Referral bonus +'+bonusLocal:'')+'</span></div>'+
+ return '<div class="rpv3-current"><b>'+p.name+'</b> · '+(p.price?'₹'+p.price+'/month':'₹0')+'<br><span class="rpv3-muted">Listings: '+count+' / '+formatLimit(limit)+(bonusLocal()?' · Referral bonus +'+bonusLocal():'')+'</span></div>'+
  '<div class="rpv3-plans">'+plans+'</div>'+
  (ref?'<div class="rpv3-ref"><b>🎁 Referral Bonus</b><div class="rpv3-muted" style="margin-top:4px">Har successful broker referral par +5 free listings. Bonus aapke plan limit ke upar add hota hai.</div></div>':'');
 }
@@ -108,7 +108,14 @@ function gate(e){
  }
 }
 document.addEventListener('click',function(e){if(e.target.closest('#submit'))gate(e)},true);
-function start(){render();setInterval(render,3000);initCloud()}
+function start(){
+  render();
+  setTimeout(render,800);
+  setTimeout(render,2000);
+  document.addEventListener('click',function(e){if(e.target.closest('[data-nav="account"],[data-nav="dashboard"]'))setTimeout(render,100);},true);
+  setInterval(render,5000);
+  initCloud();
+}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 window.realynkPlans={plans:PLANS,getSubscription:getSub,current:current,effectiveLimit:effectiveLimit,listingAllowed:allowed,save:saveSub,render:render,isSuperAdmin:isAdmin};
 })();
