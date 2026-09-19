@@ -1,4 +1,4 @@
-/* REALYNK SUBSCRIPTION PAYMENT V1 — FREE first, paid UPI/QR after FREE limit */
+/* REALYNK SUBSCRIPTION PAYMENT V2 — Super Admin bypass + UPI/QR */
 import { getApps, initializeApp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
 import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
@@ -19,6 +19,7 @@ function plans(){return window.realynkPlans?.plans||{}}
 function profile(){try{return JSON.parse(localStorage.getItem('realynkBrokerProfile')||'{}')||{}}catch(e){return{}}}
 function count(){try{return JSON.parse(localStorage.getItem('realynkProperties')||'[]').filter(x=>x&&x.mine).length}catch(e){return 0}}
 function effectiveLimit(){return Number(window.realynkPlans?.effectiveLimit?.()||10)}
+function isAdmin(){return !!window.realynkPlans?.isSuperAdmin?.()}
 function modal(){return document.getElementById('realynkSubPayModal')}
 function close(){const m=modal();if(m)m.remove()}
 
@@ -32,8 +33,8 @@ function css(){
 async function open(planId){
  const p=plans()[planId]; if(!p||!p.price)return;
  if(!currentUser){alert('Please login first.');return}
- if(count()<effectiveLimit()){
-   alert('Pehle FREE plan ki listing limit use karein. Paid plan tab available hoga jab aapki current listing limit complete ho jayegi.');
+ if(!isAdmin() && count()<effectiveLimit()){
+   alert('Pehle current plan ki listing limit complete karein. Paid plan uske baad available hoga.');
    return;
  }
  css(); close();
