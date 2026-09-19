@@ -1,8 +1,8 @@
-/* REALYNK PLANS V5 — Super Admin access restricted to owner account */
+/* REALYNK PLANS V6 — cache-proof six-tier plans */
 (function(){
 'use strict';
-if(window.__REALYNK_PLANS_V4__) return;
-window.__REALYNK_PLANS_V4__=true;
+if(window.__REALYNK_PLANS_V5__) return;
+window.__REALYNK_PLANS_V5__=true;
 
 const PLANS={
   FREE:{id:'FREE',name:'FREE',price:0,listingLimit:10},
