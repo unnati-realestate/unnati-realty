@@ -1,4 +1,4 @@
-/* REALYNK PLANS V4 — production plan limits, referral bonus and plan UI */
+/* REALYNK PLANS V5 — Super Admin access restricted to owner account */
 (function(){
 'use strict';
 if(window.__REALYNK_PLANS_V4__) return;
@@ -13,7 +13,7 @@ const PLANS={
   ELITE:{id:'ELITE',name:'ELITE',price:1499,listingLimit:Infinity}
 };
 const SUB_KEY='realynkSubscriptionV3', BONUS_KEY='realynkReferralBonusListingsV3';
-const ADMIN_EMAILS=['seagullairexpress@gmail.com','service.realynk@gmail.com'];
+const ADMIN_EMAILS=['seagullairexpress@gmail.com'];
 let cloudUser=null, cloudDb=null, cloudReady=false;
 
 function profile(){try{return JSON.parse(localStorage.getItem('realynkBrokerProfile')||'{}')||{}}catch(e){return{}}}
@@ -28,8 +28,7 @@ function bonusLocal(){return Math.max(0,Number(localStorage.getItem(BONUS_KEY)||
 function saveSub(plan,status,expiresAt){const x={plan:PLANS[plan]?plan:'FREE',status:status||'active',expiresAt:expiresAt||null,updatedAt:new Date().toISOString()};localStorage.setItem(SUB_KEY,JSON.stringify(x));return x}
 function isAdmin(){
  const p=profile(),email=String(p.agentEmail||'').toLowerCase();
- return ADMIN_EMAILS.indexOf(email)>=0 || ADMIN_EMAILS.indexOf(String(cloudUser?.email||'').toLowerCase())>=0 ||
-   localStorage.getItem('realynkOwnerDevice')==='1';
+ return ADMIN_EMAILS.indexOf(email)>=0 || ADMIN_EMAILS.indexOf(String(cloudUser?.email||'').toLowerCase())>=0;
 }
 function current(){const s=getSub();return Object.assign({},PLANS[s.plan]||PLANS.FREE,s)}
 function effectiveLimit(){if(isAdmin())return Infinity;return current().listingLimit+bonusLocal()}
