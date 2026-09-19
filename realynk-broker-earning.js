@@ -49,21 +49,22 @@ function submitPayment(){
 
 function render(){
  var host=document.getElementById('myList');if(!host)return;
- var box=document.getElementById('realynkEarningPanel');if(!box){box=document.createElement('div');box.id='realynkEarningPanel';box.className='panel';host.parentNode.insertBefore(box,host)}
+ var box=document.getElementById('realynkEarningPanel');
+ if(!box){box=document.createElement('div');box.id='realynkEarningPanel';box.className='panel';host.parentNode.insertBefore(box,host)}
  var p=profile(),name=p.agentName||p.name||'Broker';
- var props=[];
- try{props=JSON.parse(localStorage.getItem('realynkProperties')||'[]');if(!Array.isArray(props))props=[]}catch(e){props=[]}
- var mine=props.filter(function(x){return x&&x.mine});
- var freeLimit=5,used=Math.min(mine.length,freeLimit),left=Math.max(0,freeLimit-mine.length),extra=Math.max(0,mine.length-freeLimit);
- var status=left>0
-   ? '<b style="color:#18864b">🎁 '+left+' FREE listing'+(left===1?'':'s')+' remaining</b>'
-   : '<b style="color:#b42318">🔒 Free limit complete</b>';
- var extraText=extra>0
-   ? '<div style="margin-top:8px;font-size:12px;color:#9a6700">You have '+extra+' listing'+(extra===1?'':'s')+' above the free limit. Additional listings will require the paid plan.</div>'
-   : '<div style="margin-top:8px;font-size:12px;opacity:.72">First 5 property listings are free. Refreshing the page will NOT reset this count.</div>';
- box.innerHTML='<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><div><div style="font-size:11px;letter-spacing:.08em;opacity:.65;font-weight:800">BROKER FREE LISTING PLAN</div><h3 style="margin:4px 0 2px">'+esc(name)+', start free with ReaLynk</h3><div style="font-size:13px;opacity:.72">Every broker gets 5 property listings free.</div></div><div style="font-size:30px">🎁</div></div><div style="margin-top:14px;padding:14px;border:1px solid #dfe6ee;border-radius:12px;background:#f8fbff"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>FREE LISTINGS</b><b>'+used+' / '+freeLimit+'</b></div><div style="height:10px;background:#e9eef4;border-radius:99px;margin-top:9px;overflow:hidden"><div style="height:100%;width:'+((used/freeLimit)*100)+'%;background:#18864b;border-radius:99px"></div></div><div style="margin-top:9px">'+status+'</div>'+extraText+'</div><div style="margin-top:12px;padding:12px;border:1px solid #e6e6e6;border-radius:12px"><b>After 5 free listings</b><div style="font-size:12px;margin-top:4px;opacity:.72">Paid listing plan will be required for additional property posts.</div></div>';
+ var admin=String(p.agentEmail||'').toLowerCase()==='seagullairexpress@gmail.com' || !!(window.realynkPlans&&window.realynkPlans.isSuperAdmin&&window.realynkPlans.isSuperAdmin());
+ var mine=[];
+ try{mine=JSON.parse(localStorage.getItem('realynkProperties')||'[]');if(!Array.isArray(mine))mine=[];mine=mine.filter(function(x){return x&&x.mine})}catch(e){mine=[]}
+ var count=mine.length;
+ if(admin){
+   box.innerHTML='<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><div><div style="font-size:11px;letter-spacing:.08em;opacity:.65;font-weight:800">BROKER LISTING STATUS</div><h3 style="margin:4px 0 2px">'+esc(name)+'</h3><div style="font-size:13px;opacity:.72">Super Admin account</div></div><div style="font-size:30px">♾️</div></div><div style="margin-top:14px;padding:14px;border:1px solid #bfe3cc;border-radius:12px;background:#f2fff6"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>POSTING LIMIT</b><b style="color:#18864b">UNLIMITED</b></div><div style="margin-top:9px;color:#18864b;font-weight:800">✓ Super Admin can post unlimited properties.</div><div style="margin-top:6px;font-size:12px;opacity:.72">Current properties on this account: '+count+'</div></div>';
+   return;
+ }
+ var plans=window.realynkPlans, cur=plans&&plans.current?plans.current():{name:'FREE',price:0,listingLimit:10}, limit=plans&&plans.effectiveLimit?plans.effectiveLimit():cur.listingLimit, bonus=0;
+ try{bonus=Math.max(0,Number(localStorage.getItem('realynkReferralBonusListingsV3')||0))}catch(e){}
+ var limText=limit===Infinity?'Unlimited':String(limit), planText=cur.price?'₹'+cur.price+'/month':'₹0';
+ box.innerHTML='<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><div><div style="font-size:11px;letter-spacing:.08em;opacity:.65;font-weight:800">BROKER LISTING PLAN</div><h3 style="margin:4px 0 2px">'+esc(name)+', ReaLynk plan</h3><div style="font-size:13px;opacity:.72">'+esc(cur.name)+' · '+planText+'</div></div><div style="font-size:30px">🎁</div></div><div style="margin-top:14px;padding:14px;border:1px solid #dfe6ee;border-radius:12px;background:#f8fbff"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>LISTINGS</b><b>'+count+' / '+limText+'</b></div><div style="height:10px;background:#e9eef4;border-radius:99px;margin-top:9px;overflow:hidden"><div style="height:100%;width:'+(limit===Infinity?0:Math.min(100,(count/Math.max(1,limit))*100))+'%;background:#18864b;border-radius:99px"></div></div><div style="margin-top:9px;font-weight:800;color:'+(count<limit?'#18864b':'#b42318')+'">'+(count<limit?'✓ Listing capacity available':'🔒 Listing limit reached')+'</div>'+(bonus?'<div style="margin-top:6px;font-size:12px;opacity:.72">Referral bonus: +'+bonus+' listings</div>':'')+'</div>';
 }
-
 function start(){if(document.getElementById('myList')){render();setInterval(render,4000)}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else setTimeout(start,700);
 window.realynkBrokerEarning={refresh:render,openLeadUnlock:showModal,submitPayment:submitPayment};
