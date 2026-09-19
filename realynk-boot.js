@@ -15,7 +15,7 @@ function start(){
  load('./realynk-listing-sections.js?v=9','realynkListingSectionsV8',false,true);
  load('./realynk-deal-fields.js?v=4','realynkDealFieldsV4',true);
  load('./realynk-cloud-unify.js?v=1','realynkCloudUnify',false);
- load('./realynk-plans.js?v=4','realynkPlansV3',false,true);
+ load('./realynk-plans.js?v=5','realynkPlansV4',false,true);
  load('./realynk-subscription-payment.js?v=1','realynkSubscriptionPaymentV1',true);
  load('./realynk-payment-core.js?v=1','realynkPaymentCoreV1',false);
  load('./realynk-payment-adapter.js?v=1','realynkPaymentAdapterV1',true);
