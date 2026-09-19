@@ -1,4 +1,4 @@
-/* REALYNK DIGITAL PROPERTY CARD V1 — property-specific QR/share card */
+/* REALYNK DIGITAL PROPERTY CARD V2 — Dashboard + Home property cards */
 (function(){
 'use strict';
 if(window.__REALYNK_PROPERTY_CARD_V1__)return;
@@ -11,8 +11,8 @@ function styles(){
  document.head.appendChild(s);
 }
 function add(){
- var host=document.getElementById('homeList');if(!host)return;
- host.querySelectorAll('.property').forEach(function(card){
+ var hosts=[document.getElementById('homeList'),document.getElementById('myList')].filter(Boolean);if(!hosts.length)return;
+ hosts.forEach(function(host){host.querySelectorAll('.property').forEach(function(card){
   if(card.querySelector('.realynkPropertyCardActions'))return;
   var id=card.getAttribute('data-property-id');if(!id)return;
   var url=location.origin+location.pathname.replace(/[^/]*$/,'')+'property-card.html?id='+encodeURIComponent(id);
