@@ -72,7 +72,7 @@ function render(){
  document.querySelectorAll('[data-rpv-plan]').forEach(b=>b.onclick=function(){
    const id=b.getAttribute('data-rpv-plan');
    if(id==='FREE'){saveSub('FREE','active',null);render();return}
-   if(listingCount()<effectiveLimit()){alert('Pehle FREE plan ki listing limit complete karein. Paid plan uske baad available hoga.');return}
+   if(!isAdmin() && listingCount()>=effectiveLimit()){alert('Pehle current plan ki listing limit complete karein. Paid plan uske baad available hoga.');return}
    if(window.realynkSubscriptionPayment?.open){window.realynkSubscriptionPayment.open(id)}else{alert('Payment module loading... thoda wait karke dobara try karein.');}
  });
 }
