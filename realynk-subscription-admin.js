@@ -1,4 +1,4 @@
-/* REALYNK SUBSCRIPTION ADMIN V1 — verify paid plan UPI/QR payments */
+/* REALYNK SUBSCRIPTION ADMIN V2 — owner-only payment verification */
 import { getApps, initializeApp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
 import { getFirestore, collection, onSnapshot, doc, updateDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
@@ -31,6 +31,12 @@ function render(){
   try{await updateDoc(doc(db,'subscriptionPayments',x.id),{status:'rejected',rejectedAt:serverTimestamp(),rejectedBy:ADMIN})}catch(e){alert('Reject failed: '+(e?.message||'Firebase error'))}
  });
 }
-onAuthStateChanged(auth,u=>{if(isAdmin())render()});
-onSnapshot(collection(db,'subscriptionPayments'),snap=>{rows=[];snap.forEach(d=>rows.push({...d.data(),id:d.id}));render()},e=>console.warn('Subscription payment watch failed',e));
+onAuthStateChanged(auth,u=>{
+  if(isAdmin()){
+    render();
+    onSnapshot(collection(db,'subscriptionPayments'),snap=>{rows=[];snap.forEach(d=>rows.push({...d.data(),id:d.id}));render()},e=>console.warn('Subscription payment watch failed',e));
+  } else {
+    rows=[];
+  }
+});
 }
