@@ -1,4 +1,4 @@
-/* REALYNK BULK BROKER IMPORT V5 — bulk WhatsApp queue + professional invitation */
+/* REALYNK BULK BROKER IMPORT V6 — visible admin button + bulk WhatsApp queue */
 (function(){
 'use strict';
 if(window.__REALYNK_BULK_BROKER_IMPORT_V3__)return;
@@ -10,7 +10,7 @@ var clean=function(v){return String(v==null?'':v).trim()};
 var phone=function(v){var d=String(v==null?'':v).replace(/\D/g,'');if(d.length===12&&d.slice(0,2)==='91')d=d.slice(2);if(d.length===11&&d[0]==='0')d=d.slice(1);return d.length===10?d:''};
 var val=function(r,words){var ks=Object.keys(r||{});for(var i=0;i<words.length;i++)for(var j=0;j<ks.length;j++){var k=ks[j].toLowerCase().replace(/[\s_\-\/()]+/g,'');if(words[i].some(function(w){return k.indexOf(w)>=0}))return clean(r[ks[j]])}return ''};
 async function fb(){var a=await import('https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js'),au=await import('https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js'),fs=await import('https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js'),cfg=await import('./firebase-config.js');var app=a.getApps().length?a.getApps()[0]:a.initializeApp(cfg.firebaseConfig);return{auth:au.getAuth(app),db:fs.getFirestore(app),fs:fs}}
-function addButton(){var s=$('brokers');if(!s||$('realynkBulkImportBtn'))return;var h=s.querySelector('.page'),b=document.createElement('button');b.id='realynkBulkImportBtn';b.type='button';b.className='primary full';b.style.cssText='display:block;width:100%;margin:0 0 10px;padding:14px;border:0;border-radius:11px;background:#18864b;color:#fff;font-weight:800;font-size:16px;cursor:pointer';b.textContent='📥 Bulk Import Brokers (Excel)';h.insertBefore(b,h.querySelector('h2').nextSibling);b.onclick=open}
+function addButton(){var s=$('brokers');if(!s||$('realynkBulkImportBtn'))return;var h=s.querySelector('.page')||s,b=document.createElement('button');b.id='realynkBulkImportBtn';b.type='button';b.className='primary full';b.style.cssText='display:block;width:100%;margin:0 0 10px;padding:14px;border:0;border-radius:11px;background:#18864b;color:#fff;font-weight:800;font-size:16px;cursor:pointer';b.textContent='📥 Bulk Import Brokers (Excel)';var anchor=h.querySelector('h2');if(anchor&&anchor.parentNode)anchor.parentNode.insertBefore(b,anchor.nextSibling);else h.insertBefore(b,h.firstChild);b.onclick=open}
 async function open(){
  if($('bulkBrokerModal'))return;
  var F=await fb();if(!F.auth.currentUser||String(F.auth.currentUser.email||'').toLowerCase()!==ADMIN){alert('Super Admin login required.');return}
