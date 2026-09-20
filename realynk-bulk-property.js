@@ -91,9 +91,12 @@ function parse(text){
    const s=String(block||'');
    let m=s.match(/(?:₹\s*)?(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)\s*(?:lakh|lac|L)?\s*(?:\+1)?\b/i);
    if(m){
-     const rentK=Number(m[1]), depLakh=Number(m[2]);
-     if(rentK>0 && rentK<1000 && depLakh>=0 && depLakh<1000){
-       return {rent:'₹'+moneyCompact(rentK*1000)+'/month',deposit:'₹'+moneyCompact(depLakh*100000),raw:m[0]};
+     const rentK=Number(m[1]), depToken=Number(m[2]);
+     if(rentK>0 && rentK<1000 && depToken>=0 && depToken<1000){
+       // WhatsApp convention used by brokers here: 20/1 = ₹20k rent + ₹1 lakh deposit,
+       // while 18/70 = ₹18k rent + ₹70k deposit.
+       const depAmount = depToken<=10 ? depToken*100000 : depToken*1000;
+       return {rent:'₹'+moneyCompact(rentK*1000)+'/month',deposit:'₹'+moneyCompact(depAmount),raw:m[0]};
      }
    }
    m=s.match(/(?:₹\s*)?(\d+(?:\.\d+)?)\s*k\s*\/\s*(\d+(?:\.\d+)?)\s*(?:lakh|lac|l)\b/i);
@@ -142,7 +145,7 @@ function parse(text){
      price=p.replace(/^[•*💰💵💸🤑\s]+/u,'').trim();
    }
 
-   const titleLine=first.replace(compactRaw,'').replace(/\s{2,}/g,' ').trim();
+   const titleLine=first.replace(/\d+(?:\.\d+)?\s*\/\s*\d+(?:\.\d+)?\s*(?:lakh|lac|k|l)?\b/ig,'').replace(compactRaw,'').replace(/\s{2,}/g,' ').trim();
    const split=splitTitleLocation(titleLine);
    const title=split.title, area=split.area;
 
