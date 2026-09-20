@@ -118,10 +118,10 @@ async function postAll(){
 }
 function install(){
  css();
- const post=$('submit');if(!post||post.dataset.rbpButton)return;
- post.dataset.rbpButton='1';
- const b=document.createElement('button');b.id='rbpOpen';b.className='rbp-btn';b.type='button';b.textContent='📋 Bulk Property Post';
- post.insertAdjacentElement('afterend',b);b.onclick=modal;
+ const home=$('bulkPostProperty');
+ if(home&&!home.dataset.rbpHome){home.dataset.rbpHome='1';home.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();modal() },true)}
+ const post=$('submit');
+ const old=$('rbpOpen');if(old)old.remove();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,400),{once:true});else setTimeout(install,400);
 window.realynkBulkProperty={open:modal,parse};
