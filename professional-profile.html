@@ -11,12 +11,17 @@ window.realynkLoadCloudProperties=async function(opts){
     const wantedName=String(q.name||'').trim().toLowerCase();
     const wantedPhone=String(q.phone||'').replace(/\D/g,'');
     let snap;
-    // Use the broker UID as the primary ownership key. The diagnostic page confirms
-    // properties are stored with brokerUid, so query that field directly instead of
-    // relying on a full collection scan/cache.
-    if(wantedUid){
-      snap=await getDocsFromServer(query(collection(rDb,'properties'),where('brokerUid','==',wantedUid)));
-    }else{
+    // Primary: exact brokerUid query. If that returns no rows or fails, fall back
+    // to a fresh full read and filter locally. This makes the profile resilient to
+    // Firestore query/cache differences.
+    try{
+      snap=wantedUid
+        ? await getDocsFromServer(query(collection(rDb,'properties'),where('brokerUid','==',wantedUid)))
+        : await getDocsFromServer(collection(rDb,'properties'));
+    }catch(_e){
+      snap=await getDocsFromServer(collection(rDb,'properties'));
+    }
+    if(wantedUid && snap.size===0){
       snap=await getDocsFromServer(collection(rDb,'properties'));
     }
     snap.forEach(d=>{
