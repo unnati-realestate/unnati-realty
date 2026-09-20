@@ -82,7 +82,16 @@ window.openRealynkDigitalCard=function(){
   x.scrollIntoView({behavior:'smooth',block:'start'});
   return false;
 };
-</script><script type="module" src="./realynk-boot.js?v=43"></script>
+document.addEventListener('click',function(e){
+  var b=e.target&&e.target.closest?e.target.closest('#digitalCardNav'):null;
+  if(!b)return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  if(typeof window.openRealynkDigitalCard==='function'){window.openRealynkDigitalCard();return;}
+  if(typeof window.realynkOpenDigitalCard==='function'){window.realynkOpenDigitalCard();return;}
+  alert('Digital Card अभी load हो रही है. कृपया 1 सेकंड बाद फिर क्लिक करें.');
+},true);
+</script><script type="module" src="./realynk-boot.js?v=44"></script>
 <!-- REALYNK_BOOT_V1 removed: primary boot only -->
 <script src="./heavy-deposit.js?v=21"></script><script type="module" src="./firebase-auth.js"></script>
 </body>
