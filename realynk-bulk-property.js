@@ -18,9 +18,11 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 let items=[];
 
 function inferType(text){
- const s=text.toLowerCase();
- if(/\b(rent|rental|for rent|lease)\b/.test(s))return 'Rent';
- if(/\b(commercial|shop|office|warehouse|showroom|industrial|godown)\b/.test(s))return 'Commercial';
+ const s=String(text||'').toLowerCase();
+ if(/\b(heavy\s*deposit|heavy\s*deposit\s*property)\b/.test(s))return 'Heavy Deposit';
+ if(/\b(for\s+rent|rent|rental|lease|monthly\s+rent)\b/.test(s))return 'Rent';
+ if(/\b(commercial|shop|office|warehouse|showroom|industrial|godown|plot|land)\b/.test(s))return 'Commercial';
+ if(/\b(for\s+sale|sale|sell|selling|asking)\b/.test(s))return 'Sale';
  if(/\b(buy|purchase)\b/.test(s))return 'Buy';
  return 'Sale';
 }
@@ -60,7 +62,7 @@ function parse(text){
    const dash=title.match(/\s[–—-]\s(.+)$/);
    if(dash){area=dash[1].trim();title=title.replace(/\s[–—-]\s(.+)$/,'').trim();}
    const desc=body.filter(x=>x!==p).map(x=>x.replace(/^[-•*]\s*/,'').trim()).filter(Boolean).join(' • ');
-   return {title,area,type:inferType(heading+' '+block),propertyType:propertyType(block),price:p.replace(/^[•*💰💵💸🤑\s]+/u,'').trim(),description:desc};
+   return {title,area,type:inferType(block+' '+heading),propertyType:propertyType(block),price:p.replace(/^[•*💰💵💸🤑\s]+/u,'').trim(),description:desc};
  }).filter(Boolean).filter(x=>x.title);
 }
 function css(){
