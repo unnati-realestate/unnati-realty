@@ -54,17 +54,34 @@ function parse(text){
  const firmMatch=(raw.match(/(?:UNNATI\s+REALTY|JUDGE\s+PROPERTIES|[A-Z][A-Z &.-]{2,40}\s+PROPERTIES)/i)||[])[0]||'';
  const heading=(raw.match(/^\s*[^\n]*(?:SALE|RENT|BUY|COMMERCIAL|HEAVY\s*DEPOSIT)[^\n]*$/im)||[])[0]||'';
 
- let blocks=raw.split(/\n[ \t]*(?=🔥|🔹|🔷|🔸|▪️|💥|🏠|🏡)/u).map(x=>x.trim()).filter(Boolean);
- if(blocks.length<=1) blocks=raw.split(/\n\s*\n+/).map(x=>x.trim()).filter(Boolean);
-
+ let blocks=[];
+ const rawLines=raw.split('\n').map(x=>x.trim()).filter(Boolean);
+ let current='';
+ for(const line of rawLines){
+   if(/^[🔥🔹🔷🔸▪️💥🏠🏡]\s*/u.test(line)){
+     if(current) blocks.push(current.trim());
+     current=line;
+   }else if(current){
+     // Keep continuation/details lines with the current property.
+     // Footer/contact lines are removed later.
+     current+='\n'+line;
+   }
+ }
+ if(current) blocks.push(current.trim());
+ if(!blocks.length){
+   blocks=raw.split(/\n\s*\n+/).map(x=>x.trim()).filter(Boolean);
+ }
+ 
  blocks=blocks.filter(b=>{
    const first=normalizeHeader(b.split('\n')[0]);
-   return first!==normalizeHeader(heading) &&
-     !/^call for visit$/i.test(first) &&
+   return !/^mira\s+bhayandar$/i.test(first) &&
+     !/^1bhk\s+for\s+rent$/i.test(first) &&
+     !/^call\s+for\s+visit$/i.test(first) &&
      !/^unnati\s+realty$/i.test(first) &&
-     !/^judge\s+properties$/i.test(first);
+     !/^judge\s+properties$/i.test(first) &&
+     !/^balaji\s+estate\s+consultancy$/i.test(first);
  });
-
+ 
  function moneyCompact(v){
    const n=Number(String(v||'').replace(/,/g,''));
    return Number.isFinite(n)?Math.round(n).toLocaleString('en-IN'):'';
