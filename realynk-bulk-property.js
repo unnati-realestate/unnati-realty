@@ -6,8 +6,8 @@ import { firebaseConfig } from "./firebase-config.js";
 
 (function(){
 'use strict';
-if(window.__REALYNK_BULK_PROPERTY_POST_V2__) return;
-window.__REALYNK_BULK_PROPERTY_POST_V2__=true;
+if(window.__REALYNK_BULK_PROPERTY_POST_V15__) return;
+window.__REALYNK_BULK_PROPERTY_POST_V15__=true;
 
 const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig);
 const auth=getAuth(app), db=getFirestore(app), ADMIN='seagullairexpress@gmail.com';
@@ -106,6 +106,8 @@ function parse(text){
 
  function splitTitleLocation(title){
    let t=String(title||'').replace(/^\s*[🔥🔹🔷🔸▪️💥🏠🏡]\s*/u,'').replace(/\s+/g,' ').trim();
+   // Remove broker shorthand (e.g. 12/50) before extracting the location.
+   t=t.replace(/\s+\d+(?:\.\d+)?\s*\/\s*\d+(?:\.\d+)?\s*(?:lakh|lac|k|l)?\s*$/i,'').trim();
    const bhk=t.match(/^((?:\d\s*)?(?:BHK|RK))\b/i);
    if(!bhk) return {title:t,area:''};
    const type=bhk[1].replace(/\s+/g,' ').toUpperCase();
@@ -145,7 +147,7 @@ function parse(text){
      price=p.replace(/^[•*💰💵💸🤑\s]+/u,'').trim();
    }
 
-   const titleLine=first.replace(/\d+(?:\.\d+)?\s*\/\s*\d+(?:\.\d+)?\s*(?:lakh|lac|k|l)?\b/ig,'').replace(compactRaw,'').replace(/\s{2,}/g,' ').trim();
+   const titleLine=first.replace(/\s*\d+(?:\.\d+)?\s*\/\s*\d+(?:\.\d+)?\s*(?:lakh|lac|k|l)?\s*$/ig,'').replace(compactRaw,'').replace(/\s{2,}/g,' ').trim();
    const split=splitTitleLocation(titleLine);
    const title=split.title, area=split.area;
 
