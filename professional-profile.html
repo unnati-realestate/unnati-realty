@@ -26,7 +26,7 @@ window.realynkLoadCloudProperties=async function(opts){
       const keyMatch=wantedKey && pKey===wantedKey;
       if((uidMatch||emailMatch||nameMatch||phoneMatch||keyMatch)&&!seen.has(d.id)){
         const st=String(p.status||'active').toLowerCase();
-        if(st!=='inactive'&&st!=='deleted'){seen.add(d.id);out.push(p);}
+        if(st!=='deleted'){seen.add(d.id);out.push(p);}
       }
     });
     return out;
