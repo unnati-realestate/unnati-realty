@@ -21,8 +21,9 @@ window.realynkLoadCloudProperties=async function(opts){
     }
     // Ownership must be broker-specific. Never use shared company phone numbers.
     if(q.uid) await collectBy('brokerUid',q.uid);
-    if(!out.length && q.email) await collectBy('brokerEmail',q.email);
-    if(!out.length && q.name) await collectBy('brokerName',q.name);
+    // Some older listings were created before brokerUid was attached. Merge them by exact broker name/email too.
+    if(q.email) await collectBy('brokerEmail',q.email);
+    if(q.name) await collectBy('brokerName',q.name);
     return out;
   }catch(e){console.warn('ReaLynk profile property load failed',e);return []}
 };
