@@ -10,8 +10,8 @@ const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig);const auth
 function isAdmin(user=auth.currentUser){return String(user?.email||'').toLowerCase()===ADMIN}
 function profile(){try{return JSON.parse(localStorage.getItem('realynkBrokerProfile')||'{}')||{}}catch(e){return {}}}
 function saveProfile(p){localStorage.setItem('realynkBrokerProfile',JSON.stringify(p));window.dispatchEvent(new CustomEvent('realynkProfileStatusChanged'))}
-function markAdminProfileVerified(user){const p=profile();if(!p.agentName)p.agentName=user?.displayName||'Deepak Rajput';if(!p.agentEmail)p.agentEmail=user?.email||ADMIN;p.status='verified';p.verified=true;p.approved=true;p.accountRole='admin';p.accountRoles=['broker','admin'];saveProfile(p);return p}
-function upsertLocalProfile(user){const p=profile();if(!p.agentEmail)p.agentEmail=user.email||'';if(!p.agentName)p.agentName=user.displayName||'';if(!p.accountPhone&&user.phoneNumber)p.accountPhone=user.phoneNumber;return p}
+function markAdminProfileVerified(user){const p=profile();p.uid=user.uid;if(!p.agentName)p.agentName=user?.displayName||'Deepak Rajput';if(!p.agentEmail)p.agentEmail=user?.email||ADMIN;p.status='verified';p.verified=true;p.approved=true;p.accountRole='admin';p.accountRoles=['broker','admin'];saveProfile(p);return p}
+function upsertLocalProfile(user){const p=profile();p.uid=user.uid;if(!p.agentEmail)p.agentEmail=user.email||'';if(!p.agentName)p.agentName=user.displayName||'';if(!p.accountPhone&&user.phoneNumber)p.accountPhone=user.phoneNumber;saveProfile(p);return p}
 function statusOf(d){if(!d)return'pending';if(d.approved===true||d.verified===true||String(d.status||'').toLowerCase()==='verified')return'verified';if(String(d.status||'').toLowerCase()==='rejected'||d.rejected===true)return'rejected';return'pending'}
 async function syncBroker(user){
  if(!user)return;
