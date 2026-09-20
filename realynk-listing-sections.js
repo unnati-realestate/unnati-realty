@@ -1,4 +1,4 @@
-/* REALYNK LISTING SECTIONS V4 — stable rows + category-safe deposit handling */
+/* REALYNK LISTING SECTIONS V5 — dashboard status controls restored */
 (function(){
   'use strict';
   if(window.__REALYNK_LISTING_SECTIONS_V3__) return;
@@ -67,12 +67,12 @@
   function statusText(p,status){
     var s=String(status||'active').toLowerCase();
     var type=String(p&&p.type||'').toLowerCase();
-    if(s==='off market') return '🟠 Off Market';
+    if(s==='off market') return '🔵 Off Market';
     if(s==='sold'){
-      if(type==='rent') return '🟣 Rented';
-      if(type==='heavy deposit') return '🟣 Booked';
-      if(type==='commercial'||type==='land / plot'||type==='shop'||type==='office'||type==='showroom'||type==='warehouse') return '🟣 Closed';
-      return '🟣 Sold';
+      if(type==='rent') return '🔴 Sold Out';
+      if(type==='heavy deposit') return '🔴 Sold Out';
+      if(type==='commercial'||type==='land / plot'||type==='shop'||type==='office'||type==='showroom'||type==='warehouse') return '🔴 Sold Out';
+      return '🔴 Sold Out';
     }
     return '🟢 Active';
   }
@@ -94,7 +94,7 @@
         select.className='realynkStatusSelect '+statusClass(current);
         select.dataset.id=id;
         select.setAttribute('aria-label','Property status');
-        [['active','🟢 Active'],['sold',statusText(p,'sold')],['off market','🟠 Off Market']].forEach(function(x){
+        [['active','🟢 Active'],['sold','🔴 Sold Out'],['off market','🔵 Off Market']].forEach(function(x){
           var op=document.createElement('option');op.value=x[0];op.textContent=x[1];if(x[0]===current)op.selected=true;select.appendChild(op);
         });
         select.addEventListener('change',function(){
@@ -170,7 +170,7 @@
   function addStyle(){
     if(document.getElementById('realynkListingSectionsCSS')) return;
     var s=document.createElement('style'); s.id='realynkListingSectionsCSS';
-    s.textContent='.realynkListingRow{margin:22px 0}.realynkListingRow h3{margin:0 0 10px;padding:0 4px;font-size:21px;color:#0b3768}.realynkSectionCards{display:grid;gap:10px}.realynkListingRow .property{margin:0}.realynkDepositDetail{display:block!important}.realynkDepositDetail b{font-size:16px;color:#0b3768}.quick button{min-height:86px}.realynkListingRow:before{content:"";display:block;height:1px;background:#dfe6ee;margin-bottom:16px}.realynkPermanentControls{grid-template-columns:1fr 1fr!important;align-items:center!important}.realynkPermanentControls .rt-edit,.realynkPermanentControls .rt-delete{min-height:46px!important;border-radius:12px!important;font-weight:700!important}.realynkStatusSelect{width:100%;min-height:46px;padding:0 12px;border-radius:12px;border:2px solid #cbd5e1;font-size:15px;font-weight:800;background:#fff;cursor:pointer}.realynkStatusSelect.active{border-color:#22c55e;background:#ecfdf5;color:#15803d}.realynkStatusSelect.sold{border-color:#8b5cf6;background:#f5f3ff;color:#6d28d9}.realynkStatusSelect.offmarket{border-color:#f59e0b;background:#fffbeb;color:#b45309}.realynkCardActive{border-left:5px solid #22c55e!important}.realynkCardSold{border-left:5px solid #8b5cf6!important}.realynkCardOffMarket{border-left:5px solid #f59e0b!important}@media(max-width:480px){.realynkListingRow h3{font-size:19px}.quick button{min-height:78px}.realynkPermanentControls{grid-template-columns:1fr 1fr!important}.realynkStatusSelect{min-height:44px;font-size:14px}}';
+    s.textContent='.realynkListingRow{margin:22px 0}.realynkListingRow h3{margin:0 0 10px;padding:0 4px;font-size:21px;color:#0b3768}.realynkSectionCards{display:grid;gap:10px}.realynkListingRow .property{margin:0}.realynkDepositDetail{display:block!important}.realynkDepositDetail b{font-size:16px;color:#0b3768}.quick button{min-height:86px}.realynkListingRow:before{content:"";display:block;height:1px;background:#dfe6ee;margin-bottom:16px}.realynkPermanentControls{grid-template-columns:1fr 1fr!important;align-items:center!important}.realynkPermanentControls .rt-edit,.realynkPermanentControls .rt-delete{min-height:46px!important;border-radius:12px!important;font-weight:700!important}.realynkStatusSelect{width:100%;min-height:46px;padding:0 12px;border-radius:12px;border:2px solid #cbd5e1;font-size:15px;font-weight:800;background:#fff;cursor:pointer}.realynkStatusSelect.active{border-color:#22c55e;background:#ecfdf5;color:#15803d}.realynkStatusSelect.sold{border-color:#ef4444;background:#fef2f2;color:#b91c1c}.realynkStatusSelect.offmarket{border-color:#3b82f6;background:#eff6ff;color:#1d4ed8}.realynkCardActive{border-left:5px solid #22c55e!important}.realynkCardSold{border-left:5px solid #ef4444!important}.realynkCardOffMarket{border-left:5px solid #3b82f6!important}@media(max-width:480px){.realynkListingRow h3{font-size:19px}.quick button{min-height:78px}.realynkPermanentControls{grid-template-columns:1fr 1fr!important}.realynkStatusSelect{min-height:44px;font-size:14px}}';
     document.head.appendChild(s);
   }
 
