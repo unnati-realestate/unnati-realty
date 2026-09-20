@@ -70,8 +70,12 @@ function parse(text){
    if(dash){area=dash[1].trim();title=title.replace(/\s[–—-]\s(.+)$/,'').trim();}
    const desc=body
      .filter(x=>x!==p)
-     .filter(x=>!new RegExp('^\\s*(?:📞|📱|☎️|tel:|mobile:)?\\s*'+phoneMatch.replace(/[-/\\^$*+?.()|[\\]{}]/g,'\\const desc=body.filter(x=>x!==p).map(x=>x.replace(/^[-•*]\s*/,'').trim()).filter(Boolean).join(' • ');
-   return {title,area,type:inferType(block+' '+heading),propertyType:propertyType(block),price:p.replace(/^[•*💰💵💸🤑\s]+/u,'').trim(),description:desc,brokerFirm:clean(firmMatch),brokerContact:clean(phoneMatch)};')+'\\s*
+     .filter(x=>!phoneMatch || digits(x)!==digits(phoneMatch))
+     .filter(x=>!firmMatch || headerNorm(x)!==headerNorm(firmMatch))
+     .map(x=>x.replace(/^[-•*]\s*/,'').trim())
+     .filter(Boolean)
+     .join(' • ');
+   return {title,area,type:inferType(block+' '+heading),propertyType:propertyType(block),price:p.replace(/^[•*💰💵💸🤑\s]+/u,'').trim(),description:desc,brokerFirm:clean(firmMatch),brokerContact:clean(phoneMatch)};
  }).filter(Boolean).filter(x=>x.title);
 }
 function css(){
