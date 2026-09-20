@@ -105,7 +105,13 @@ function parse(text){
  }
 
  return blocks.map((block,i)=>{
-   const lines=block.split('\n').map(x=>x.trim()).filter(Boolean);
+   // WhatsApp messages often put a city/category heading before the first 🔥 listing.
+   // Keep only the actual listing lines when a block contains an emoji-led property.
+   let blockLines=block.split('\n').map(x=>x.trim()).filter(Boolean);
+   const firstListingIndex=blockLines.findIndex(x=>/^[🔥🔹🔷🔸▪️💥🏠🏡]\s*/u.test(x));
+   if(firstListingIndex>0) blockLines=blockLines.slice(firstListingIndex);
+   block=blockLines.join('\n');
+   const lines=blockLines;
    let first=(lines[0]||('Property '+(i+1))).replace(/^[🔥🔹🔷🔸▪️💥🏠🏡]\s*/u,'').trim();
    if(/^Mira\s+Bhayandar$/i.test(first) || /^1bhk\s+for\s+rent$/i.test(first)) return null;
 
