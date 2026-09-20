@@ -44,13 +44,20 @@ function priceLine(lines){
 function parse(text){
  const raw=String(text||'').replace(/\r/g,'').trim();
  if(!raw)return [];
- let blocks=raw.split(/(?=^\s*(?:🔹|🔷|🔸|▪️)\s*)/m).map(x=>x.trim()).filter(Boolean);
+ let blocks=raw.split(/\n[ \t]*(?=🔹|🔷|🔸|▪️)/u).map(x=>x.trim()).filter(Boolean);
+ if(/^[ \t]*(?:🔹|🔷|🔸|▪️)/u.test(raw)) blocks=blocks.map(x=>x.replace(/^[ \t]*/,'').trim());
+ if(blocks.length===1){
+   const markerMatches=raw.match(/(?:^|\n)[ \t]*(?:🔹|🔷|🔸|▪️)[ \t]+/gu);
+   if(markerMatches&&markerMatches.length>1) blocks=raw.split(/\n[ \t]*(?=🔹|🔷|🔸|▪️)/u).map(x=>x.trim()).filter(Boolean);
+ }
  if(blocks.length===1){
    blocks=raw.split(/\n\s*\n+/).map(x=>x.trim()).filter(x=>/₹|lac|lakh|crore/i.test(x));
  }
  const heading=(raw.match(/^\s*[^\n]*(?:SALE|RENT|BUY|COMMERCIAL)[^\n]*$/im)||[])[0]||'';
  const headerNorm=s=>s.replace(/[🏡🏠🏢🏘️🏷️💰📞📱🔹🔷🔸▪️•*_-]/gu,'').replace(/\s+/g,' ').trim().toLowerCase();
  const headingNorm=headerNorm(heading);
+ const phoneMatch=(raw.match(/(?:\+?91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}/)||[])[0]||'';
+ const firmMatch=(raw.match(/(?:UNNATI\s+REALTY|JUDGE\s+PROPERTIES|[A-Z][A-Z &.-]{2,40}\s+PROPERTIES)/i)||[])[0]||'';
  blocks=blocks.filter(b=>headerNorm(b.split('\n')[0])!==headingNorm);
  return blocks.map((block,i)=>{
    const lines=block.split('\n').map(x=>x.trim()).filter(Boolean);
@@ -62,7 +69,7 @@ function parse(text){
    const dash=title.match(/\s[–—-]\s(.+)$/);
    if(dash){area=dash[1].trim();title=title.replace(/\s[–—-]\s(.+)$/,'').trim();}
    const desc=body.filter(x=>x!==p).map(x=>x.replace(/^[-•*]\s*/,'').trim()).filter(Boolean).join(' • ');
-   return {title,area,type:inferType(block+' '+heading),propertyType:propertyType(block),price:p.replace(/^[•*💰💵💸🤑\s]+/u,'').trim(),description:desc};
+   return {title,area,type:inferType(block+' '+heading),propertyType:propertyType(block),price:p.replace(/^[•*💰💵💸🤑\s]+/u,'').trim(),description:desc,brokerFirm:clean(firmMatch),brokerContact:clean(phoneMatch)};
  }).filter(Boolean).filter(x=>x.title);
 }
 function css(){
@@ -107,11 +114,13 @@ async function postAll(){
  try{const snap=await getDocs(query(collection(db,'properties'),where('brokerUid','==',u.uid)));snap.forEach(d=>{if(String(d.data()?.status||'').toLowerCase()!=='deleted')count++})}catch(e){alert('Properties count could not be checked. Please try again.');return;}
  const limit=isAdmin?Infinity:(window.realynkPlans?.effectiveLimit?window.realynkPlans.effectiveLimit():10);
  if(!isAdmin && count+items.length>limit){alert('Aapki posting limit '+limit+' hai. Abhi '+count+' listings hain aur '+items.length+' properties post karni hain. '+Math.max(0,count+items.length-limit)+' properties limit se bahar hain.');return;}
- const batch=writeBatch(db), now=Date.now(), brokerEmail=u.email||prof.agentEmail||'', brokerPhone=digits(prof.accountPhone||prof.phone||'');
+ const batch=writeBatch(db), now=Date.now(), brokerEmail=u.email||prof.agentEmail||'', brokerPhone=digits(prof.accountPhone||prof.phone||''), parsedFirm=clean(items.find(x=>x.brokerFirm)?.brokerFirm), parsedContact=digits(items.find(x=>x.brokerContact)?.brokerContact||'');
+ const finalBrokerName=parsedFirm||u.displayName||prof.agentName;
+ const finalBrokerPhone=parsedContact||brokerPhone||digits(prof.accountPhone||prof.phone||'9658364364');
  items.forEach((p,i)=>{
    const id=String(now+i)+'-bulk-'+Math.random().toString(36).slice(2,6);
    const ref=doc(db,'properties',id);
-   batch.set(ref,{id,title:clean(p.title)||'Property '+(i+1),area:clean(p.area),type:p.type||'Sale',propertyType:clean(p.propertyType),price:clean(p.price),deposit:'',size:'',description:clean(p.description),phone:digits(prof.accountPhone||prof.phone||'9658364364'),brokerUid:u.uid,brokerName:u.displayName||prof.agentName,brokerPhone,brokerEmail,brokerKey:digits(brokerPhone)||brokerEmail.toLowerCase(),status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),bulkPosted:true});
+   batch.set(ref,{id,title:clean(p.title)||'Property '+(i+1),area:clean(p.area),type:p.type||'Sale',propertyType:clean(p.propertyType),price:clean(p.price),deposit:'',size:'',description:clean(p.description),phone:finalBrokerPhone,brokerUid:u.uid,brokerName:finalBrokerName,brokerPhone:finalBrokerPhone,brokerEmail,brokerKey:digits(finalBrokerPhone)||brokerEmail.toLowerCase(),status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),bulkPosted:true});
  });
  const btn=$('rbpPost');if(btn){btn.disabled=true;btn.textContent='Posting...';}
  try{
