@@ -82,7 +82,22 @@ window.openRealynkDigitalCard=function(){
   x.scrollIntoView({behavior:'smooth',block:'start'});
   return false;
 };
-</script><script type="module" src="./realynk-boot.js?v=47"></script>
+</script><script>
+(function(){
+ try{
+  var p=JSON.parse(localStorage.getItem('realynkBrokerProfile')||'{}')||{},a=document.getElementById('digitalCardNav');
+  if(a){
+   var u='./professional-profile.html',q=[];
+   if(p.uid)q.push('uid='+encodeURIComponent(p.uid));
+   if(p.agentName)q.push('name='+encodeURIComponent(p.agentName));
+   if(p.companyName)q.push('company='+encodeURIComponent(p.companyName));
+   if(p.accountPhone)q.push('phone='+encodeURIComponent(String(p.accountPhone).replace(/\\D/g,'')));
+   if(p.agentEmail)q.push('email='+encodeURIComponent(p.agentEmail));
+   a.href=u+(q.length?'?'+q.join('&'):'');
+  }
+ }catch(e){}
+})();
+</script><script type="module" src="./realynk-boot.js?v=48"></script>
 <!-- REALYNK_BOOT_V1 removed: primary boot only -->
 <script src="./heavy-deposit.js?v=21"></script><script type="module" src="./firebase-auth.js"></script>
 </body>
