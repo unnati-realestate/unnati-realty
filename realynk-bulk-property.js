@@ -37,12 +37,12 @@ function propertyType(text){
  return '';
 }
 function priceLine(lines){
- return lines.find(x=>/₹|rs\.?\s*\d|lac|lakh|crore|cr\b/i.test(x))||'';
+ return lines.find(x=>/₹|rs\.?\s*\d|\b\d+(?:\.\d+)?\s*(?:lac|lakh|crore|cr)\b/i.test(x))||'';
 }
 function parse(text){
  const raw=String(text||'').replace(/\r/g,'').trim();
  if(!raw)return [];
- let blocks=raw.split(/(?=^\s*(?:🔹|🔷|🔸|▪️|•)\s*)/m).map(x=>x.trim()).filter(Boolean);
+ let blocks=raw.split(/(?=^\s*(?:🔹|🔷|🔸|▪️)\s*)/m).map(x=>x.trim()).filter(Boolean);
  if(blocks.length===1){
    blocks=raw.split(/\n\s*\n+/).map(x=>x.trim()).filter(x=>/₹|lac|lakh|crore/i.test(x));
  }
@@ -60,7 +60,7 @@ function parse(text){
    const dash=title.match(/\s[–—-]\s(.+)$/);
    if(dash){area=dash[1].trim();title=title.replace(/\s[–—-]\s(.+)$/,'').trim();}
    const desc=body.filter(x=>x!==p).map(x=>x.replace(/^[-•*]\s*/,'').trim()).filter(Boolean).join(' • ');
-   return {title,area,type:inferType(heading+' '+block),propertyType:propertyType(block),price:p.replace(/^[•*]\s*/,'').trim(),description:desc};
+   return {title,area,type:inferType(heading+' '+block),propertyType:propertyType(block),price:p.replace(/^[•*💰💵💸🤑\s]+/u,'').trim(),description:desc};
  }).filter(Boolean).filter(x=>x.title);
 }
 function css(){
