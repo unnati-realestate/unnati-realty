@@ -47,7 +47,7 @@
     if(compressingPhotos||!input||!input.files||!input.files.length)return;
     compressingPhotos=true;
     try{
-      var files=Array.prototype.slice.call(input.files,0,10),out=[];
+      var allFiles=Array.prototype.slice.call(input.files),files=allFiles.slice(0,10),out=[];if(allFiles.length>10){alert('Maximum 10 photos are allowed. Only the first 10 photos will be used.');}
       for(var i=0;i<files.length;i++)out.push(await compressImage(files[i]));
       var dt=new DataTransfer();out.forEach(function(f){dt.items.add(f)});input.files=dt.files;
       input.dataset.realynkCompressed='1';
@@ -65,7 +65,7 @@
       },true);
     }
     var input=document.getElementById('video');
-    if(input&&!input.__realynkMediaBound){input.__realynkMediaBound=true;input.addEventListener('change',function(){selectedFile=input.files&&input.files[0]||null;});}
+    if(input&&!input.__realynkMediaBound){input.__realynkMediaBound=true;input.addEventListener('change',function(){selectedFile=input.files&&input.files[0]||null;if(!selectedFile)return;var url=URL.createObjectURL(selectedFile),v=document.createElement('video');v.preload='metadata';v.onloadedmetadata=function(){URL.revokeObjectURL(url);if(v.duration>120){alert('Video maximum 120 seconds (2 minutes) allowed. Please choose a shorter video.');selectedFile=null;try{input.value=''}catch(_){};var box=document.getElementById('videoBox');if(box)box.style.display='none';}else{var player=document.getElementById('videoPlayer');if(player){player.src=url;player.load();}var box=document.getElementById('videoBox');if(box)box.style.display='block';}};v.onerror=function(){URL.revokeObjectURL(url)};v.src=url;});}
     var submit=document.getElementById('submit');
     if(submit&&!submit.__realynkMediaSubmitBound){
       submit.__realynkMediaSubmitBound=true;
