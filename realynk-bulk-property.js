@@ -49,28 +49,99 @@ function normalizeHeader(s){
 function parse(text){
  const raw=String(text||'').replace(/\r/g,'').trim();
  if(!raw) return [];
+
  const phoneMatch=(raw.match(/(?:\+?91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}/)||[])[0]||'';
  const firmMatch=(raw.match(/(?:UNNATI\s+REALTY|JUDGE\s+PROPERTIES|[A-Z][A-Z &.-]{2,40}\s+PROPERTIES)/i)||[])[0]||'';
- const heading=(raw.match(/^\s*[^\n]*(?:SALE|RENT|BUY|COMMERCIAL)[^\n]*$/im)||[])[0]||'';
- let blocks=raw.split(/\n[ \t]*(?=🔹|🔷|🔸|▪️)/u).map(x=>x.trim()).filter(Boolean);
- if(blocks.length===1) blocks=raw.split(/\n\s*\n+/).map(x=>x.trim()).filter(x=>/₹|lac|lakh|crore/i.test(x));
- blocks=blocks.filter(b=>normalizeHeader(b.split('\n')[0])!==normalizeHeader(heading));
+ const heading=(raw.match(/^\s*[^\n]*(?:SALE|RENT|BUY|COMMERCIAL|HEAVY\s*DEPOSIT)[^\n]*$/im)||[])[0]||'';
+
+ let blocks=raw.split(/\n[ \t]*(?=🔥|🔹|🔷|🔸|▪️|💥|🏠|🏡)/u).map(x=>x.trim()).filter(Boolean);
+ if(blocks.length<=1) blocks=raw.split(/\n\s*\n+/).map(x=>x.trim()).filter(Boolean);
+
+ blocks=blocks.filter(b=>{
+   const first=normalizeHeader(b.split('\n')[0]);
+   return first!==normalizeHeader(heading) &&
+     !/^call for visit$/i.test(first) &&
+     !/^unnati\s+realty$/i.test(first) &&
+     !/^judge\s+properties$/i.test(first);
+ });
+
+ function moneyCompact(v){
+   const n=Number(String(v||'').replace(/,/g,''));
+   return Number.isFinite(n)?Math.round(n).toLocaleString('en-IN'):'';
+ }
+
+ function parseRentDeposit(block){
+   const s=String(block||'');
+   let m=s.match(/(?:₹\s*)?(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)\s*(?:lakh|lac|L)?\s*(?:\+1)?\b/i);
+   if(m){
+     const rentK=Number(m[1]), depLakh=Number(m[2]);
+     if(rentK>0 && rentK<1000 && depLakh>=0 && depLakh<1000){
+       return {rent:'₹'+moneyCompact(rentK*1000)+'/month',deposit:'₹'+moneyCompact(depLakh*100000),raw:m[0]};
+     }
+   }
+   m=s.match(/(?:₹\s*)?(\d+(?:\.\d+)?)\s*k\s*\/\s*(\d+(?:\.\d+)?)\s*(?:lakh|lac|l)\b/i);
+   if(m) return {rent:'₹'+moneyCompact(Number(m[1])*1000)+'/month',deposit:'₹'+moneyCompact(Number(m[2])*100000),raw:m[0]};
+   return {rent:'',deposit:'',raw:''};
+ }
+
+ function splitTitleLocation(title){
+   let t=String(title||'').replace(/^\s*[🔥🔹🔷🔸▪️💥🏠🏡]\s*/u,'').replace(/\s+/g,' ').trim();
+   const bhk=t.match(/^((?:\d\s*)?(?:BHK|RK))\b/i);
+   if(!bhk) return {title:t,area:''};
+   const type=bhk[1].replace(/\s+/g,' ').toUpperCase();
+   let rest=t.slice(bhk[0].length).trim();
+   const locHints=[
+     'Ramdev Park','Golden Nest','Dahisar West','Shanti Garden','Mira Road','Mira Gaon',
+     'Bhayandar East','Bhayandar West','Naya Nagar','New Golden Nest','Queens Park',
+     'Gaurav City','Gaurav Galaxy','Deepak Hospital','Station Road','Near Station'
+   ];
+   let found='';
+   const low=rest.toLowerCase();
+   for(const hint of locHints){
+     const idx=low.lastIndexOf(hint.toLowerCase());
+     if(idx>0){ found=rest.slice(idx).trim(); rest=rest.slice(0,idx).trim(); break; }
+   }
+   return {title:rest||type,area:found};
+ }
+
  return blocks.map((block,i)=>{
    const lines=block.split('\n').map(x=>x.trim()).filter(Boolean);
-   let title=(lines[0]||('Property '+(i+1))).replace(/^[🔹🔷🔸▪️•*]\s*/u,'').trim();
-   if(/^(?:🏡|🏠)?\s*flats?\s+for\s+(?:sale|rent)|^properties?\s+for\s+(?:sale|rent)/i.test(title)) return null;
-   let area='';
-   const dash=title.match(/\s[–—-]\s(.+)$/);
-   if(dash){area=dash[1].trim();title=title.replace(/\s[–—-]\s(.+)$/,'').trim();}
-   const p=priceLine(lines);
+   let first=(lines[0]||('Property '+(i+1))).replace(/^[🔥🔹🔷🔸▪️💥🏠🏡]\s*/u,'').trim();
+   if(/^Mira\s+Bhayandar$/i.test(first) || /^1bhk\s+for\s+rent$/i.test(first)) return null;
+
+   const rd=parseRentDeposit(block);
+   let price=rd.rent||'';
+   let deposit=rd.deposit||'';
+   const compactRaw=rd.raw||'';
+
+   if(!price){
+     const p=priceLine(lines);
+     price=p.replace(/^[•*💰💵💸🤑\s]+/u,'').trim();
+   }
+
+   const titleLine=first.replace(compactRaw,'').replace(/\s{2,}/g,' ').trim();
+   const split=splitTitleLocation(titleLine);
+   const title=split.title, area=split.area;
+
    const desc=lines.slice(1)
-     .filter(x=>x!==p)
+     .filter(x=>!compactRaw || !x.includes(compactRaw))
      .filter(x=>!phoneMatch || digits(x)!==digits(phoneMatch))
      .filter(x=>!firmMatch || normalizeHeader(x)!==normalizeHeader(firmMatch))
-     .filter(x=>!/^\s*(?:📞|📱|☎️)\s*/u.test(x))
-     .map(x=>x.replace(/^[-•*]\s*/,'').trim())
+     .filter(x=>!/^\s*(?:📞|📱|☎️|Call For Visit)\s*/iu.test(x))
+     .map(x=>x.replace(/^[🔥🔹🔷🔸▪️•*]\s*/u,'').trim())
      .filter(Boolean).join(' • ');
-   return {title,area,type:inferType(block+' '+heading),propertyType:propertyType(block),price:p.replace(/^[•*💰💵💸🤑\s]+/u,'').trim(),description:desc,brokerFirm:clean(firmMatch),brokerContact:clean(phoneMatch)};
+
+   return {
+     title,
+     area,
+     type:rd.rent?'Rent':inferType(block+' '+heading),
+     propertyType:propertyType(block),
+     price,
+     deposit,
+     description:desc,
+     brokerFirm:clean(firmMatch),
+     brokerContact:clean(phoneMatch)
+   };
  }).filter(Boolean).filter(x=>x.title);
 }
 function css(){
@@ -83,7 +154,7 @@ function renderPreview(list){
  items=list;
  const box=$('rbpPreview');if(!box)return;
  if(!list.length){box.innerHTML='<p class="rbp-muted">कोई property नहीं मिली. हर property को 🔹 से शुरू करना सबसे अच्छा रहेगा.</p>';return;}
- box.innerHTML='<h4>'+list.length+' Properties Found</h4>'+list.map((p,i)=>'<div class="rbp-card"><b>Property '+(i+1)+'</b><div class="rbp-grid" style="margin-top:8px"><input data-rbp="title" data-i="'+i+'" value="'+esc(p.title)+'" placeholder="Title"><input data-rbp="area" data-i="'+i+'" value="'+esc(p.area)+'" placeholder="Location"><select data-rbp="type" data-i="'+i+'">'+['Buy','Sale','Rent','Commercial','Heavy Deposit'].map(x=>'<option '+(p.type===x?'selected':'')+'>'+x+'</option>').join('')+'</select><input data-rbp="propertyType" data-i="'+i+'" value="'+esc(p.propertyType)+'" placeholder="Property Type"></div><input data-rbp="price" data-i="'+i+'" value="'+esc(p.price)+'" placeholder="Price / Rent" style="width:100%;margin-top:8px;padding:10px;border:1px solid #cfd9e5;border-radius:9px;box-sizing:border-box"><textarea data-rbp="description" data-i="'+i+'" placeholder="Description">'+esc(p.description)+'</textarea><button class="rbp-danger" data-remove="'+i+'" type="button">🗑️ Remove</button></div>').join('')+'<div class="rbp-actions"><button id="rbpBack" type="button">← Edit Message</button><button id="rbpPost" type="button">Post All '+list.length+' Properties</button></div>';
+ box.innerHTML='<h4>'+list.length+' Properties Found</h4>'+list.map((p,i)=>'<div class="rbp-card"><b>Property '+(i+1)+'</b><div class="rbp-grid" style="margin-top:8px"><input data-rbp="title" data-i="'+i+'" value="'+esc(p.title)+'" placeholder="Title"><input data-rbp="area" data-i="'+i+'" value="'+esc(p.area)+'" placeholder="Location"><select data-rbp="type" data-i="'+i+'">'+['Buy','Sale','Rent','Commercial','Heavy Deposit'].map(x=>'<option '+(p.type===x?'selected':'')+'>'+x+'</option>').join('')+'</select><input data-rbp="propertyType" data-i="'+i+'" value="'+esc(p.propertyType)+'" placeholder="Property Type"></div><input data-rbp="price" data-i="'+i+'" value="'+esc(p.price)+'" placeholder="Price / Rent" style="width:100%;margin-top:8px;padding:10px;border:1px solid #cfd9e5;border-radius:9px;box-sizing:border-box"><input data-rbp="deposit" data-i="'+i+'" value="'+esc(p.deposit||'')+'" placeholder="Security Deposit" style="width:100%;margin-top:8px;padding:10px;border:1px solid #cfd9e5;border-radius:9px;box-sizing:border-box"><textarea data-rbp="description" data-i="'+i+'" placeholder="Description">'+esc(p.description)+'</textarea><button class="rbp-danger" data-remove="'+i+'" type="button">🗑️ Remove</button></div>').join('')+'<div class="rbp-actions"><button id="rbpBack" type="button">← Edit Message</button><button id="rbpPost" type="button">Post All '+list.length+' Properties</button></div>';
  box.querySelectorAll('[data-rbp]').forEach(el=>el.addEventListener('input',()=>{items[Number(el.dataset.i)][el.dataset.rbp]=el.value}));
  box.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{items.splice(Number(b.dataset.remove),1);renderPreview(items)});
  $('rbpBack').onclick=()=>{box.innerHTML='';$('rbpText')?.focus()};
@@ -124,7 +195,7 @@ async function postAll(){
  const finalBrokerPhone=parsedContact||profilePhone;
  items.forEach((p,i)=>{
   const id=String(now+i)+'-bulk-'+Math.random().toString(36).slice(2,6);
-  batch.set(doc(db,'properties',id),{id,title:clean(p.title)||'Property '+(i+1),area:clean(p.area),type:p.type||'Sale',propertyType:clean(p.propertyType),price:clean(p.price),deposit:'',size:'',description:clean(p.description),phone:finalBrokerPhone,brokerUid:u.uid,brokerName:finalBrokerName,brokerPhone:finalBrokerPhone,brokerEmail,brokerKey:digits(finalBrokerPhone)||brokerEmail.toLowerCase(),status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),bulkPosted:true});
+  batch.set(doc(db,'properties',id),{id,title:clean(p.title)||'Property '+(i+1),area:clean(p.area),type:p.type||'Sale',propertyType:clean(p.propertyType),price:clean(p.price),deposit:clean(p.deposit),size:'',description:clean(p.description),phone:finalBrokerPhone,brokerUid:u.uid,brokerName:finalBrokerName,brokerPhone:finalBrokerPhone,brokerEmail,brokerKey:digits(finalBrokerPhone)||brokerEmail.toLowerCase(),status:'active',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),bulkPosted:true});
  });
  const btn=$('rbpPost');if(btn){btn.disabled=true;btn.textContent='Posting...';}
  try{await batch.commit();alert(items.length+' properties successfully posted to ReaLynk.');$('rbpModal')?.remove();window.dispatchEvent(new Event('realynkCloudPropertiesChanged'));document.querySelector('[data-nav="dashboard"]')?.click();}
