@@ -1,4 +1,4 @@
-/* REALYNK LISTING SECTIONS — stable rows + clear rent deposit + commercial includes land/plot */
+/* REALYNK LISTING SECTIONS V4 — stable rows + category-safe deposit handling */
 (function(){
   'use strict';
   if(window.__REALYNK_LISTING_SECTIONS_V3__) return;
@@ -26,8 +26,11 @@
       var deposit=document.getElementById('depositField');
       var price=document.getElementById('price');
       var label=price&&price.closest('.field')&&price.closest('.field').querySelector('label');
-      if(deposit) deposit.style.display=(v==='Rent'||v==='Heavy Deposit')?'block':'none';
-      if(label) label.textContent=(v==='Rent'?'Rent':v==='Heavy Deposit'?'Amount / Deposit':'Price');
+      if(deposit) deposit.style.display=(v==='Rent')?'block':'none';
+      if(label) label.textContent=(v==='Rent'?'Rent':v==='Heavy Deposit'?'Heavy Deposit':'Price');
+      var size=document.getElementById('size');
+      var sizeLabel=size&&size.closest('.field')&&size.closest('.field').querySelector('label');
+      if(sizeLabel) sizeLabel.textContent=(v==='Commercial'?'Carpet Area / Area':'Carpet Area');
       if(price) price.placeholder=(v==='Rent'?'₹25,000 / month':v==='Heavy Deposit'?'₹5,00,000':'₹85,00,000');
     }
     type.addEventListener('change',sync,false); sync();
