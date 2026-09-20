@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ReaLynk Ownership Diagnostic</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f4f7fb;color:#17324d;margin:0}.wrap{max-width:900px;margin:auto;padding:20px}
+.card{background:#fff;border:1px solid #dce5ef;border-radius:16px;padding:16px;margin:12px 0}.ok{color:#18864b;font-weight:800}.warn{color:#a66b00;font-weight:800}.bad{color:#b42318;font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;border-bottom:1px solid #e4eaf0;text-align:left;vertical-align:top}th{background:#f5f8fb}
+button{border:0;border-radius:10px;background:#0b3768;color:#fff;padding:11px 15px;font-weight:800;cursor:pointer}
+.small{font-size:12px;color:#6b7a8c}.mono{font-family:monospace;word-break:break-all}
+</style></head><body><div class="wrap">
+<h1>ReaLynk — Ownership Diagnostic</h1>
+<div id="status" class="card">Checking Super Admin login…</div>
+<div id="summary" class="card" style="display:none"></div>
+<div id="groups" class="card" style="display:none"></div>
+<div id="rows" class="card" style="display:none"></div>
+</div>
+<script type="module">
+import{initializeApp,getApps}from'https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js';
+import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+import{getFirestore,collection,getDocs}from'https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js';
+import{firebaseConfig}from'./firebase-config.js';
+const ADMIN='seagullairexpress@gmail.com';
+const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+onAuthStateChanged(auth,async user=>{
+ if(!user){$('status').innerHTML='<div class="bad">Not logged in.</div><p class="small">Open ReaLynk, sign in with the Super Admin Google account, then open this page again.</p>';return}
+ if(String(user.email||'').toLowerCase()!==ADMIN){$('status').innerHTML='<div class="bad">This diagnostic is Super Admin only.</div>';return}
+ $('status').innerHTML='<div class="ok">Super Admin authenticated</div><div class="small">Email: '+esc(user.email)+'<br>Firebase UID: <span class="mono">'+esc(user.uid)+'</span></div>';
+ try{
+  const snap=await getDocs(collection(db,'properties')), rows=[], groups={};
+  snap.forEach(d=>{
+   const p=d.data()||{},st=String(p.status||'active').toLowerCase();
+   const g=String(p.brokerUid||'').trim()||'(blank brokerUid)';
+   groups[g]=(groups[g]||0)+1;
+   rows.push({id:d.id,title:p.title||'(no title)',status:st,uid:String(p.brokerUid||''),email:String(p.brokerEmail||p.email||''),name:String(p.brokerName||p.agentName||''),phone:String(p.brokerPhone||p.phone||''),key:String(p.brokerKey||'')});
+  });
+  const mineUid=rows.filter(x=>x.uid===user.uid), active=rows.filter(x=>x.status!=='deleted'), activeMine=mineUid.filter(x=>x.status!=='deleted');
+  $('summary').style.display='block';
+  $('summary').innerHTML='<h2>Summary</h2><table><tr><th>Total Firestore properties</th><td>'+rows.length+'</td></tr><tr><th>Non-deleted properties</th><td>'+active.length+'</td></tr><tr><th>Matching YOUR Firebase UID</th><td><b>'+mineUid.length+'</b></td></tr><tr><th>Non-deleted matching YOUR UID</th><td><b>'+activeMine.length+'</b></td></tr></table><p class="small">This page does not modify any property. It only reads ownership fields.</p>';
+  $('groups').style.display='block';
+  $('groups').innerHTML='<h2>Properties grouped by brokerUid</h2><table><tr><th>brokerUid</th><th>Count</th><th>Your UID?</th></tr>'+Object.entries(groups).sort((a,b)=>b[1]-a[1]).map(([k,v])=>'<tr><td class="mono">'+esc(k)+'</td><td>'+v+'</td><td>'+(k===user.uid?'<span class="ok">YES</span>':'')+'</td></tr>').join('')+'</table>';
+  $('rows').style.display='block';
+  $('rows').innerHTML='<h2>All property ownership records</h2><table><tr><th>Title</th><th>Status</th><th>brokerUid</th><th>Broker Name</th><th>Email</th><th>Phone</th></tr>'+rows.map(x=>'<tr><td>'+esc(x.title)+'</td><td>'+esc(x.status)+'</td><td class="mono">'+esc(x.uid||'(blank)')+'</td><td>'+esc(x.name)+'</td><td>'+esc(x.email)+'</td><td>'+esc(x.phone)+'</td></tr>').join('')+'</table>';
+ }catch(e){$('summary').style.display='block';$('summary').innerHTML='<div class="bad">Firestore read failed</div><div class="small">'+esc(e.message||e)+'</div>'}
+});
+</script></div></body></html>
