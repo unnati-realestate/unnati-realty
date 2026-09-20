@@ -1,4 +1,4 @@
-/* REALYNK CATEGORY FINAL CONTROLLER — unified category filtering */
+/* REALYNK CATEGORY FINAL CONTROLLER V3 — unified category filtering */
 (function(){
 'use strict';
 if(window.__REALYNK_CATEGORY_FINAL_CONTROLLER__)return;
@@ -52,7 +52,7 @@ function removeLand(){var type=document.getElementById('type');if(!type)return;A
 function setupForm(){
   var type=document.getElementById('type');if(!type)return;
   if(!type.querySelector('option[value="Heavy Deposit"]')){var o=document.createElement('option');o.value='Heavy Deposit';o.textContent='💰 Heavy Deposit';type.appendChild(o)}
-  function sync(){var v=String(type.value||''),deposit=document.getElementById('depositField');if(deposit)deposit.style.display=(v==='Heavy Deposit'||v==='Rent')?'block':'none'}
+  function sync(){var v=String(type.value||''),deposit=document.getElementById('depositField');if(deposit)deposit.style.display=(v==='Rent')?'block':'none'}
   type.addEventListener('change',sync,false);sync();removeLand();setInterval(removeLand,500);
 }
 function css(){if(document.getElementById('realynkCategoryFinalCSS'))return;var s=document.createElement('style');s.id='realynkCategoryFinalCSS';s.textContent='.quick button:focus,.quick button:focus-visible,.quick button.active{outline:none!important;box-shadow:none!important}.quick button.active{border:1px solid var(--line)!important;background:#fff!important}';document.head.appendChild(s)}
