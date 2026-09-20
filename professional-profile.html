@@ -6,7 +6,7 @@ const rApp=getApps().length?getApps()[0]:initializeApp(firebaseConfig), rDb=getF
 window.realynkLoadCloudProperties=async function(opts){
   try{
     const q=opts||{};
-    const keys=[q.uid,q.brokerKey,q.phone,q.email,q.name].filter(Boolean).map(String);
+    const keys=[q.uid,q.brokerKey,q.phone,q.phone2,q.email,q.name].filter(Boolean).map(String);
     const out=[], seen=new Set();
     for(const key of keys){
       for(const field of ['brokerKey','brokerUid','brokerName','brokerEmail','brokerPhone']){
