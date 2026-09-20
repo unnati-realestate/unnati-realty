@@ -42,22 +42,26 @@ function priceLine(lines){
 function parse(text){
  const raw=String(text||'').replace(/\r/g,'').trim();
  if(!raw)return [];
- let blocks=raw.split(/(?=^\s*🔹\s*)/m).map(x=>x.trim()).filter(Boolean);
+ let blocks=raw.split(/(?=^\s*(?:🔹|🔷|🔸|▪️|•)\s*)/m).map(x=>x.trim()).filter(Boolean);
  if(blocks.length===1){
    blocks=raw.split(/\n\s*\n+/).map(x=>x.trim()).filter(x=>/₹|lac|lakh|crore/i.test(x));
  }
  const heading=(raw.match(/^\s*[^\n]*(?:SALE|RENT|BUY|COMMERCIAL)[^\n]*$/im)||[])[0]||'';
+ const headerNorm=s=>s.replace(/[🏡🏠🏢🏘️🏷️💰📞📱🔹🔷🔸▪️•*_-]/gu,'').replace(/\s+/g,' ').trim().toLowerCase();
+ const headingNorm=headerNorm(heading);
+ blocks=blocks.filter(b=>headerNorm(b.split('\n')[0])!==headingNorm);
  return blocks.map((block,i)=>{
    const lines=block.split('\n').map(x=>x.trim()).filter(Boolean);
-   let title=(lines[0]||'Property '+(i+1)).replace(/^🔹\s*/,'').replace(/^[-•*]\s*/,'').trim();
+   let title=(lines[0]||'Property '+(i+1)).replace(/^[🔹🔷🔸▪️•*]\s*/u,'').trim();
    const body=lines.slice(1);
    const p=priceLine(lines);
+   if(/^(?:🏡|🏠)?\s*flats?\s+for\s+(?:sale|rent)|^properties?\s+for\s+(?:sale|rent)/i.test(title)) return null;
    let area='';
    const dash=title.match(/\s[–—-]\s(.+)$/);
    if(dash){area=dash[1].trim();title=title.replace(/\s[–—-]\s(.+)$/,'').trim();}
    const desc=body.filter(x=>x!==p).map(x=>x.replace(/^[-•*]\s*/,'').trim()).filter(Boolean).join(' • ');
    return {title,area,type:inferType(heading+' '+block),propertyType:propertyType(block),price:p.replace(/^[•*]\s*/,'').trim(),description:desc};
- }).filter(x=>x.title);
+ }).filter(Boolean).filter(x=>x.title);
 }
 function css(){
  if($('realynkBulkPropertyCSS'))return;
