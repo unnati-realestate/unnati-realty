@@ -9,16 +9,22 @@ window.realynkLoadCloudProperties=async function(opts){
     const wantedUid=String(q.uid||'').trim();
     const wantedEmail=String(q.email||'').trim().toLowerCase();
     const wantedName=String(q.name||'').trim().toLowerCase();
+    const wantedPhone=String(q.phone||'').replace(/\D/g,'');
     const snap=await getDocs(collection(rDb,'properties'));
     snap.forEach(d=>{
       const p={...d.data(),id:d.id};
       const pUid=String(p.brokerUid||'').trim();
       const pEmail=String(p.brokerEmail||p.email||'').trim().toLowerCase();
       const pName=String(p.brokerName||p.agentName||'').trim().toLowerCase();
+      const pPhone=String(p.brokerPhone||p.phone||'').replace(/\D/g,'');
+      const pKey=String(p.brokerKey||'').trim().toLowerCase();
+      const wantedKey=(wantedPhone||wantedEmail).toLowerCase();
       const uidMatch=wantedUid && pUid===wantedUid;
       const emailMatch=wantedEmail && pEmail===wantedEmail;
       const nameMatch=wantedName && pName===wantedName;
-      if((uidMatch||emailMatch||nameMatch)&&!seen.has(d.id)){
+      const phoneMatch=wantedPhone && pPhone===wantedPhone;
+      const keyMatch=wantedKey && pKey===wantedKey;
+      if((uidMatch||emailMatch||nameMatch||phoneMatch||keyMatch)&&!seen.has(d.id)){
         const st=String(p.status||'active').toLowerCase();
         if(st!=='inactive'&&st!=='deleted'){seen.add(d.id);out.push(p);}
       }
