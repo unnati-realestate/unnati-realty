@@ -27,12 +27,12 @@ function saveLocal(a){try{localStorage.setItem(KEY,JSON.stringify(a));return tru
 function norm(s){return String(s||'').toLowerCase().replace(/[^a-z0-9\u0900-\u097f]+/g,' ').trim()}
 function num(v){const n=Number(String(v||'').replace(/[^0-9.]/g,''));return isFinite(n)?n:0}
 function tokens(s){return norm(s).split(/\s+/).filter(x=>x.length>2)}
-function bhk(s){const m=norm(s).match(/(\\d+)\\s*bhk/);return m?Number(m[1]):0}
+function bhk(s){const m=norm(s).match(/(\d+)\s*bhk/);return m?Number(m[1]):0}
 function price(p){
   const n=num(p.price||p.salePrice||p.expectedAmount||p.budget||p.rent);
   if(n)return n;
   const t=String(p.desc||p.description||p.details||'').replace(/,/g,'');
-  const m=t.match(/(?:₹|rs\\.?|inr)?\\s*(\\d+(?:\\.\\d+)?)\\s*(crore|cr|lakh|lac|l|k)?/i);
+  const m=t.match(/(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)\s*(crore|cr|lakh|lac|l|k)?/i);
   if(!m)return 0;
   let x=Number(m[1]),u=String(m[2]||'').toLowerCase();
   if(u==='crore'||u==='cr')x*=10000000; else if(u==='lakh'||u==='lac'||u==='l')x*=100000; else if(u==='k')x*=1000;
@@ -83,13 +83,27 @@ function openModal(){
 }
 async function submit(e){
   e.preventDefault();
-  const form=document.getElementById('realynkReqForm');\n  const typeEl=document.getElementById('rrType'), propertyEl=document.getElementById('rrProperty'), locationEl=document.getElementById('rrLocation'), minEl=document.getElementById('rrMin'), maxEl=document.getElementById('rrMax'), noteEl=document.getElementById('rrNote');\n  const r={id:'REQ-'+Date.now(),type:typeEl.value,property:propertyEl.value.trim(),location:locationEl.value.trim(),min:minEl.value,max:maxEl.value,note:noteEl.value.trim(),createdAt:new Date().toISOString()};
+  const form=document.getElementById('realynkReqForm');
+  const typeEl=document.getElementById('rrType');
+  const propertyEl=document.getElementById('rrProperty');
+  const locationEl=document.getElementById('rrLocation');
+  const minEl=document.getElementById('rrMin');
+  const maxEl=document.getElementById('rrMax');
+  const noteEl=document.getElementById('rrNote');
+  const out=document.getElementById('realynkReqResult');
+  const r={id:'REQ-'+Date.now(),type:typeEl.value,property:propertyEl.value.trim(),location:locationEl.value.trim(),min:minEl.value,max:maxEl.value,note:noteEl.value.trim(),createdAt:new Date().toISOString()};
   const a=getLocal();a.unshift(Object.assign({},r,{mine:true}));saveLocal(a);
-  const out=document.getElementById('realynkReqResult');out.innerHTML='<div style="text-align:center;padding:16px">🔎 Matching properties search ho rahi hain...</div>';
-  const props=await cloudProperties(); const matches=props.map(p=>({p,score:matchOne(r,p)})).filter(x=>x.score>=35).sort((a,b)=>b.score-a.score).slice(0,10);
-  const cloudSaved=await saveCloud(r);
-  out.innerHTML='<div style="font-weight:800">✅ Requirement posted</div><div style="font-size:13px;color:#666;margin-top:4px">'+matches.length+' matching properties found'+(cloudSaved?' and requirement synced.':'.')+'</div>'+matches.map(x=>{const p=x.p;return '<div class="realynkMatch"><strong>'+String(p.title||p.name||'Property')+'</strong><small>'+String(p.area||p.locality||'')+' · '+String(p.price||price(p)||'')+' · '+String(p.type||'')+' · '+x.score+'% match</small></div>'}).join('');
-  form.style.display='none';
+  out.innerHTML='<div style="text-align:center;padding:16px">🔎 Matching properties search ho rahi hain...</div>';
+  try{
+    const props=await cloudProperties();
+    const matches=props.map(p=>({p,score:matchOne(r,p)})).filter(x=>x.score>=35).sort((a,b)=>b.score-a.score).slice(0,10);
+    const cloudSaved=await saveCloud(r);
+    out.innerHTML='<div style="font-weight:800">✅ Requirement posted</div><div style="font-size:13px;color:#666;margin-top:4px">'+matches.length+' matching properties found'+(cloudSaved?' and requirement synced.':'.')+'</div>'+matches.map(x=>{const p=x.p;return '<div class="realynkMatch"><strong>'+String(p.title||p.name||'Property')+'</strong><small>'+String(p.area||p.locality||'')+' · '+String(p.price||price(p)||'')+' · '+String(p.type||'')+' · '+x.score+'% match</small></div>'}).join('');
+    form.style.display='none';
+  }catch(err){
+    console.error('Requirement matching failed',err);
+    out.innerHTML='<div style="font-weight:800">⚠️ Requirement saved, but matching could not be completed.</div><div style="font-size:13px;color:#666;margin-top:4px">Please try again after refreshing the page.</div>';
+  }
 }
 function start(){inject()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else setTimeout(start,300);
