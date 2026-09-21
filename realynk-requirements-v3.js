@@ -55,7 +55,7 @@ function matchOne(r,p){
 }
 async function cloudProperties(){
   try{
-    const f=await initFirebase(), snap=await f.fsm.getDocs(f.fsm.collection(f.db,'properties'));
+    const f=await initFirebase(), snap=await f.fsm.getDocsFromServer(f.fsm.collection(f.db,'properties'));
     return snap.docs.map(d=>Object.assign({id:d.id},d.data())).filter(p=>String(p.status||'').toLowerCase()!=='deleted');
   }catch(e){console.warn('Requirement cloud inventory read failed',e);return[]}
 }
@@ -83,13 +83,13 @@ function openModal(){
 }
 async function submit(e){
   e.preventDefault();
-  const r={id:'REQ-'+Date.now(),type:rrType.value,property:rrProperty.value.trim(),location:rrLocation.value.trim(),min:rrMin.value,max:rrMax.value,note:rrNote.value.trim(),createdAt:new Date().toISOString()};
+  const form=document.getElementById('realynkReqForm');\n  const typeEl=document.getElementById('rrType'), propertyEl=document.getElementById('rrProperty'), locationEl=document.getElementById('rrLocation'), minEl=document.getElementById('rrMin'), maxEl=document.getElementById('rrMax'), noteEl=document.getElementById('rrNote');\n  const r={id:'REQ-'+Date.now(),type:typeEl.value,property:propertyEl.value.trim(),location:locationEl.value.trim(),min:minEl.value,max:maxEl.value,note:noteEl.value.trim(),createdAt:new Date().toISOString()};
   const a=getLocal();a.unshift(Object.assign({},r,{mine:true}));saveLocal(a);
   const out=document.getElementById('realynkReqResult');out.innerHTML='<div style="text-align:center;padding:16px">🔎 Matching properties search ho rahi hain...</div>';
   const props=await cloudProperties(); const matches=props.map(p=>({p,score:matchOne(r,p)})).filter(x=>x.score>=35).sort((a,b)=>b.score-a.score).slice(0,10);
   const cloudSaved=await saveCloud(r);
   out.innerHTML='<div style="font-weight:800">✅ Requirement posted</div><div style="font-size:13px;color:#666;margin-top:4px">'+matches.length+' matching properties found'+(cloudSaved?' and requirement synced.':'.')+'</div>'+matches.map(x=>{const p=x.p;return '<div class="realynkMatch"><strong>'+String(p.title||p.name||'Property')+'</strong><small>'+String(p.area||p.locality||'')+' · '+String(p.price||price(p)||'')+' · '+String(p.type||'')+' · '+x.score+'% match</small></div>'}).join('');
-  document.getElementById('realynkReqForm').style.display='none';
+  form.style.display='none';
 }
 function start(){inject()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else setTimeout(start,300);
